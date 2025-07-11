@@ -12,7 +12,8 @@ interface ServiceCardProps {
 const ServiceCard = ({ service }: ServiceCardProps) => {
   const handleRequestService = () => {
     console.log(`Requesting service: ${service.title}`);
-    // Handle service request logic here
+    // Navigate to service detail page
+    window.location.href = `/dashboard/services/${service.id}`;
   };
 
   return (
@@ -40,7 +41,7 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
           <Button
             onClick={handleRequestService}
             variant="outline"
-            className="w-full border-[#7642FE] text-[#7642FE] hover:bg-[#7642FE] hover:text-white transition-colors"
+            className="w-full border-[#7642FE] text-[#7642FE] hover:bg-[#7642FE] hover:text-white transition-colors bg-transparent"
           >
             <Plus size={16} className="mr-2" />
             Request Service

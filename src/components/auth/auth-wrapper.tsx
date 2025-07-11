@@ -20,6 +20,8 @@ export default function AuthWrapper({
         return ASSETS.FORGOT_PASSWORD_BACKGROUND;
       case "/verify-otp":
         return ASSETS.VERIFY_OTP_BACKGROUND;
+      case "/sadiq":
+        return ASSETS.CREATE_PASSWORD_BACKGROUND;
       default:
         return ASSETS.BACKGROUND_IMAGE;
     }

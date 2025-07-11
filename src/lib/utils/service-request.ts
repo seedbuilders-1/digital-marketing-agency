@@ -1,0 +1,18 @@
+export const getServiceRequestDefaultValues = () => ({
+  organizationName: "",
+  address: "",
+  phoneNumber: "",
+  email: "",
+  sector: "",
+  website: "",
+  facebookProfile: "",
+  linkedinProfile: "",
+  twitterHandle: "",
+  contactFirstName: "",
+  contactLastName: "",
+  targetAge: "",
+  targetSex: "",
+  demography: "",
+  targetLocation: "",
+  description: "",
+});

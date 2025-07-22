@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import * as React from "react";
@@ -22,7 +23,7 @@ export function OTPInput({
   onReset,
   className,
 }: OTPInputProps) {
-  const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
+  const inputRefs = React.useRef<any>([]);
 
   const handleChange = (index: number, inputValue: string) => {
     if (onReset) {
@@ -70,7 +71,7 @@ export function OTPInput({
       {Array.from({ length }, (_, index) => (
         <input
           key={index}
-          ref={(el) => (inputRefs.current[index] = el)}
+          ref={(el: any) => (inputRefs.current[index] = el)}
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"

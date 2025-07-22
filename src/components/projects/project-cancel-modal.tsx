@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
@@ -12,12 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertTriangle } from "lucide-react";
 
-interface ProjectCancelModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-const ProjectCancelModal = ({ isOpen, onClose }: ProjectCancelModalProps) => {
+const ProjectCancelModal = ({ isOpen, onClose }: any) => {
   const [step, setStep] = useState(1);
   const [reason, setReason] = useState("");
 

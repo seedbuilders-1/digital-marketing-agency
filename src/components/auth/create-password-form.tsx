@@ -29,7 +29,6 @@ import {
 // Constants and Utils
 import { FORM_MESSAGES, AUTH_ROUTES } from "@/lib/constants/auth";
 import { getCreatePasswordDefaultValues } from "@/lib/utils/form";
-import { validatePasswordStrength } from "@/lib/utils/validation";
 
 const CreatePasswordForm = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -41,8 +40,6 @@ const CreatePasswordForm = () => {
     resolver: zodResolver(createPasswordSchema),
     defaultValues: getCreatePasswordDefaultValues(),
   });
-
-  const watchNewPassword = form.watch("newPassword");
 
   const onSubmit = (data: CreatePasswordFormData) => {
     if (isSuccess) {
@@ -59,13 +56,6 @@ const CreatePasswordForm = () => {
       router.push("/complete-profile");
     }, 2000);
   };
-
-  const getPasswordValidation = (password: string) => {
-    if (!password) return null;
-    return validatePasswordStrength(password);
-  };
-
-  const passwordValidation = getPasswordValidation(watchNewPassword);
 
   return (
     <div className="w-full max-w-[400px]">

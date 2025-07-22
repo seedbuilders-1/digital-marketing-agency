@@ -16,7 +16,6 @@ const MessagesList = ({
   messages,
   selectedMessages,
   onSelectMessage,
-  onSelectAll,
 }: MessagesListProps) => {
   const router = useRouter();
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
@@ -39,7 +40,7 @@ export function AccountSettingsForm() {
     },
   });
 
-  const onSubmit = async (data: AccountSettingsFormData) => {
+  const onSubmit = async () => {
     setIsLoading(true);
     try {
       // Simulate API call

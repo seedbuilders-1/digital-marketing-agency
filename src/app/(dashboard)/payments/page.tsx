@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import PaymentStatsCards from "@/components/payments/payment-stats-cards";
 import PaymentsTable from "@/components/payments/payements-table";
 import { PAYMENTS_DATA } from "@/lib/constants/payments";
-import type { Payment, PaymentFilter } from "@/lib/types/payments";
+import type { PaymentFilter } from "@/lib/types/payments";
 
 export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<PaymentFilter>("all");
-  const [payments] = useState<Payment[]>(PAYMENTS_DATA);
+  const [payments] = useState(PAYMENTS_DATA);
 
   const filteredPayments = payments.filter((payment) => {
     const matchesSearch =

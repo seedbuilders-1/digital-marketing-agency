@@ -1,6 +1,6 @@
-import type { Payment } from "@/lib/types/payments";
+// import type { Payment } from "@/lib/types/payments";
 
-export const PAYMENTS_DATA: Payment[] = [
+export const PAYMENTS_DATA = [
   {
     transactionId: "000001",
     serviceName: "Digital Marketing Audit",

@@ -2,9 +2,9 @@ import * as z from "zod";
 
 export const signUpSchema = z
   .object({
-    fullName: z.string().min(1, "Full name is required"),
+    name: z.string().min(1, "Full name is required"),
     email: z.string().email("Please enter a valid email"),
-    phoneNumber: z
+    tel: z
       .string()
       .min(1, "Phone number is required")
       .regex(/^\d+$/, "Please enter only numbers"),
@@ -12,7 +12,7 @@ export const signUpSchema = z
     country: z.string().min(1, "Country is required"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(1, "Confirm password is required"),
-    userType: z.enum(["individual", "organization"], {
+    category: z.enum(["individual", "organization"], {
       required_error: "Please select user type",
     }),
     agreeToTerms: z.boolean().refine((val) => val === true, {
@@ -36,9 +36,9 @@ export const forgotPasswordSchema = z.object({
 export const verifyOTPSchema = z.object({
   otp: z
     .string()
-    .min(4, "Please enter the 4-digit code")
-    .max(4, "Code must be 4 digits")
-    .regex(/^\d{4}$/, "Please enter only numbers"),
+    .min(6, "Please enter the 4-digit code")
+    .max(6, "Code must be 4 digits")
+    .regex(/^\d{6}$/, "Please enter only numbers"),
 });
 
 export const createPasswordSchema = z

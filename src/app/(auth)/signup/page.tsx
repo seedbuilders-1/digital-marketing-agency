@@ -1,9 +1,10 @@
-"use client";
-
-import SignUpForm from "@/components/auth/sign-up-form";
+import { SignUpForm } from "@/components/auth/sign-up-form";
+import { getCountries } from "@/lib/services/countries";
 import { Suspense } from "react";
 
-export default function SignupPage() {
+export default async function SignupPage() {
+  const countries = await getCountries();
+
   return (
     <Suspense
       fallback={
@@ -13,7 +14,7 @@ export default function SignupPage() {
       }
     >
       <div className="w-full py-8">
-        <SignUpForm />
+        <SignUpForm countries={countries} />
       </div>
     </Suspense>
   );

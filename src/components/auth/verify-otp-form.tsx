@@ -3,9 +3,9 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Toaster, toast } from "sonner";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,6 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { OTPInput } from "@/components/ui/otp-input";
 
 // Types and Schemas
@@ -25,9 +24,12 @@ import { verifyOTPSchema, type VerifyOTPFormData } from "@/lib/schemas/auth";
 // Constants and Utils
 import { FORM_MESSAGES, AUTH_ROUTES } from "@/lib/constants/auth";
 import { getVerifyOTPDefaultValues } from "@/lib/utils/form";
+import {
+  useEmailResendOtpMutation,
+  useVerifyEmailMutation,
+} from "@/api/authApi";
 
-const VerifyOTPForm = () => {
-  const [showAlert, setShowAlert] = useState(false);
+const VerifyOTPForm = ({ email, id }) => {
   const router = useRouter();
 
   const form = useForm<VerifyOTPFormData>({
@@ -35,30 +37,46 @@ const VerifyOTPForm = () => {
     defaultValues: getVerifyOTPDefaultValues(),
   });
 
-  const onSubmit = (data: VerifyOTPFormData) => {
-    console.log("OTP verified:", data);
-    setShowAlert(false);
-    // Navigate to create password page or dashboard
-    router.push("/create-password");
+  // Destructure isLoading states for UX feedback
+  const [verifyOtp, { isLoading: isVerifying }] = useVerifyEmailMutation();
+  const [resendOtp, { isLoading: isResending }] = useEmailResendOtpMutation();
+
+  const onSubmit = async (data: VerifyOTPFormData) => {
+    const toastId = toast.loading("Verifying your code...");
+
+    try {
+      // .unwrap() will automatically throw an error on a failed request
+      const response = await verifyOtp({
+        id: id,
+        body: { otp: data.otp },
+      }).unwrap();
+
+      toast.success("OTP verified successfully!", { id: toastId });
+
+      // On success, navigate to the next step (e.g., dashboard or create password)
+      // router.push("/dashboard");
+    } catch (error) {
+      console.error("Verification failed:", error);
+      const errorMessage =
+        error?.data?.message || "Invalid OTP. Please try again.";
+      toast.error(errorMessage, { id: toastId });
+    }
   };
 
-  const onError = () => {
-    setShowAlert(true);
-  };
+  const handleResendOTP = async () => {
+    const toastId = toast.loading("Sending a new code...");
 
-  const handleOTPComplete = (otpValue: string) => {
-    form.setValue("otp", otpValue);
-    setShowAlert(false);
-  };
-
-  const handleResendOTP = () => {
-    console.log("Resend OTP requested");
-    setShowAlert(false);
-    form.reset();
-  };
-
-  const handleResetAlert = () => {
-    setShowAlert(false);
+    try {
+      await resendOtp({ email: email }).unwrap();
+      toast.success("A new code has been sent to your email.", { id: toastId });
+      form.reset(); // Clear the input field for the new code
+    } catch (error) {
+      console.error("Resend OTP failed:", error);
+      const errorMessage =
+        error?.data?.message ||
+        "Failed to resend code. Please try again later.";
+      toast.error(errorMessage, { id: toastId });
+    }
   };
 
   return (
@@ -68,25 +86,15 @@ const VerifyOTPForm = () => {
           {FORM_MESSAGES.VERIFY_OTP_TITLE}
         </h1>
         <p className="text-base font-normal text-[#6B7280] mb-8 leading-6 font-['Poppins'] text-left">
-          {FORM_MESSAGES.VERIFY_OTP_SUBTITLE}
+          Please enter the 6-digit OTP sent to {email}
         </p>
       </div>
 
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit, onError)}
+          onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-5"
         >
-          {showAlert && (
-            <div className="mb-4">
-              <Alert className="border-[#EF4444] bg-red-50">
-                <AlertDescription className="text-[#EF4444] text-sm font-['Poppins']">
-                  Please enter a valid 4-digit code
-                </AlertDescription>
-              </Alert>
-            </div>
-          )}
-
           <FormField
             control={form.control}
             name="otp"
@@ -94,12 +102,12 @@ const VerifyOTPForm = () => {
               <FormItem>
                 <FormControl>
                   <OTPInput
-                    length={4}
+                    length={6}
                     value={field.value}
                     onChange={field.onChange}
-                    onComplete={handleOTPComplete}
-                    hasError={showAlert || !!form.formState.errors.otp}
-                    onReset={handleResetAlert}
+                    onComplete={(otpValue) => form.setValue("otp", otpValue)}
+                    // Use form state to show errors
+                    hasError={!!form.formState.errors.otp}
                   />
                 </FormControl>
                 <FormMessage className="text-[#dc3545] text-xs text-center" />
@@ -109,9 +117,10 @@ const VerifyOTPForm = () => {
 
           <Button
             type="submit"
-            className="w-full p-3 bg-[#7642fe] text-white border-none rounded-lg text-base font-medium cursor-pointer transition-colors duration-200 ease-in-out font-['Poppins'] hover:bg-[#5f35cc] disabled:bg-[#6c757d] disabled:cursor-not-allowed"
+            disabled={isVerifying} // Disable button while verifying
+            className="w-full p-3 bg-[#7642fe] text-white border-none rounded-lg text-base font-medium cursor-pointer transition-colors duration-200 ease-in-out font-['Poppins'] hover:bg-[#5f35cc] disabled:bg-[#a593e0] disabled:cursor-not-allowed"
           >
-            {FORM_MESSAGES.VERIFY_CODE_BUTTON}
+            {isVerifying ? "Verifying..." : FORM_MESSAGES.VERIFY_CODE_BUTTON}
           </Button>
         </form>
       </Form>
@@ -120,9 +129,10 @@ const VerifyOTPForm = () => {
         <span className="text-[#6B7280]">Didn't receive a code? </span>
         <button
           onClick={handleResendOTP}
-          className="text-[#7642fe] underline bg-none border-none cursor-pointer text-sm font-['Poppins'] hover:no-underline"
+          disabled={isResending} // Disable button while resending
+          className="text-[#7642fe] underline bg-none border-none cursor-pointer text-sm font-['Poppins'] hover:no-underline disabled:text-[#a593e0] disabled:cursor-not-allowed"
         >
-          Resend Code
+          {isResending ? "Resending..." : "Resend Code"}
         </button>
       </div>
 

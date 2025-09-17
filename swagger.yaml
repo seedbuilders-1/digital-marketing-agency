@@ -1,0 +1,1522 @@
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    BadRequest:
+      description: Request body could not be read properly
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+  schemas:
+    user:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        tel:
+          type: string
+        country:
+          type: string
+        address:
+          type: string
+        category:
+          type: string
+        role_id:
+          type: string
+        status:
+          type: string
+        business_status:
+          type: boolean
+        pfp_url:
+          type: string
+        id_url:
+          type: Json
+        password:
+          type: string
+        created_at:
+          type: string
+    userForm:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        tel:
+          type: string
+        country:
+          type: string
+        address:
+          type: string
+        category:
+          type: string
+        password:
+          type: string
+    login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    organisation:
+      type: object
+      properties:
+        id: 
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        address:
+          type: string
+        country:
+          type: string
+        industry:
+          type: string
+        logo_url:
+          type: string
+        rc_number:
+          type: string
+        staff_size:
+          type: string
+        type:
+          type: string
+        user_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+
+    organisationForm:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        address:
+          type: string
+        country:
+          type: string
+        industry:
+          type: string
+        logo:
+          type: string
+          format: binary
+        rc_number:
+          type: string
+        staff_size:
+          type: string
+        type:
+          type: string
+    contact:
+      type: object
+      properties:
+        id: 
+          type: string
+        name:
+          type: string
+        pfp_url:
+          type: string
+        id_url:
+          type: string
+        organisation_id:
+          type: string
+    contactForm:
+      type: object 
+      properties:
+        name:
+          type: string
+        profile-pic:
+          type: string
+          format: binary
+        IDs:
+          type: string
+          format: binary
+        organisation_id:
+          type: string
+          format: uuid
+    error:
+      type: object
+      properties:
+        success:
+          type: string
+        message:
+          type: string
+        Error:
+          type: string
+    service:
+      type: object
+      properties:
+        id:
+          type: string  
+          format: uuid
+        title:
+          type: string
+        subtitle:
+          type: string
+        description:
+          type: string
+        banner_url:
+          type: string
+        admin_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+    serviceForm:
+      type: object
+      properties:
+        title:
+          type: string
+        subtitle:
+          type: string
+        description:
+          type: string
+        banner:
+          type: string
+          format: binary
+    role:
+      type: object
+      properties:
+        id: 
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+    roleForm:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+    testimonial:
+      type: object
+      properties:
+        id: 
+          type: string  
+          format: uuid
+        user_title:
+          type: string
+        message: 
+          type: string
+        stars:
+          type: integer
+        service_id:
+          type: string  
+          format: uuid
+        user_id:
+          type: string  
+          format: uuid
+    testimonialForm:
+      type: object
+      properties:
+        user_title:
+          type: string
+        message: 
+          type: string
+        stars:
+          type: integer
+        service_id:
+          type: string  
+          format: uuid        
+        
+
+paths:
+  /api/auth/register:
+    post:
+      tags: [auth]
+      summary: Register a user
+      description: register a user and return an otp in an email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/userForm"
+            example:
+              name: Jane Doe
+              email: janedoe@gmail.com
+              tel: "+1234567890"
+              country: Nigeria
+              address: Lagos, Nigeria
+              category: individual
+              password: janeisdoe
+      responses:
+        200:
+          description: User has been successfully created!
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user"
+              example: 
+                id: 6f50a107-81e5-4d57-abe9-90c51cd900cf
+                name: Jane Doe
+                email: janedoe@gmail.com
+                tel: "+1234567890"
+                country: Nigeria
+                address: Lagos, Nigeria
+                category: individual
+                pfp_url: null
+                business_status: null
+                status: unverified
+                created_at: 2025-08-24T18:35:34.000Z
+                role_id: da202b29-8749-4e20-be73-2beafce16951
+                id_url: null
+        500:
+          description: Could not register user
+
+  /api/auth/login:
+    post:
+      tags: [auth]
+      summary: Login to user account
+      description: Login a user and return an access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/login"
+            example:
+              email: "admin@dma.com"
+              password: "password123"
+      responses:
+        200:
+          description: User has been successfully created!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:   
+                  AccessToken:
+                    type: string
+                    description: JWT Access Token
+                  user: 
+                    $ref: "#/components/schemas/user"
+              example:
+                AccessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZ..."
+                user: 
+                  id: 6f50a107-81e5-4d57-abe9-90c51cd900cf
+                  name: Jane Doe
+                  email: janedoe@gmail.com
+                  tel: "+1234567890"
+                  country: Nigeria
+                  address: Lagos, Nigeria
+                  category: individual
+                  pfp_url: null
+                  business_status: null
+                  status: unverified
+                  created_at: 2025-08-24T18:35:34.000Z
+                  role_id: da202b29-8749-4e20-be73-2beafce16951
+                  id_url: null
+        401: 
+          description: Invalid credentials - Wrong email or password
+        500:
+          description: Login failed
+
+  /api/auth/refresh-token:
+    post:
+      tags: [auth]
+      summary: Refresh token 
+      description: Each Access token lasts an hour. Using your refresh token(lasts seven days) you can get another access token.
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:   
+                  AccessToken:
+                    type: string
+                    description: JWT Access Token
+                  user: 
+                    $ref: "#/components/schemas/user"
+              example:
+                AccessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZ..."
+                user: 
+                  id: 6f50a107-81e5-4d57-abe9-90c51cd900cf
+                  name: Jane Doe
+                  email: janedoe@gmail.com
+                  tel: "+1234567890"
+                  country: Nigeria
+                  address: Lagos, Nigeria
+                  category: individual
+                  pfp_url: null
+                  business_status: null
+                  status: unverified
+                  created_at: 2025-08-24T18:35:34.000Z
+                  role_id: da202b29-8749-4e20-be73-2beafce16951
+                  id_url: null
+        401:
+          description: Invalid or expired refresh token
+
+  /api/auth/verify-email/{id}:
+    post:
+      tags: [auth]
+      summary: Verify a registered user's email
+      description: An OTP is sent to a user's email. They are required to submit the sent OTP. 
+      operationId: verifyEmail
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                otp:
+                  type: string
+            example:
+              otp: '839368'
+      responses:
+        200:
+          description: 'Email has been verified succesfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        400:
+          description: Expired or invalid OTP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+              example:
+                success: false
+                message: Error message(err.message)
+                Error: Error
+        500:
+          description: Failed to verify email
+
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+
+  /api/auth/resend-otp:
+    post:
+      tags: [auth]
+      summary: Resend a user's OTP
+      description: This endpoint resends an otp. However there's a 5-minute rate limit.
+      requestBody:
+        required: true
+        content:    
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+            example: 
+              email: janedoe@gmail.com
+      responses:
+        200:
+          description: OTP has been generated successfully!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  otp:
+                    type: integer
+              example:
+                otp: 465884
+        404:
+          description: User not found
+        429:
+          description: An OTP has already been sent within the last 5 minutes
+        500:
+          description: Failed to generate OTP
+
+  /api/auth/forgot-password:
+    post:
+      tags: [auth]
+      summary: Returns link to change password
+      description: Description pending...
+      requestBody:
+        required: true
+        content:    
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+            example: 
+              email: janedoe@gmail.com
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  link:
+                    type: string
+              example:
+                link: http:/localhost:3000/api/auth/reset-password/a750f09459e827d87fbe127973a98e09af7abd68189d9ab68303acbede4b240a/6f50a107-81e5-4d57-abe9-90c51cd900cf"
+        404:
+          description: User not found
+        429:
+          description: A link has already been sent within the last 5 minutes   
+        500:
+          description: Could not reset password    
+
+  /api/auth/reset-password/{token}/{id}:
+    post:
+      tags: [auth]
+      summary: Resets a user's password
+      description: A user puts in their new password in the request body.
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              type: object
+              properties:
+                password:
+                  type: string
+            example:
+              password: password123
+      responses:
+        200:
+          description: Password has been updated successfully!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        400:
+          description: Expired or invalid token
+        500:
+          description: Failed to reset password
+
+      parameters:
+        - name: token
+          in: path
+          description: Token
+          required: true
+          schema: 
+            type: string
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+  /api/users:
+    get:
+      tags: [user]
+      summary: Get all users
+      description: Return all users 
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Users fetched succesfully!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+              example:
+                id: 6f50a107-81e5-4d57-abe9-90c51cd900cf
+                name: Jane Doe
+                email: janedoe@gmail.com
+                tel: "+1234567890"
+                country: Nigeria
+                address: Lagos, Nigeria
+                category: individual
+                pfp_url: null
+                business_status: null
+                status: unverified
+                created_at: 2025-08-24T18:35:34.000Z
+                role_id: da202b29-8749-4e20-be73-2beafce16951
+                id_url: null
+        404: 
+          description: User not found
+        500:
+          description: Could not get users
+
+  /api/users/{id}:
+    get:
+      tags: [user]
+      summary: Get a user
+      description: Return a user using its uuid
+      security:
+        - bearerAuth: []
+
+      responses:
+        200: 
+          description: Fetched user successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+              example:
+                id: 6f50a107-81e5-4d57-abe9-90c51cd900cf
+                name: Jane Doe
+                email: janedoe@gmail.com
+                tel: "+1234567890"
+                country: Nigeria
+                address: Lagos, Nigeria
+                category: individual
+                pfp_url: https://res.cloudinary/user/profile-pic...
+                id_url: https://res.cloudinary/user/id...
+                business_status: 1
+                status: verified
+                created_at: 2025-08-24T18:35:34.000Z
+                role_id: da202b29-8749-4e20-be73-2beafce16951
+        404:
+          description: User not found
+        500:
+          description: Could not get user
+
+    put:
+      tags: [user]
+      summary: Update a user
+      description: update a user's info
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userForm'
+
+      responses:
+        200:
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        404:
+          description: User not found
+        500:
+          description: Could not update user
+
+    delete:
+      tags: [user]
+      summary: Delete a user
+      description: Delete a user using its UUID
+      security:
+        - bearerAuth: []
+
+      responses:
+        204:
+          description: User has been successfully deleted
+        404: 
+          description: User not found
+        500:
+          description: Could not delete user. Includes error message (err.message)
+
+    parameters:
+      - name: id
+        in: path
+        description: User ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+  /api/users/profile/{id}:
+    post: 
+      tags: [user]
+      summary: Complete a user's profile
+      description: ''
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                profile-pic: 
+                  type: string
+                  format: binary
+                IDs:
+                  type: string
+                  format: binary
+                business_status:
+                  type: string
+      responses:
+        200: 
+          description: User profile completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        404: 
+          description: User not found 
+        500:
+          description: Could not complete user's profile
+
+      parameters:
+        - name: id
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+
+
+  /api/orgs:
+    get:
+      tags: [organisation]
+      summary: Get all organisations
+      description: return all the organisations in the database
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Organisations fetched successfully!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation'
+        404:
+          description: Organisations not found
+        500: 
+          description: Could not fetch organisations
+
+    post:
+      tags: [organisation]
+      summary: Create an organisation
+      description: Create 
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/organisationForm'
+            example:
+              name: Moniepoint
+              email: contact@moniepoint.com
+              address: Lagos, Nigeria
+              country: Nigeria
+              industry: ICT
+              logo: (binary)
+              rc_number: 8976576
+              staff_size: 1 - 10
+              type: partnership
+
+      responses:
+        200:
+          description: Organisation created succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation'
+        500: 
+          description: Could not create organisation
+
+  /api/orgs/{id}:
+    get:
+      tags: [organisation]
+      summary: Get a specific organisation
+      description: Fetch the data of a specific organisation using its UUID
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Fetched organisation successfully!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation'
+        404:
+          description: Organisation not found
+        500:
+          description: Could not fetch the organisation
+
+    put:
+      tags: [organisation]
+      summary: Update an organisation
+      description: Update a specific organisation using its UUID.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/organisationForm'
+            example:
+              name: Moniepoint
+              email: support@moniepoint.com
+              address: Lagos, Nigeria
+              country: Nigeria
+              industry: ICT
+              logo: logo.png
+              rc_number: 8976576
+              staff_size: 1 - 10
+              type: partnership
+      responses:
+        201:
+          description: Organisation has been successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation'
+        404:
+          description: Organisation not found
+        500:
+          description: Could not update organisation
+
+    delete:
+      tags: [organisation]
+      summary: Delete an organisation
+      description: Delete an organisation using its UUID.
+      security:
+        - bearerAuth: []
+      responses:
+        204:
+          description: Organisation has been successfully deleted
+        404:
+          description: Organisation not found
+        500: 
+          description: Could not delete organisation
+
+    parameters:
+      - name: id
+        in: path
+        description: Organisation ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+
+  /api/orgs/contact:
+    get:
+      tags: [organisation]
+      summary: Get all organisation contacts
+      description: Returns an array of all contacts along with their associated organisation info
+      security:
+        - bearerAuth: []
+
+      responses:
+        200:
+          description: Contacts fetched succesfully!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contacts'
+              example:
+                id: 25511d20-9118-4336-8451-7205853223a5
+                name: Jane Doe
+                pfp_url: https://res.cloudinary/user/profile-pic...
+                id_url: https://res.cloudinary/user/id...
+                organisation_id: 25511d20-9118-4336-8451-7205853223a5
+        404:
+          decription: contacts not found
+        500:
+          description: Could not fetch contacts 
+    post:
+      tags: [organisation]
+      summary: Create a contact
+      description: Create an organisation's contact
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/contactForm'
+      
+      responses:
+        200: 
+          description: Created organisation contact successfully!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contact'
+              example:
+                id: 25511d20-9118-4336-8451-7205853223a5
+                name: Jane Doe
+                pfp_url: https://res.cloudinary/user/profile-pic...
+                id_url: https://res.cloudinary/user/id...
+                organisation_id: 25511d20-9118-4336-8451-7205853223a5
+        500: 
+          description: Failed to create organisation's contact
+          
+
+  /api/orgs/contact/{id}:
+    get: 
+      tags: [organisation]
+      summary: Get a specific contact
+      description: Returns an organisation's contact
+      security:
+        - bearerAuth: []
+
+      responses:
+        200:
+          description: Contact fetched successfully!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contact'
+              example:
+                id: 25511d20-9118-4336-8451-7205853223a5
+                name: Jane Doe
+                pfp_url: https://res.cloudinary/user/profile-pic...
+                id_url: https://res.cloudinary/user/id...
+                organisation_id: 25511d20-9118-4336-8451-7205853223a5
+        404:
+          description: Contact not found
+        500:
+          description: Failed to get the contact
+    
+    put:
+      tags: [organisation]
+      summary: Update a contact
+      description: Update contact's info
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: 
+              $ref: '#/components/schemas/contactForm'
+      responses:
+        200:
+          description: Contact updated successfully!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contact'  
+              example:
+                id: 25511d20-9118-4336-8451-7205853223a5
+                name: Jane Doe
+                pfp_url: https://res.cloudinary/user/profile-pic...
+                id_url: https://res.cloudinary/user/id...
+                organisation_id: 25511d20-9118-4336-8451-7205853223a5
+        404: 
+          description: Contact not found
+        500:
+          description: Could not update contact   
+
+    delete: 
+      tags: [organisation]
+      summary: Delete a contact
+      description: Delete an organisation's contact. With the contact's uuid
+      security:
+        - bearerAuth: []
+
+      responses:
+        200:
+          description: Contact has been successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/contact'
+              example:
+                id: 25511d20-9118-4336-8451-7205853223a5
+                name: Jane Doe
+                pfp_url: https://res.cloudinary/user/profile-pic...
+                id_url: https://res.cloudinary/user/id...
+                organisation_id: 25511d20-9118-4336-8451-7205853223a5
+        404:
+          description: Contact not found
+        500: 
+          description: Could not delete contact
+
+    parameters:
+      - name: id
+        in: path
+        description: contact ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+
+
+  /api/services:
+    get:
+      tags: [service]
+      summary: Get all services
+      description: Return a list of services offered
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: 'Services have been fetched succesfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/service'
+        400:
+          description: 'No service was found'
+        500:
+          description: 'Could not get services'
+
+    post:
+      tags: [service]
+      summary: Create a service
+      description: Create a service. Services can only be created by admins.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/serviceForm'
+            example:
+              title: Web design & development
+              subtitle: Build your dream online presence.
+              description: long description...
+              banner: banner.png
+      responses:
+        200:
+          description: 'Service created successfully'
+        403:
+          description: 'Forbidden: Access denied'
+        500:
+          description: 'Could not create service'
+
+  /api/services/{id}:
+    get:
+      tags: [service]
+      summary: Get a Service
+      description: Return a specific service
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Service has been fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/service"
+        404:
+          description: Service not found
+        500:
+          description: Could not get service
+
+    put:
+      tags: [service]
+      summary: Update a service
+      description: Update a specific service.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/serviceForm'
+
+      responses:
+        200:
+          description: Service has been updated succeffully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/service'
+        404:
+          description: Service not found
+        500:
+          description: Could not update service 
+
+    delete:
+      tags: [service]
+      summary: Delete a service
+      description: delete-service
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: 'Service has been successfully deleted'
+        404: 
+          description: 'Service not found'
+        500:
+          description: Could not delete service
+
+    parameters:
+      - name: id
+        in: path
+        description: Service ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+  /api/admin:
+    get:
+      tags: [admin]
+      summary: Get all the admins
+      description: Return all users with the 'admin' role
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Admins fetched successfully!
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+
+  /api/admin/{id}:
+    get:
+      tags: [admin]
+      summary: Get an Admin
+      description: Retun an admin by specifying its uuid
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        404:
+          description: Admin not found
+        500:
+          description: Could not get the admin
+    
+    delete: 
+      tags: [admin]
+      summary: Remove admin
+      decription: Revoke a user's admin rights
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Admin has been removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        404:
+          description: Admin not found
+        500:
+          description: Could not remove admin
+
+    parameters:
+      - name: id
+        in: path
+        description: Admin ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+  /api/admin/make-admin:
+    put:
+      tags: [admin]
+      summary: Elevate a user to admin
+      description: Change a user's role from user to admin
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+            example:
+              email: admin@dma.com
+      responses:
+        200: 
+          description: User has been made an admin
+        404:
+          description: User not found
+        500:
+          description: Could not make a user the admin
+  
+  /api/admin/roles:
+    get:
+      tags: [admin]
+      summary: Get all roles
+      description: Returns all roles 
+      security:
+        - bearerAuth: []
+      
+      responses:
+        200:
+          description: Roles have been fetched successfully
+          content:  
+            application/json:
+              schema:
+                $ref: '#/components/schemas/role'
+        404:
+          description: Roles not found
+        500:
+          description: Could not get roles
+    post:
+      tags: [admin]
+      summary: Create a role
+      description: Create a role
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/roleForm'
+      responses: 
+        200:
+          description: Role has been created successfully
+        500:
+          description: Could not create role
+      
+  /api/admin/roles/{id}:
+    get:
+      tags: [admin]
+      summary: Get a role
+      description: Return a role by its uuid
+      security:
+        - bearerAuth: []
+
+      responses: 
+        200: 
+          description: Role has been fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/role'
+        404: 
+          description: Role not found
+        500:
+          description: Could not fetch role\
+    
+    put: 
+      tags: [admin]
+      summary: Update a role
+      description: Update a role
+      security:
+        - bearerAuth: []
+      
+      requestBody:
+        required: true
+        content: 
+          application/json:
+            schema:
+              $ref: '#/components/schemas/roleForm'
+      responses:
+        200:
+          description: Role has been updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/role'
+        404:
+          description: Role not found
+        500: 
+          description: Could not update Role
+
+    delete:
+      tags: [admin]
+      summary: Delete a role
+      description: Delete a specific role
+      security:
+        - bearerAuth: []
+
+      responses: 
+        200: 
+          description: Role has been deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/role'
+        404: 
+          description: Role not found
+        500:
+          description: Could not delete role
+
+    parameters:
+      - name: id
+        in: path
+        description: Role ID
+        required: true
+        schema:
+          type: string
+          format: uuid
+  
+  /api/testimonials:
+    get: 
+      tags: [testimonial]
+      summary: Get all testimonials
+      description: Return all testimonials
+      security:
+        - bearerAuth: []
+      responses:
+        200: 
+          description:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  testimonial:
+                    $ref: '#/components/schemas/testimonial'
+                  service:
+                    title:
+                      type: string
+                  user: 
+                    name:
+                      type: string
+              example:
+                testimonial:
+                  id: e6ddf3dc-aaf6-4bad-95c5-7d154d8104fe
+                  user_title: CEO 
+                  message: My company website is leading to more tunovers than ever!!
+                  stars: 5
+                  service_id: da202b29-8749-4e20-be73-2beafce16951
+                  user_id: 677808f2-ba69-4c8f-aa72-c397d052cd86 
+                service:
+                  title: Web design & development
+                user:
+                  name: Jane Doe
+        400:
+          description: Bad request
+        500: 
+          description: Could not get testimonials
+    
+    post:
+      tags: [testimonial]
+      summary: Create a testimonial
+      description: Create a testimonial
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/testimonialForm'
+            example:
+              user_title: CEO
+              message: My company website is leading to more tunovers than ever!!
+              stars: 5
+              service_id: da202b29-8749-4e20-be73-2beafce16951
+      responses: 
+        200: 
+          description: Testimonial has been created successfully!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  testimonial:
+                    $ref: '#/components/schemas/testimonial'
+                  service:
+                    title:
+                      type: string
+                  user: 
+                    name:
+                      type: string
+              example:
+                testimonial:
+                  id: e6ddf3dc-aaf6-4bad-95c5-7d154d8104fe
+                  user_title: CEO 
+                  message: My company website is leading to more tunovers than ever!!
+                  stars: 5
+                  service_id: da202b29-8749-4e20-be73-2beafce16951
+                  user_id: 677808f2-ba69-4c8f-aa72-c397d052cd86 
+                service:
+                  title: Web design & development
+                user:
+                  name: Jane Doe
+        400:
+          description: Bad request
+        500:
+          description: Could not create a testimonial
+
+  /api/testimonials/{id}:
+    get: 
+      tags: [testimonial]
+      summary: Get a testimonial
+      description: Return a testimonial specified by its uuid
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Testimonial has been fetched successfully!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  testimonial:
+                    $ref: '#/components/schemas/testimonial'
+                  service:
+                    title:
+                      type: string
+                  user: 
+                    name:
+                      type: string
+              example:
+                testimonial:
+                  id: e6ddf3dc-aaf6-4bad-95c5-7d154d8104fe
+                  user_title: CEO 
+                  message: My company website is leading to more tunovers than ever!!
+                  stars: 5
+                  service_id: da202b29-8749-4e20-be73-2beafce16951
+                  user_id: 677808f2-ba69-4c8f-aa72-c397d052cd86 
+                service:
+                  title: Web design & development
+                user:
+                  name: Jane Doe
+        404:
+          description: Testimonial not found
+        500: 
+          description: Could not fetch testimonial
+    put:
+      tags: [testimonial]
+      summary: Update a testimonial
+      description: Update a testimonial
+      security:
+        - bearerAuth: []
+      requestBody: 
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/testimonialForm'
+            example:
+              user_title: CEO
+              message: My company website is leading to more tunovers than ever!!
+              stars: 5
+              service_id: da202b29-8749-4e20-be73-2beafce16951
+      responses: 
+        200: 
+          description: Testimonial has been updated successfully!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  testimonial:
+                    $ref: '#/components/schemas/testimonial'
+                  service:
+                    title:
+                      type: string
+                  user: 
+                    name:
+                      type: string
+              example:
+                testimonial:
+                  id: e6ddf3dc-aaf6-4bad-95c5-7d154d8104fe
+                  user_title: CEO 
+                  message: My company website is leading to more tunovers than ever!!
+                  stars: 5
+                  service_id: da202b29-8749-4e20-be73-2beafce16951
+                  user_id: 677808f2-ba69-4c8f-aa72-c397d052cd86 
+                service:
+                  title: Web design & development
+                user:
+                  name: Jane Doe
+        400:
+          description: Bad request
+        500:
+          description: Could not update testimonial
+
+    delete:
+      tags: [testimonial]
+      summary: Delete a testimonial
+      description: Delete a testimonial
+      security: 
+        - bearerAuth: []
+      
+      responses:
+        200:
+          description: Testimonial has been deleted successfully!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  testimonial:
+                    $ref: '#/components/schemas/testimonial'
+                  service:
+                    title:
+                      type: string
+                  user: 
+                    name:
+                      type: string
+              example:
+                testimonial:
+                  id: e6ddf3dc-aaf6-4bad-95c5-7d154d8104fe
+                  user_title: CEO 
+                  message: My company website is leading to more tunovers than ever!!
+                  stars: 5
+                  service_id: da202b29-8749-4e20-be73-2beafce16951
+                  user_id: 677808f2-ba69-4c8f-aa72-c397d052cd86 
+                service:
+                  title: Web design & development
+                user:
+                  name: Jane Doe
+        404:
+          description: Testimonial not found
+        500: 
+          description: Could not delete testimonial
+
+    parameters:
+      - name: id
+        in: path
+        description: Testimonial ID
+        required: true
+        schema: 
+          type: string
+          format: uuid
+    

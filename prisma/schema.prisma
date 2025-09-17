@@ -1,0 +1,269 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
+  binaryTargets = ["native", "debian-openssl-1.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id                    String                  @id @default(uuid()) @db.Char(36)
+  name                  String                  @db.VarChar(100)
+  email                 String                  @unique(map: "email") @db.VarChar(255)
+  tel                   String                  @unique(map: "tel") @db.VarChar(20)
+  country               String                  @db.VarChar(64)
+  address               String                  @db.Text
+  category              String                  @db.VarChar(15)
+  pfp_url               String?                 @db.Text
+  id_url                Json?                 
+  business_status       Boolean?
+  registered_with_a_business       Boolean?
+  password              String                  @db.Text
+  status                String                  @default("unverified") @db.VarChar(10)
+  role_id               String                  @db.Char(36)
+  created_at            DateTime?               @default(now()) @db.Timestamp(0)
+  deleted_at            DateTime?               @db.Timestamp(0)
+
+  notification          notification[]
+  notification_settings notification_settings[]
+  organisation          organisation[]
+  otp                   otp[]
+  password_token        password_token[]
+  privacy_settings      privacy_settings[]
+  created_role          role[]                  @relation("RoleCreator")
+  service               service[]
+  service_request       service_request[]
+  subscription          subscription[]
+  testimonial           testimonial[]
+  plan_type             plan_type[]
+  role                  role                    @relation("UserRole", fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([role_id], map: "user_role_id_fkey")
+}
+
+model organisation {
+  id           String         @id @default(uuid()) @db.Char(36)
+  name         String         @db.VarChar(100)
+  email        String         @unique(map: "email") @db.VarChar(255)
+  address      String         @db.Text
+  country      String         @db.VarChar(64)
+  industry     String         @db.Text
+  logo_url     String         @db.Text
+  rc_number    String         @unique(map: "rc_number") @db.VarChar(20)
+  staff_size   String         @db.VarChar(15)
+  type         String         @db.VarChar(50)
+  created_at   DateTime       @default(now()) @db.Timestamp(0)
+  user_id      String         @db.Char(36)
+  deleted_at   DateTime?      @db.Timestamp(0)
+  case_studies case_studies[]
+  contact      contact[]
+  user         user           @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([user_id])
+}
+
+model service {
+  id              String            @id @default(uuid()) @db.Char(36)
+  title           String            @db.VarChar(100)
+  description     String            @db.Text
+  subtitle        String            @db.VarChar(100)
+  created_at      DateTime?         @default(now()) @db.Timestamp(0)
+  admin_id        String            @db.Char(36)
+  banner_url      String            @db.Text
+  deleted_at      DateTime?         @db.Timestamp(0)
+  user            user              @relation(fields: [admin_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  service_request service_request[]
+  case_studies    case_studies[]
+  testimonial     testimonial[]
+  plan            plan[]
+
+  @@index([admin_id])
+}
+
+model service_request {
+  id           String   @id @default(uuid()) @db.Char(36)
+  message      String   @db.Text
+  service_id   String   @db.Char(36)
+  user_id      String   @db.Char(36)
+  requested_at DateTime @default(now()) @db.Timestamp(0)
+  status       String   @db.VarChar(15)
+  plan_id      String   @db.Char(36)
+  plan         plan     @relation(fields: [plan_id], references: [id])
+  service      service  @relation(fields: [service_id], references: [id])
+  user         user     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([user_id])
+  @@index([service_id])
+  @@index([plan_id])
+}
+
+model case_studies {
+  id              String       @id @default(uuid()) @db.Char(36)
+  banner          String       @db.Text
+  challenge       String       @db.Text
+  challenge_img   String       @db.Text
+  solution        String       @db.Text
+  solution_img    String       @db.Text
+  result          String       @db.Text
+  result_img      String       @db.Text
+  service_id      String       @db.Char(36)
+  organisation_id String       @db.Char(36)
+  organisation    organisation @relation(fields: [organisation_id], references: [id])
+  service         service      @relation(fields: [service_id], references: [id])
+
+  @@index([organisation_id])
+  @@index([service_id])
+}
+
+model testimonial {
+  id         String  @id @default(uuid()) @db.Char(36)
+  message    String  @db.Text
+  user_id    String  @db.Char(36)
+  service_id String  @db.Char(36)
+  stars      Decimal @db.Decimal(2, 1)
+  user_title String  @db.Text
+  deleted_at DateTime? @db.Timestamp(0)
+  service    service @relation(fields: [service_id], references: [id])
+  user       user    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([user_id])
+  @@index([service_id])
+}
+
+model contact {
+  id              String       @id @default(uuid()) @db.Char(36)
+  name            String       @db.VarChar(100)
+  pfp_url         String       @db.Text
+  organisation_id String       @db.Char(36)
+  id_url          Json
+  created_at      DateTime?    @default(now()) @db.Timestamp(0)
+  deleted_at      DateTime?    @db.Timestamp(0)
+  organisation    organisation @relation(fields: [organisation_id], references: [id])
+
+  @@index([organisation_id])
+}
+
+model otp {
+  id         String    @id @default(uuid()) @db.Char(36)
+  otp        String    @db.Text
+  expires_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  user_id    String    @db.Char(36)
+  user       user      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id])
+}
+
+model password_token {
+  id         String    @id @default(uuid()) @db.Char(36)
+  token      String    @db.Text
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  expires_at DateTime? @db.Timestamp(0)
+  user_id    String    @db.Char(36)
+  user       user      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id])
+}
+
+model notification {
+  id           String    @id @default(uuid()) @db.Char(36)
+  activity     String    @db.Text
+  completed_at DateTime? @default(now()) @db.Timestamp(0)
+  user_id      String    @db.Char(36)
+  user         user      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([user_id])
+}
+
+model privacy_settings {
+  id               String  @id @default(uuid()) @db.Char(36)
+  ads              Boolean @default(true)
+  data_sharing     Boolean @default(true)
+  marketing_status Boolean @default(true)
+  activity_status  Boolean @default(true)
+  user_id          String  @db.Char(36)
+  user             user    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id])
+}
+
+model notification_settings {
+  id             String  @id @default(uuid()) @db.Char(36)
+  alerts         Boolean @default(true)
+  messages       Boolean @default(true)
+  updates        Boolean @default(true)
+  billing_alerts Boolean @default(true)
+  email          Boolean @default(true)
+  in_app         Boolean @default(true)
+  user_id        String  @db.Char(36)
+  user           user    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id])
+}
+
+model plan_type {
+  id          String     @id @default(uuid()) @db.Char(36)
+  name        String     @db.VarChar(20)
+  created_at  DateTime   @default(now()) @db.Timestamp(0)
+  created_by  String     @db.Char(36)
+  deleted_at  DateTime?  @db.Timestamp(0)
+
+  user        user       @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  plan       plan[]
+}
+
+model billing_cycle {
+  id                String     @id @default(uuid()) @db.Char(36)
+  name              String     @db.VarChar(20)
+  duration_in_days  Int        @db.Int
+  created_at        DateTime   @default(now()) @db.Timestamp(0)
+  deleted_at        DateTime   @db.Timestamp(0)
+
+  plan              plan[]
+}
+
+model plan {
+  id                String         @id @default(uuid()) @db.Char(36)
+  service_id        String         @db.Char(36)
+  plan_type_id      String         @db.Char(36)
+  billing_cycle_id  String         @db.Char(36)
+  price             Int            @db.Int
+  description       String         @db.Text
+
+  service           service        @relation(fields: [service_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  plan_type         plan_type      @relation(fields: [plan_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  billing_cycle     billing_cycle  @relation(fields: [billing_cycle_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  service_request service_request[]
+  subscription    subscription[]
+}
+
+model subscription {
+  id         String    @id @default(uuid()) @db.Char(36)
+  start_date DateTime? @default(now()) @db.Timestamp(0)
+  end_date   DateTime? @db.Timestamp(0)
+  status     String    @db.VarChar(20)
+  user_id    String    @db.Char(36)
+  plan_id    String    @db.Char(36)
+  plan       plan      @relation(fields: [plan_id], references: [id])
+  user       user      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([user_id])
+  @@index([plan_id])
+}
+
+model role {
+  id          String   @id @default(uuid()) @db.Char(36)
+  title       String   @db.VarChar(25)
+  description String?  @db.Text
+  created_at  DateTime @default(now()) @db.Timestamp(0)
+  created_by  String?  @db.Char(36)
+  deleted_at  DateTime?@db.Timestamp(0)
+  creator     user?    @relation("RoleCreator", fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user        user[]   @relation("UserRole")
+
+  @@index([created_by])
+}

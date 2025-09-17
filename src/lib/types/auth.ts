@@ -1,12 +1,12 @@
 export interface UserRegistrationData {
-  fullName: string;
+  name: string;
   email: string;
-  phoneNumber: string;
+  tel: string;
   address: string;
   country: string;
   password: string;
   confirmPassword: string;
-  userType: "individual" | "organization";
+  category: "individual" | "organization";
   agreeToTerms: boolean;
 }
 

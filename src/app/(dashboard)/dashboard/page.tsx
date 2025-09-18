@@ -8,8 +8,12 @@ import AmountSpentChart from "@/components/dashboard/amount-spent-chart";
 import ProjectStatsChart from "@/components/dashboard/project-stats-chart";
 import ProjectsSection from "@/components/dashboard/projects-section";
 import RecentActivities from "@/components/dashboard/recent-activities";
+import { selectCurrentUser } from "@/features/auth/selectors";
+import { useSelector } from "react-redux";
 
 export default function DashboardPage() {
+  const user = useSelector(selectCurrentUser);
+  console.log("dashboard", user);
   return (
     <Suspense
       fallback={
@@ -24,7 +28,7 @@ export default function DashboardPage() {
           <div className="flex items-start justify-between mb-8">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                Hello, John!
+                Hello, {user?.name}!
               </h1>
               <p className="text-gray-600">Good evening.</p>
             </div>

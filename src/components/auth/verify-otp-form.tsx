@@ -46,7 +46,7 @@ const VerifyOTPForm = ({ email, id }) => {
 
     try {
       // .unwrap() will automatically throw an error on a failed request
-      const response = await verifyOtp({
+      await verifyOtp({
         id: id,
         body: { otp: data.otp },
       }).unwrap();
@@ -54,7 +54,7 @@ const VerifyOTPForm = ({ email, id }) => {
       toast.success("OTP verified successfully!", { id: toastId });
 
       // On success, navigate to the next step (e.g., dashboard or create password)
-      // router.push("/dashboard");
+      router.push("/dashboard");
     } catch (error) {
       console.error("Verification failed:", error);
       const errorMessage =

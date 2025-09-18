@@ -6,18 +6,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
+import { useRouter } from "next/navigation";
+import { Toaster, toast } from "sonner"; // --- 1. IMPORT TOASTER AND TOAST ---
 
 // Reusable and custom components
 import { PasswordField } from "./PasswordField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -39,49 +34,68 @@ import { useRegisterMutation } from "@/api/authApi";
 import { Country, UserRegistrationData } from "@/lib/types/auth";
 import { CountrySelector } from "./CountryCodeSelector";
 import { PhoneCodeSelector } from "./PhoneCodeSelector";
-// import { useToast } from "@/components/ui/use-toast"; // Recommended for feedback
-// import { useRouter } from "next/navigation";
+import { setCredentials } from "@/features/auth/authSlice";
+import { useAppDispatch } from "@/hooks/rtk";
 
-// The component expects `countries` to be fetched on the server and passed as a prop.
 interface SignUpFormProps {
   countries: Country[];
 }
 
 export const SignUpForm = ({ countries }: SignUpFormProps) => {
-  // const { toast } = useToast();
-  // const router = useRouter();
   const [selectedCountryCode, setSelectedCountryCode] = useState("+234");
+  const router = useRouter(); // --- 2. ADD ROUTER FOR REDIRECTION ---
 
-  // RTK Query mutation hook provides excellent state management for API calls
-  const [register, { isLoading, error }] = useRegisterMutation();
+  // We no longer need the 'error' prop from the hook, as we'll handle it in the catch block.
+  const [register, { isLoading }] = useRegisterMutation();
+
+  const dispatch = useAppDispatch();
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: getFormDefaultValues(),
-    mode: "onBlur", // Validate fields when the user navigates away for better UX
+    mode: "onBlur",
   });
 
-  // Wrap handler functions in useCallback to ensure they have a stable reference
-  // unless their dependencies change. This is crucial for memoization to work correctly.
   const onSubmit = useCallback(
     async (data: SignUpFormData) => {
+      // --- 3. REFACTOR ONSUBMIT WITH TOASTS ---
+      const toastId = toast.loading("Creating your account...");
+
       const registrationData: UserRegistrationData = {
         ...data,
         tel: formatPhoneNumber(selectedCountryCode, data.tel),
       };
+
       try {
         const res = await register(registrationData).unwrap();
         console.log("res", res);
+
+        dispatch(
+          setCredentials({
+            token: res?.data?.tokens.accessToken,
+            user: res?.data?.user,
+          })
+        );
+        toast.success("Registration successful! Please verify your email.", {
+          id: toastId,
+        });
+
+        // Redirect to the OTP verification page upon successful registration
+        router.push("/verify-otp");
       } catch (err) {
         console.error("Registration failed:", err);
+        // Display a specific error from the API, or a generic fallback
+        const errorMessage =
+          err?.data?.message || "Registration failed. Please try again.";
+        toast.error(errorMessage, { id: toastId });
       }
     },
-    [register, selectedCountryCode]
-  ); // Dependencies
+    [register, selectedCountryCode, router] // Dependencies
+  );
 
   const handleGoogleRegistration = useCallback(() => {
-    console.log("Google registration initiated");
-  }, []); // No dependencies
+    toast.info("Google registration is not yet implemented.");
+  }, []);
 
   return (
     <div className="w-full max-w-md">
@@ -94,6 +108,7 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          {/* ... all your FormField components remain exactly the same ... */}
           <FormField
             control={form.control}
             name="name"
@@ -165,7 +180,6 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
             )}
           />
 
-          {/* --- MODIFIED COUNTRY FIELD --- */}
           <FormField
             control={form.control}
             name="country"
@@ -256,7 +270,7 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-[#7642fe] hover:bg-[#5f35cc]"
+            className="w-full bg-[#7642fe] hover:bg-[#5f35cc] cursor-pointer"
           >
             {isLoading ? (
               <>
@@ -268,14 +282,17 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
             )}
           </Button>
 
+          {/* --- 5. REMOVE THE OLD STATIC ERROR MESSAGE ---
           {error && (
             <p className="text-sm font-medium text-destructive text-center">
               Registration failed. Please check your details and try again.
             </p>
-          )}
+          )} 
+          */}
         </form>
       </Form>
 
+      {/* ... the rest of your JSX remains the same ... */}
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t" />

@@ -1,4 +1,4 @@
-export const api = "https://api.digitalmarketingagency.ng/api";
+export const api = "http://localhost:3000/api";
 const authApi = `${api}/auth`;
 
 export const APIS = {

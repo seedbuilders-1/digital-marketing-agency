@@ -1,23 +1,18 @@
 "use client";
 
+import { useCallback, useState } from "react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Toaster, toast } from "sonner"; // --- 1. IMPORT TOASTER AND TOAST ---
 
-// UI Components
+// Reusable and custom components
+import { PasswordField } from "./PasswordField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -29,78 +24,101 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-// Types and Schemas
+// Types, schemas, constants, and utils
 import { signUpSchema, type SignUpFormData } from "@/lib/schemas/auth";
-import type { UserRegistrationData } from "@/lib/types/auth";
-
-// Constants and Utils
 import { FORM_MESSAGES, AUTH_ROUTES, USER_TYPES } from "@/lib/constants/auth";
 import { formatPhoneNumber, getFormDefaultValues } from "@/lib/utils/form";
 
-// Hooks
-import { useCountries } from "@/hooks/use-countries";
+// API and Hooks
+import { useRegisterMutation } from "@/api/authApi";
+import { Country, UserRegistrationData } from "@/lib/types/auth";
+import { CountrySelector } from "./CountryCodeSelector";
+import { PhoneCodeSelector } from "./PhoneCodeSelector";
+import { setCredentials } from "@/features/auth/authSlice";
+import { useAppDispatch } from "@/hooks/rtk";
 
-const SignUpForm = () => {
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
-    useState(false);
+interface SignUpFormProps {
+  countries: Country[];
+}
+
+export const SignUpForm = ({ countries }: SignUpFormProps) => {
   const [selectedCountryCode, setSelectedCountryCode] = useState("+234");
-  const { countries, loading: countriesLoading } = useCountries();
+  const router = useRouter(); // --- 2. ADD ROUTER FOR REDIRECTION ---
+
+  // We no longer need the 'error' prop from the hook, as we'll handle it in the catch block.
+  const [register, { isLoading }] = useRegisterMutation();
+
+  const dispatch = useAppDispatch();
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: getFormDefaultValues(),
+    mode: "onBlur",
   });
 
-  const onSubmit = (data: SignUpFormData) => {
-    const registrationData: UserRegistrationData = {
-      ...data,
-      phoneNumber: formatPhoneNumber(selectedCountryCode, data.phoneNumber),
-    };
+  const onSubmit = useCallback(
+    async (data: SignUpFormData) => {
+      // --- 3. REFACTOR ONSUBMIT WITH TOASTS ---
+      const toastId = toast.loading("Creating your account...");
 
-    console.log("Registration form submitted:", registrationData);
-    // Handle form submission logic here
-  };
+      const registrationData: UserRegistrationData = {
+        ...data,
+        tel: formatPhoneNumber(selectedCountryCode, data.tel),
+      };
 
-  const handleGoogleRegistration = () => {
-    console.log("Google registration initiated");
-    // Handle Google registration logic here
-  };
+      try {
+        const res = await register(registrationData).unwrap();
+        console.log("res", res);
 
-  const inputClassName =
-    "w-full p-2.5 border rounded-lg text-base font-normal font-['Sora'] transition-colors duration-200 ease-in-out placeholder:text-[#666666] focus:outline-none focus:border-[#007bff] border-[#ced4da] focus-visible:ring-0 focus-visible:ring-offset-0";
-  const labelClassName = "font-['Sora'] text-sm font-normal text-black";
+        dispatch(
+          setCredentials({
+            token: res?.data?.tokens.accessToken,
+            user: res?.data?.user,
+          })
+        );
+        toast.success("Registration successful! Please verify your email.", {
+          id: toastId,
+        });
+
+        // Redirect to the OTP verification page upon successful registration
+        router.push("/verify-otp");
+      } catch (err) {
+        console.error("Registration failed:", err);
+        // Display a specific error from the API, or a generic fallback
+        const errorMessage =
+          err?.data?.message || "Registration failed. Please try again.";
+        toast.error(errorMessage, { id: toastId });
+      }
+    },
+    [register, selectedCountryCode, router] // Dependencies
+  );
+
+  const handleGoogleRegistration = useCallback(() => {
+    toast.info("Google registration is not yet implemented.");
+  }, []);
 
   return (
-    <div className="w-full font-['Sora'] max-w-md mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-[#7642fe] mb-2 font-['Sora']">
+    <div className="w-full max-w-md">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-extrabold text-[#7642fe]">
           {FORM_MESSAGES.SIGNUP_TITLE}
         </h1>
-        <p className="text-base font-normal text-[#666666] leading-6 font-['Sora']">
-          {FORM_MESSAGES.SIGNUP_SUBTITLE}
-        </p>
+        <p className="text-muted-foreground">{FORM_MESSAGES.SIGNUP_SUBTITLE}</p>
       </div>
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-5"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          {/* ... all your FormField components remain exactly the same ... */}
           <FormField
             control={form.control}
-            name="fullName"
+            name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={labelClassName}>Full Name</FormLabel>
+                <FormLabel>Full Name</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Input name"
-                    {...field}
-                    className={inputClassName}
-                  />
+                  <Input placeholder="Input name" {...field} />
                 </FormControl>
-                <FormMessage className="text-[#dc3545] text-xs" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -110,60 +128,40 @@ const SignUpForm = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={labelClassName}>Email Address</FormLabel>
+                <FormLabel>Email Address</FormLabel>
                 <FormControl>
                   <Input
                     type="email"
                     placeholder="Input a valid email"
                     {...field}
-                    className={inputClassName}
                   />
                 </FormControl>
-                <FormMessage className="text-[#dc3545] text-xs" />
+                <FormMessage />
               </FormItem>
             )}
           />
 
           <FormField
             control={form.control}
-            name="phoneNumber"
+            name="tel"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={labelClassName}>Phone Number</FormLabel>
+                <FormLabel>Phone Number</FormLabel>
                 <div className="flex gap-2">
-                  <Select
+                  <PhoneCodeSelector
+                    countries={countries}
                     value={selectedCountryCode}
                     onValueChange={setSelectedCountryCode}
-                  >
-                    <SelectTrigger className="w-[120px] p-2.5 border border-[#ced4da] rounded-lg text-base font-normal font-['Sora'] bg-white focus:border-[#007bff] focus:ring-0 focus:ring-offset-0">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countriesLoading ? (
-                        <SelectItem value="loading" disabled>
-                          Loading...
-                        </SelectItem>
-                      ) : (
-                        countries.map((country) => (
-                          <SelectItem
-                            key={country.code}
-                            value={country.phoneCode}
-                          >
-                            {country.flag} {country.phoneCode}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
+                  />
                   <FormControl>
                     <Input
                       placeholder="Phone number"
+                      className="flex-1"
                       {...field}
-                      className={`flex-1 ${inputClassName}`}
                     />
                   </FormControl>
                 </div>
-                <FormMessage className="text-[#dc3545] text-xs" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -173,15 +171,11 @@ const SignUpForm = () => {
             name="address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={labelClassName}>Address</FormLabel>
+                <FormLabel>Address</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Input your address"
-                    {...field}
-                    className={inputClassName}
-                  />
+                  <Input placeholder="Input your address" {...field} />
                 </FormControl>
-                <FormMessage className="text-[#dc3545] text-xs" />
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -191,186 +185,83 @@ const SignUpForm = () => {
             name="country"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={labelClassName}>Country</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full p-2.5 border rounded-lg text-base font-normal font-['Sora'] bg-white focus:border-[#007bff] border-[#ced4da] focus:ring-0 focus:ring-offset-0">
-                      <SelectValue placeholder="Country..." />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {countriesLoading ? (
-                      <SelectItem value="loading" disabled>
-                        Loading countries...
-                      </SelectItem>
-                    ) : (
-                      countries.map((country) => (
-                        <SelectItem key={country.code} value={country.name}>
-                          {country.flag} {country.name}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-                <FormMessage className="text-[#dc3545] text-xs" />
+                <FormLabel>Country</FormLabel>
+                <CountrySelector countries={countries} field={field} />
+                <FormMessage />
               </FormItem>
             )}
           />
 
           <FormField
             control={form.control}
-            name="userType"
+            name="category"
             render={({ field }) => (
-              <FormItem className="my-2.5">
-                <FormLabel className="font-['Sora'] text-sm text-black mb-3 leading-[1.4] block">
-                  Are you signing up as an individual or an organization? This
-                  helps us tailor your experience and recommend the most
-                  relevant services for your needs.
+              <FormItem className="space-y-3">
+                <FormLabel>
+                  Are you signing up as an individual or an organization?
                 </FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    className="flex flex-col gap-3"
+                    className="flex flex-col space-y-1"
                   >
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem
-                        value={USER_TYPES.INDIVIDUAL}
-                        id="individual"
-                        className="accent-[#7642fe]"
-                      />
-                      <Label
-                        htmlFor="individual"
-                        className="font-['Sora'] text-sm text-black cursor-pointer"
-                      >
-                        Individual
-                      </Label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem
-                        value={USER_TYPES.ORGANIZATION}
-                        id="organization"
-                        className="accent-[#7642fe]"
-                      />
-                      <Label
-                        htmlFor="organization"
-                        className="font-['Sora'] text-sm text-black cursor-pointer"
-                      >
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value={USER_TYPES.INDIVIDUAL} />
+                      </FormControl>
+                      <FormLabel className="font-normal">Individual</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value={USER_TYPES.ORGANIZATION} />
+                      </FormControl>
+                      <FormLabel className="font-normal">
                         Organization
-                      </Label>
-                    </div>
+                      </FormLabel>
+                    </FormItem>
                   </RadioGroup>
                 </FormControl>
-                <FormMessage className="text-[#dc3545] text-xs" />
+                <FormMessage />
               </FormItem>
             )}
           />
 
-          <FormField
-            control={form.control}
+          <PasswordField
             name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className={labelClassName}>Password</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input
-                      type={isPasswordVisible ? "text" : "password"}
-                      placeholder="Input password"
-                      {...field}
-                      className={inputClassName}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-[#6c757d] hover:text-black"
-                    >
-                      {isPasswordVisible ? (
-                        <EyeOff size={20} />
-                      ) : (
-                        <Eye size={20} />
-                      )}
-                    </button>
-                  </div>
-                </FormControl>
-                <FormMessage className="text-[#dc3545] text-xs" />
-              </FormItem>
-            )}
+            label="Password"
+            placeholder="Choose a strong password"
           />
-
-          <FormField
-            control={form.control}
+          <PasswordField
             name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className={labelClassName}>
-                  Confirm Password
-                </FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input
-                      type={isConfirmPasswordVisible ? "text" : "password"}
-                      placeholder="Confirm password"
-                      {...field}
-                      className={inputClassName}
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setIsConfirmPasswordVisible(!isConfirmPasswordVisible)
-                      }
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-[#6c757d] hover:text-black"
-                    >
-                      {isConfirmPasswordVisible ? (
-                        <EyeOff size={20} />
-                      ) : (
-                        <Eye size={20} />
-                      )}
-                    </button>
-                  </div>
-                </FormControl>
-                <FormMessage className="text-[#dc3545] text-xs" />
-              </FormItem>
-            )}
+            label="Confirm Password"
+            placeholder="Confirm your password"
           />
 
           <FormField
             control={form.control}
             name="agreeToTerms"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                 <FormControl>
                   <Checkbox
                     checked={field.value}
                     onCheckedChange={field.onChange}
-                    className="mt-0.5 accent-[#7642fe] data-[state=checked]:bg-[#7642fe] data-[state=checked]:border-[#7642fe]"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel className="font-['Sora'] text-sm text-black cursor-pointer leading-[1.4]">
-                    {FORM_MESSAGES.TERMS_TEXT}{" "}
-                    <Link
-                      href="#"
-                      target="_blank"
-                      className="text-[#7642fe] underline"
-                      rel="noreferrer"
-                    >
-                      {FORM_MESSAGES.TERMS_LINK}
+                  <FormLabel>
+                    I agree to the{" "}
+                    <Link href="/terms" className="text-[#7642fe] underline">
+                      Terms of Service
                     </Link>{" "}
                     and{" "}
-                    <Link
-                      href="#"
-                      target="_blank"
-                      className="text-[#7642fe] underline"
-                      rel="noreferrer"
-                    >
-                      {FORM_MESSAGES.PRIVACY_LINK}
+                    <Link href="/privacy" className="text-[#7642fe] underline">
+                      Privacy Policy
                     </Link>
+                    .
                   </FormLabel>
-                  <FormMessage className="text-[#dc3545] text-xs" />
+                  <FormMessage />
                 </div>
               </FormItem>
             )}
@@ -378,39 +269,55 @@ const SignUpForm = () => {
 
           <Button
             type="submit"
-            className="w-full p-3 bg-[#7642fe] text-white border-none rounded-lg text-base font-medium cursor-pointer transition-colors duration-200 ease-in-out font-['Sora'] hover:bg-[#5f35cc] disabled:bg-[#6c757d] disabled:cursor-not-allowed"
+            disabled={isLoading}
+            className="w-full bg-[#7642fe] hover:bg-[#5f35cc] cursor-pointer"
           >
-            {FORM_MESSAGES.CREATE_ACCOUNT}
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating Account...
+              </>
+            ) : (
+              FORM_MESSAGES.CREATE_ACCOUNT
+            )}
           </Button>
+
+          {/* --- 5. REMOVE THE OLD STATIC ERROR MESSAGE ---
+          {error && (
+            <p className="text-sm font-medium text-destructive text-center">
+              Registration failed. Please check your details and try again.
+            </p>
+          )} 
+          */}
         </form>
       </Form>
 
-      <div className="flex items-center my-6 before:content-[''] before:flex-1 before:h-px before:bg-[#ced4da] after:content-[''] after:flex-1 after:h-px after:bg-[#ced4da]">
-        <span className="px-4 text-[#666666] text-sm font-normal font-['Sora']">
-          Or
-        </span>
+      {/* ... the rest of your JSX remains the same ... */}
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">Or</span>
+        </div>
       </div>
 
       <Button
         onClick={handleGoogleRegistration}
         variant="outline"
-        className="w-full p-3 border border-[#d1d5db] rounded-lg bg-white flex items-center justify-center gap-2 text-base font-medium text-black cursor-pointer font-['Sora'] hover:bg-[#f8f9fa]"
+        className="w-full"
+        disabled={isLoading}
       >
-        <FcGoogle size={20} />
+        <FcGoogle className="mr-2 h-5 w-5" />
         {FORM_MESSAGES.GOOGLE_SIGNUP}
       </Button>
 
-      <p className="text-center mt-6 text-sm font-normal text-[#666666] font-['Sora']">
+      <p className="mt-6 text-center text-sm text-muted-foreground">
         {FORM_MESSAGES.HAVE_ACCOUNT}{" "}
-        <Link
-          href={AUTH_ROUTES.LOGIN}
-          className="text-[#7642fe] underline cursor-pointer"
-        >
+        <Link href={AUTH_ROUTES.LOGIN} className="text-[#7642fe] underline">
           {FORM_MESSAGES.SIGN_IN}
         </Link>
       </p>
     </div>
   );
 };
-
-export default SignUpForm;

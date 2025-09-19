@@ -6,6 +6,8 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Toaster, toast } from "sonner";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -25,27 +27,71 @@ import { loginSchema, type LoginFormData } from "@/lib/schemas/auth";
 // Constants and Utils
 import { FORM_MESSAGES, AUTH_ROUTES } from "@/lib/constants/auth";
 import { getLoginDefaultValues } from "@/lib/utils/form";
+import { useLoginMutation } from "@/api/authApi";
+import { useAppDispatch } from "@/hooks/rtk";
+import { setCredentials } from "@/features/auth/authSlice";
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: getLoginDefaultValues(),
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    console.log("Form submitted:", data);
-    // Handle login logic here
+  // Destructure isLoading from the mutation hook for UI feedback
+  const [login, { isLoading }] = useLoginMutation();
+
+  const onSubmit = async (data: LoginFormData) => {
+    const toastId = toast.loading("Signing in...");
+
+    try {
+      // .unwrap() will automatically throw on error
+      const res = await login(data).unwrap();
+
+      toast.success("Login successful! Redirecting...", { id: toastId });
+
+      dispatch(
+        setCredentials({
+          token: res?.data?.accessToken,
+          user: res?.data?.user,
+        })
+      );
+
+      // --- Navigation Logic ---
+      if (res?.data?.user?.status === "unverified") {
+        router.push("/verify-otp");
+        return;
+      }
+
+      if (res?.data?.user?.category === "individual") {
+        router.push("/complete-profile");
+        return;
+      }
+
+      router.push("/organization-profile");
+    } catch (err) {
+      console.error("Login failed:", err);
+      // Provide a user-friendly error message from the API or a fallback
+      const errorMessage =
+        err?.data?.message ||
+        "Invalid credentials. Please check your email and password.";
+      toast.error(errorMessage, { id: toastId });
+    }
   };
 
   const handleGoogleLogin = () => {
-    console.log("Google login clicked");
-    // Handle Google login logic here
+    // This can also be enhanced with loading states and toasts
+    toast.info("Google login is not yet implemented.");
   };
 
   return (
     <div className="w-full max-w-[400px] mx-auto">
+      {/* Add the Toaster for notifications */}
+      <Toaster position="top-center" richColors />
+
       <div className="mb-8">
         <h1 className="text-4xl font-extrabold text-[#7642fe] mb-2 font-['Sora']">
           {FORM_MESSAGES.LOGIN_TITLE}
@@ -60,6 +106,7 @@ const LoginForm = () => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-4"
         >
+          {/* Email and Password Fields remain the same */}
           <FormField
             control={form.control}
             name="email"
@@ -120,13 +167,15 @@ const LoginForm = () => {
 
           <Button
             type="submit"
-            className="w-full p-3 bg-[#7642fe] text-white rounded font-medium hover:bg-[#6532e8] transition-colors"
+            disabled={isLoading} // Disable button when loading
+            className="w-full p-3 bg-[#7642fe] text-white rounded font-medium hover:bg-[#6532e8] transition-colors cursor-pointer disabled:bg-[#a593e0] disabled:cursor-not-allowed"
           >
-            {FORM_MESSAGES.LOGIN_BUTTON}
+            {isLoading ? "Signing In..." : FORM_MESSAGES.LOGIN_BUTTON}
           </Button>
         </form>
       </Form>
 
+      {/* Social Login and Signup links remain the same */}
       <div className="flex items-center my-6 before:content-[''] before:flex-1 before:h-px before:bg-[#ced4da] after:content-[''] after:flex-1 after:h-px after:bg-[#ced4da]">
         <span className="px-4 text-[#666666] text-sm font-normal font-['Poppins']">
           Or

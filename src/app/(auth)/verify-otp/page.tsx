@@ -2,7 +2,7 @@
 
 import VerifyOTPForm from "@/components/auth/verify-otp-form";
 import { selectCurrentUser } from "@/features/auth/selectors";
-import { Suspense, use } from "react";
+import { Suspense } from "react";
 import { useSelector } from "react-redux";
 
 export default function VerifyOTPPage() {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // components/admin/request/UploadModal.tsx
 
 "use client";
@@ -92,7 +93,7 @@ export const UploadModal = ({ milestone, onClose }: UploadModalProps) => {
 
       toast.success("Deliverable uploaded successfully!");
       onClose(); // Close the modal on success
-    } catch (err) {
+    } catch (err: any) {
       toast.error(err?.data?.message || "Failed to upload file.");
     }
   };

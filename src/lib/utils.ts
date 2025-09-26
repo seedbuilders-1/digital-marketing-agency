@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -17,7 +19,7 @@ export const getFilenameFromUrl = (url: string): string => {
   try {
     const segments = new URL(url).pathname.split("/");
     return segments[segments.length - 1]; // Get the last part of the path
-  } catch (e) {
+  } catch (e: any) {
     return "Download File"; // Fallback if the URL is malformed
   }
 };

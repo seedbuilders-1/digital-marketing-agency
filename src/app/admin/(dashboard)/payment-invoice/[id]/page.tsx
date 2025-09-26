@@ -7,11 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export default function PaymentDetailsPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function PaymentDetailsPage({}) {
   const [activeTab, setActiveTab] = useState("User Information");
 
   const tabs = ["User Information", "Service Information", "Invoice"];

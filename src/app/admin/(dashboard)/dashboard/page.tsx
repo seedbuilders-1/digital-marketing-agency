@@ -8,36 +8,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { selectCurrentUser } from "@/features/auth/selectors";
-import { useSelector } from "react-redux";
 
-const revenueData = [
-  { month: "Jan", value: 0 },
-  { month: "Feb", value: 0 },
-  { month: "Mar", value: 0 },
-  { month: "Apr", value: 0 },
-  { month: "May", value: 0 },
-  { month: "Jun", value: 0 },
-  { month: "Jul", value: 0 },
-  { month: "Aug", value: 0 },
-  { month: "Sep", value: 0 },
-  { month: "Oct", value: 0 },
-  { month: "Nov", value: 0 },
-  { month: "Dec", value: 0 },
-];
+// const revenueData = [
+//   { month: "Jan", value: 0 },
+//   { month: "Feb", value: 0 },
+//   { month: "Mar", value: 0 },
+//   { month: "Apr", value: 0 },
+//   { month: "May", value: 0 },
+//   { month: "Jun", value: 0 },
+//   { month: "Jul", value: 0 },
+//   { month: "Aug", value: 0 },
+//   { month: "Sep", value: 0 },
+//   { month: "Oct", value: 0 },
+//   { month: "Nov", value: 0 },
+//   { month: "Dec", value: 0 },
+// ];
 
-const projectStatsData = [
-  { month: "Jan", pending: 2, active: 4, completed: 6 },
-  { month: "Feb", pending: 3, active: 5, completed: 8 },
-  { month: "Mar", pending: 1, active: 6, completed: 10 },
-  { month: "Apr", pending: 4, active: 3, completed: 7 },
-  { month: "May", pending: 2, active: 7, completed: 9 },
-  { month: "Jun", pending: 5, active: 4, completed: 8 },
-  { month: "Jul", pending: 3, active: 6, completed: 11 },
-];
+// const projectStatsData = [
+//   { month: "Jan", pending: 2, active: 4, completed: 6 },
+//   { month: "Feb", pending: 3, active: 5, completed: 8 },
+//   { month: "Mar", pending: 1, active: 6, completed: 10 },
+//   { month: "Apr", pending: 4, active: 3, completed: 7 },
+//   { month: "May", pending: 2, active: 7, completed: 9 },
+//   { month: "Jun", pending: 5, active: 4, completed: 8 },
+//   { month: "Jul", pending: 3, active: 6, completed: 11 },
+// ];
 
 export default function AdminDashboard() {
-  const user = useSelector(selectCurrentUser);
   return (
     <div className="p-6 space-y-6">
       {/* Dashboard Overview Header */}

@@ -4,11 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Upload } from "lucide-react";
 import Link from "next/link";
 
-export default function UserDetailsPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function UserDetailsPage() {
   const userInfo = {
     userName: "Babalola Jide",
     userEmail: "babalolajide@123.com",

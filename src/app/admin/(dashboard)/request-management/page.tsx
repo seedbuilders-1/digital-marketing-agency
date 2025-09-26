@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useMemo } from "react";
@@ -87,7 +88,7 @@ export default function RequestManagementPage() {
   const filteredRequests = useMemo(() => {
     return allRequests.filter((request) => {
       const statusInfo = getRequestStatus(request);
-      const paymentInfo = getPaymentStatus(request);
+      // const paymentInfo = getPaymentStatus(request);
 
       const matchesFilter =
         activeFilter === "All" || statusInfo.text === activeFilter;

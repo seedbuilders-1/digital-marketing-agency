@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -54,7 +55,7 @@ export default function MilestoneActionModal({
         }.`
       );
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       toast.error(err?.data?.message || "An error occurred.");
     }
   };

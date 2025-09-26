@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -70,7 +71,7 @@ const ProjectsTable = ({ projects }: ProjectsTableProps) => {
                   }
                   onCheckedChange={(checked) => {
                     setSelectedProjects(
-                      checked ? projects.map((p) => p.id) : []
+                      checked ? projects.map((p: any) => p.id) : []
                     );
                   }}
                 />
@@ -96,7 +97,7 @@ const ProjectsTable = ({ projects }: ProjectsTableProps) => {
             </tr>
           </thead>
           <tbody>
-            {projects.map((project) => {
+            {projects.map((project: any) => {
               const { text: statusText, color: statusColor } =
                 getProjectStatus(project);
               return (

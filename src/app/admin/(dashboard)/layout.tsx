@@ -29,7 +29,11 @@ const sidebarItems = [
     label: "Request Management",
     href: "/admin/request-management",
   },
-  { icon: BarChart3, label: "Service Management", href: "/admin/services" },
+  {
+    icon: BarChart3,
+    label: "Service Management",
+    href: "/admin/service-management",
+  },
   { icon: Users, label: "User Management", href: "/admin/users" },
   { icon: CreditCard, label: "Payment & Invoice", href: "/admin/payments" },
 ];

@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "hebbkx1anhila5yf.public.blob.vercel-storage.com",
+        hostname: "res.cloudinary.com",
         pathname: "/**", // allow all paths under this host
       },
     ],

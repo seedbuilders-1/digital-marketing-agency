@@ -1,54 +1,91 @@
+// src/app/dashboard/payments/page.tsx (or your path)
+
 "use client";
 
-import { Suspense, useState } from "react";
-import { Search } from "lucide-react";
+import { Suspense, useState, useMemo } from "react";
+import { Search, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import PaymentStatsCards from "@/components/payments/payment-stats-cards";
+import { useGetUserInvoicesQuery } from "@/api/invoiceApi";
 import PaymentsTable from "@/components/payments/payements-table";
-import { PAYMENTS_DATA } from "@/lib/constants/payments";
-import type { PaymentFilter } from "@/lib/types/payments";
+
+// Define the filter type based on your actual invoice statuses
+type PaymentFilter = "all" | "Paid" | "Pending";
+
+const PaymentsPageSkeleton = () => (
+  // A simple skeleton loader for the page
+  <div className="px-4 sm:px-6 py-4 sm:py-8 animate-pulse">
+    <div className="max-w-7xl mx-auto">
+      <div className="h-10 w-1/3 bg-gray-200 rounded-md mb-8"></div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="h-24 bg-gray-200 rounded-lg"></div>
+        <div className="h-24 bg-gray-200 rounded-lg"></div>
+        <div className="h-24 bg-gray-200 rounded-lg"></div>
+      </div>
+      <div className="h-96 bg-gray-200 rounded-lg"></div>
+    </div>
+  </div>
+);
 
 export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<PaymentFilter>("all");
-  const [payments] = useState(PAYMENTS_DATA);
 
-  const filteredPayments = payments.filter((payment) => {
-    const matchesSearch =
-      payment.serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.transactionId.toLowerCase().includes(searchTerm.toLowerCase());
+  const { data: invoices = [], isLoading, isError } = useGetUserInvoicesQuery();
 
-    const matchesFilter =
-      selectedFilter === "all" || payment.status === selectedFilter;
+  console.log("invoices", invoices);
 
-    return matchesSearch && matchesFilter;
-  });
+  // Memoize filtered invoices to prevent recalculation on every render
+  const filteredInvoices = useMemo(() => {
+    return invoices.filter((invoice) => {
+      const matchesSearch =
+        invoice?.service_request?.service?.title
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        invoice.id.toLowerCase().includes(searchTerm.toLowerCase());
 
-  const hasPayments = filteredPayments.length > 0;
+      const matchesFilter =
+        selectedFilter === "all" || invoice.status === selectedFilter;
 
-  // Calculate stats
-  const stats = {
-    totalPayments: payments.reduce((sum, p) => sum + p.amount, 0),
-    activePayments: payments
-      .filter((p) => p.status === "active")
-      .reduce((sum, p) => sum + p.amount, 0),
-    pendingPayments: payments
-      .filter((p) => p.status === "pending")
-      .reduce((sum, p) => sum + p.amount, 0),
-    completedPayments: payments
-      .filter((p) => p.status === "completed")
-      .reduce((sum, p) => sum + p.amount, 0),
-  };
+      return matchesSearch && matchesFilter;
+    });
+  }, [invoices, searchTerm, selectedFilter]);
+
+  // Memoize stats calculation
+  const stats = useMemo(() => {
+    return {
+      totalPayments: invoices.reduce(
+        (sum, inv) => sum + parseInt(inv.amount),
+        0
+      ),
+      pendingPayments: invoices
+        .filter((inv) => inv.status === "Unpaid")
+        .reduce((sum, inv) => sum + parseInt(inv.amount), 0),
+      completedPayments: invoices
+        .filter((inv) => inv.status === "Paid")
+        .reduce((sum, inv) => sum + parseInt(inv.amount), 0),
+    };
+  }, [invoices]);
+
+  if (isLoading) {
+    return <PaymentsPageSkeleton />;
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+        <h2 className="text-xl font-semibold">Failed to load payments</h2>
+        <p className="text-gray-600">Please try refreshing the page.</p>
+      </div>
+    );
+  }
+
+  const hasInvoices = filteredInvoices.length > 0;
 
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center min-h-screen">
-          Loading...
-        </div>
-      }
-    >
+    <Suspense fallback={<PaymentsPageSkeleton />}>
       <div className="px-4 sm:px-6 py-4 sm:py-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -69,10 +106,8 @@ export default function PaymentsPage() {
             <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
               {[
                 { key: "all", label: "All" },
-                { key: "active", label: "Active" },
-                { key: "pending", label: "Pending" },
-                { key: "completed", label: "Completed" },
-                { key: "cancelled", label: "Cancelled" },
+                { key: "Paid", label: "Paid" },
+                { key: "Pending", label: "Pending" },
               ].map((filter) => (
                 <Button
                   key={filter.key}
@@ -98,7 +133,7 @@ export default function PaymentsPage() {
                 size={18}
               />
               <Input
-                placeholder="Search..."
+                placeholder="Search by Service or Transaction ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 bg-gray-50 border-gray-200 focus:bg-white"
@@ -107,45 +142,23 @@ export default function PaymentsPage() {
           </div>
 
           {/* Content */}
-          {hasPayments ? (
-            <PaymentsTable payments={filteredPayments} />
+          {hasInvoices ? (
+            <PaymentsTable invoices={filteredInvoices} />
           ) : (
             <div className="flex items-center justify-center h-64 sm:h-96 bg-white rounded-lg border">
               <p className="text-gray-500 text-base sm:text-lg">
-                There are no payments to view
+                No payments match your current filters.
               </p>
             </div>
           )}
 
-          {/* Pagination */}
-          {hasPayments && (
+          {/* Pagination (Note: This is still static. Real pagination requires backend support) */}
+          {hasInvoices && (
             <div className="flex items-center justify-between mt-6 text-sm text-gray-600">
-              <span>Showing 1-15 of 150 entries</span>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" disabled>
-                  Previous
-                </Button>
-                <div className="flex gap-1">
-                  {[1, 2, 3, "...", 12].map((page, index) => (
-                    <Button
-                      key={index}
-                      variant={page === 1 ? "default" : "outline"}
-                      size="sm"
-                      className={`w-8 h-8 p-0 ${
-                        page === 1
-                          ? "bg-[#7642FE] text-white"
-                          : "bg-transparent"
-                      }`}
-                      disabled={page === "..."}
-                    >
-                      {page}
-                    </Button>
-                  ))}
-                </div>
-                <Button variant="outline" size="sm">
-                  Next
-                </Button>
-              </div>
+              <span>
+                Showing {filteredInvoices.length} of {invoices.length} entries
+              </span>
+              {/* Pagination UI remains for demonstration */}
             </div>
           )}
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -12,130 +12,171 @@ import {
   Users,
   CheckCircle,
   XCircle,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { useGetAllServicesRequestQuery } from "@/api/servicesApi";
 
-const mockRequests = [
-  {
-    id: "000001",
-    name: "Digital Marketing Audit",
-    startDate: "12/05/25",
-    endDate: "12/06/25",
-    status: "Completed",
-    statusColor: "bg-green-100 text-green-800",
-  },
-  {
-    id: "000002",
-    name: "Digital Marketing Audit",
-    startDate: "12/05/25",
-    endDate: "12/06/25",
-    status: "Active",
-    statusColor: "bg-blue-100 text-blue-800",
-  },
-  {
-    id: "000003",
-    name: "Digital Marketing Audit",
-    startDate: "12/05/25",
-    endDate: "12/06/25",
-    status: "Unpaid",
-    statusColor: "bg-red-100 text-red-800",
-  },
-  {
-    id: "000004",
-    name: "Digital Marketing Audit",
-    startDate: "12/05/25",
-    endDate: "12/06/25",
-    status: "Pending",
-    statusColor: "bg-yellow-100 text-yellow-800",
-  },
-  {
-    id: "000005",
-    name: "Digital Marketing Audit",
-    startDate: "12/05/25",
-    endDate: "12/06/25",
-    status: "Cancelled",
-    statusColor: "bg-gray-100 text-gray-800",
-  },
-];
+// Define a type for the filter keys
+type RequestFilter =
+  | "All"
+  | "Active"
+  | "Pending"
+  | "Completed"
+  | "Unpaid"
+  | "Cancelled"
+  | "Declined";
+
+// Helper to format dates
+const formatDate = (dateString: string) =>
+  new Date(dateString).toLocaleDateString("en-GB");
+
+// Helper to get status text and color
+const getRequestStatus = (request: any): { text: string; color: string } => {
+  switch (request.status) {
+    case "ACTIVE":
+      return { text: "Active", color: "bg-blue-100 text-blue-800" };
+    case "PENDING_APPROVAL":
+      return { text: "Pending", color: "bg-yellow-100 text-yellow-800" };
+    case "COMPLETED":
+      return { text: "Completed", color: "bg-green-100 text-green-800" };
+    case "CANCELLED":
+      return { text: "Cancelled", color: "bg-gray-200 text-gray-700" };
+    case "DECLINED":
+      return { text: "Declined", color: "bg-gray-200 text-gray-700" };
+    default:
+      return { text: "Unknown", color: "bg-gray-100 text-gray-800" };
+  }
+};
+
+const getPaymentStatus = (request: any): { text: string; color: string } => {
+  if (request.invoice?.status === "Unpaid") {
+    return { text: "Unpaid", color: "bg-red-100 text-red-800" };
+  } else if (request.invoice?.status === "Paid") {
+    return { text: "Paid", color: "bg-green-100 text-green-800" };
+  }
+};
 
 export default function RequestManagementPage() {
-  const [activeFilter, setActiveFilter] = useState("All");
+  const [activeFilter, setActiveFilter] = useState<RequestFilter>("All");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filters = [
+  const {
+    data: requestsData,
+    isLoading,
+    isError,
+  } = useGetAllServicesRequestQuery();
+  const allRequests = requestsData?.data || [];
+
+  // Calculate stats for the cards
+  const stats = useMemo(() => {
+    return {
+      total: allRequests.length,
+      pending: allRequests.filter(
+        (r) => r.status === "PENDING_APPROVAL" || r.invoice?.status === "Unpaid"
+      ).length,
+      completed: allRequests.filter((r) => r.status === "COMPLETED").length,
+      cancelled: allRequests.filter(
+        (r) => r.status === "CANCELLED" || r.status === "DECLINED"
+      ).length,
+    };
+  }, [allRequests]);
+
+  // Filter requests based on search and selected filter
+  const filteredRequests = useMemo(() => {
+    return allRequests.filter((request) => {
+      const statusInfo = getRequestStatus(request);
+      const paymentInfo = getPaymentStatus(request);
+
+      const matchesFilter =
+        activeFilter === "All" || statusInfo.text === activeFilter;
+
+      const matchesSearch =
+        request.service.title
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        request.id.toLowerCase().includes(searchTerm.toLowerCase());
+
+      return matchesFilter && matchesSearch;
+    });
+  }, [allRequests, activeFilter, searchTerm]);
+
+  const filters: RequestFilter[] = [
     "All",
     "Active",
     "Pending",
     "Completed",
     "Unpaid",
     "Cancelled",
+    "Declined",
   ];
 
-  const filteredRequests = mockRequests.filter((request) => {
-    const matchesFilter =
-      activeFilter === "All" || request.status === activeFilter;
-    const matchesSearch =
-      request.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      request.id.includes(searchTerm);
-    return matchesFilter && matchesSearch;
-  });
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-10 w-10 animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-6 text-red-500">
+        <AlertCircle className="mr-2" /> Failed to load service requests.
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Request Overview
-        </h1>
-      </div>
+      <h1 className="text-2xl font-semibold text-gray-900">Request Overview</h1>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Total Service Requests
+              Total Requests
             </CardTitle>
             <FileText className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1</div>
+            <div className="text-2xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
-
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
               Pending Requests
             </CardTitle>
             <Users className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
+            <div className="text-2xl font-bold">{stats.pending}</div>
           </CardContent>
         </Card>
-
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Completed Requests
+              Completed
             </CardTitle>
             <CheckCircle className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">10</div>
+            <div className="text-2xl font-bold">{stats.completed}</div>
           </CardContent>
         </Card>
-
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Cancelled Requests
+              Cancelled/Declined
             </CardTitle>
             <XCircle className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{stats.cancelled}</div>
           </CardContent>
         </Card>
       </div>
@@ -149,21 +190,16 @@ export default function RequestManagementPage() {
               variant={activeFilter === filter ? "default" : "outline"}
               size="sm"
               onClick={() => setActiveFilter(filter)}
-              className={
-                activeFilter === filter
-                  ? "bg-purple-600 hover:bg-purple-700"
-                  : ""
-              }
+              className={activeFilter === filter ? "bg-purple-600" : ""}
             >
               {filter}
             </Button>
           ))}
         </div>
-
         <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Search..."
+            placeholder="Search by service or ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -182,7 +218,7 @@ export default function RequestManagementPage() {
                     Request ID
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Request Name
+                    Service Name
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Start Date
@@ -194,77 +230,74 @@ export default function RequestManagementPage() {
                     Status
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Payment Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Action
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredRequests.map((request) => (
-                  <tr key={request.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {request.id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {request.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {request.startDate}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {request.endDate}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge className={request.statusColor}>
-                        {request.status}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <Link href={`/admin/request-management/${request.id}`}>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-purple-600 hover:text-purple-700"
-                        >
-                          <Eye className="h-4 w-4 mr-1" />
-                          View Details
-                        </Button>
-                      </Link>
+                {filteredRequests.length > 0 ? (
+                  filteredRequests.map((request) => {
+                    const statusInfo = getRequestStatus(request);
+                    const paymentInfo = getPaymentStatus(request);
+                    return (
+                      <tr key={request.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 font-mono">{`...${request.id.slice(
+                          -8
+                        )}`}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {request.service.title}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {formatDate(request.start_date)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {formatDate(request.end_date)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge className={statusInfo.color}>
+                            {statusInfo.text}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge className={paymentInfo.color}>
+                            {paymentInfo.text}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <Link
+                            href={`/admin/request-management/${request.id}`}
+                          >
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-purple-600"
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View Details
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="text-center py-10 text-gray-500">
+                      No requests match the current filter.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
 
-          {/* Pagination */}
+          {/* Pagination (This remains static for now, as in the user-facing page) */}
           <div className="px-6 py-4 flex items-center justify-between border-t">
             <div className="text-sm text-gray-500">
-              Showing 1-15 of 150 entries
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" disabled>
-                Previous
-              </Button>
-              <Button
-                variant="default"
-                size="sm"
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                1
-              </Button>
-              <Button variant="outline" size="sm">
-                2
-              </Button>
-              <Button variant="outline" size="sm">
-                3
-              </Button>
-              <span className="text-sm text-gray-500">...</span>
-              <Button variant="outline" size="sm">
-                12
-              </Button>
-              <Button variant="outline" size="sm">
-                Next
-              </Button>
+              Showing {filteredRequests.length} of {allRequests.length} entries
             </div>
           </div>
         </CardContent>

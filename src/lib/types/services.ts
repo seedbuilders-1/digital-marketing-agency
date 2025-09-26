@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { LucideIcon } from "lucide-react";
 
 export interface Service {
@@ -6,4 +7,5 @@ export interface Service {
   description: string;
   icon: LucideIcon;
   category: string;
+  form: any;
 }

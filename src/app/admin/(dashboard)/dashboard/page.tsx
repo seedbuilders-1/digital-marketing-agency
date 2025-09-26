@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -6,6 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { selectCurrentUser } from "@/features/auth/selectors";
+import { useSelector } from "react-redux";
 
 const revenueData = [
   { month: "Jan", value: 0 },
@@ -33,6 +37,7 @@ const projectStatsData = [
 ];
 
 export default function AdminDashboard() {
+  const user = useSelector(selectCurrentUser);
   return (
     <div className="p-6 space-y-6">
       {/* Dashboard Overview Header */}

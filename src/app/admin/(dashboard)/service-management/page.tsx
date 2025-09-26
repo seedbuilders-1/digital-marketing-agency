@@ -12,97 +12,142 @@ import {
   Eye,
   ChevronLeft,
   ChevronRight,
+  Loader2, // For loading state
+  AlertCircle, // For error state
 } from "lucide-react";
 import Link from "next/link";
+import { useGetAllServiesQuery } from "@/api/servicesApi";
 
-const mockServices = [
-  {
-    id: "000001",
-    name: "Digital Marketing Audit",
-    visibility: "Public",
-    lastUpdated: "12/06/25 - 10:03 pm",
-  },
-  {
-    id: "000002",
-    name: "Search Engine Optimization",
-    visibility: "Public",
-    lastUpdated: "12/06/25 - 10:03 pm",
-  },
-  {
-    id: "000003",
-    name: "Social Media Marketing",
-    visibility: "Private",
-    lastUpdated: "12/06/25 - 10:03 pm",
-  },
-  {
-    id: "000004",
-    name: "Content Marketing",
-    visibility: "Public",
-    lastUpdated: "12/06/25 - 10:03 pm",
-  },
-  {
-    id: "000005",
-    name: "Web Design and Development",
-    visibility: "Public",
-    lastUpdated: "12/06/25 - 10:03 pm",
-  },
-  {
-    id: "000006",
-    name: "Email Marketing",
-    visibility: "Public",
-    lastUpdated: "12/06/25 - 10:03 pm",
-  },
-  {
-    id: "000007",
-    name: "Analytics and Reporting",
-    visibility: "Public",
-    lastUpdated: "12/06/25 - 10:03 pm",
-  },
-  {
-    id: "000008",
-    name: "Influencer Marketing",
-    visibility: "Private",
-    lastUpdated: "12/06/25 - 10:03 pm",
-  },
-  {
-    id: "000009",
-    name: "Conversion Rate Optimization",
-    visibility: "Public",
-    lastUpdated: "12/06/25 - 10:03 pm",
-  },
-  {
-    id: "000010",
-    name: "Digital Marketing Audit",
-    visibility: "Public",
-    lastUpdated: "12/06/25 - 10:03 pm",
-  },
-  {
-    id: "000011",
-    name: "Search Engine Optimization",
-    visibility: "Public",
-    lastUpdated: "12/06/25 - 10:03 pm",
-  },
-  {
-    id: "000012",
-    name: "Content Marketing",
-    visibility: "Public",
-    lastUpdated: "12/06/25 - 10:03 pm",
-  },
-];
+// 1. Define a type that matches your actual API response
+interface Service {
+  id: string;
+  title: string;
+  isPublic: boolean;
+  created_at: string; // Or updated_at if you prefer
+  // Add any other fields you might need
+}
+
+// Helper to format the date string
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleString("en-US", {
+    year: "2-digit",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
 
 export default function ServiceManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredServices = mockServices.filter(
+  // 2. Use the hook and get loading/error states
+  const {
+    data: servicesData,
+    isLoading,
+    isError,
+    refetch, // To power the refresh button
+  } = useGetAllServiesQuery(undefined, {
+    // Polling can be useful to keep data fresh
+    // pollingInterval: 30000,
+  });
+
+  // The actual services array is inside the response data
+  const services: Service[] = servicesData?.data || [];
+
+  // 3. Update filtering logic to use real data and properties
+  const filteredServices = services.filter(
     (service) =>
-      service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.id.includes(searchTerm)
+      service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getVisibilityColor = (visibility: string) => {
-    return visibility === "Public"
-      ? "bg-green-100 text-green-800 border-green-200"
-      : "bg-gray-100 text-gray-800 border-gray-200";
+  const getVisibilityBadge = (isPublic: boolean) => {
+    return isPublic ? (
+      <Badge
+        variant="outline"
+        className="bg-green-100 text-green-800 border-green-200"
+      >
+        Public
+      </Badge>
+    ) : (
+      <Badge
+        variant="outline"
+        className="bg-gray-100 text-gray-800 border-gray-200"
+      >
+        Private
+      </Badge>
+    );
+  };
+
+  // 4. Create a reusable component for the table body to handle different states
+  const renderTableContent = () => {
+    if (isLoading) {
+      return (
+        <tr>
+          <td colSpan={5} className="text-center py-10">
+            <div className="flex justify-center items-center">
+              <Loader2 className="h-6 w-6 animate-spin text-purple-600 mr-2" />
+              <span className="text-gray-500">Loading services...</span>
+            </div>
+          </td>
+        </tr>
+      );
+    }
+
+    if (isError) {
+      return (
+        <tr>
+          <td colSpan={5} className="text-center py-10">
+            <div className="flex justify-center items-center text-red-500">
+              <AlertCircle className="h-6 w-6 mr-2" />
+              <span>Failed to load services. Please try refreshing.</span>
+            </div>
+          </td>
+        </tr>
+      );
+    }
+
+    if (filteredServices.length === 0) {
+      return (
+        <tr>
+          <td colSpan={5} className="text-center py-10 text-gray-500">
+            No services found.
+          </td>
+        </tr>
+      );
+    }
+
+    return filteredServices.map((service, index) => (
+      <tr
+        key={service.id}
+        className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+      >
+        <td className="py-4 px-6 text-gray-500 font-mono text-xs">
+          {service.id}
+        </td>
+        <td className="py-4 px-6 text-gray-900 font-medium">{service.title}</td>
+        <td className="py-4 px-6">{getVisibilityBadge(service.isPublic)}</td>
+        <td className="py-4 px-6 text-gray-500">
+          {formatDate(service.created_at)}
+        </td>
+        <td className="py-4 px-6">
+          <div className="flex items-center gap-2">
+            <Link href={`/admin/service-management/${service.id}`}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-purple-600 hover:text-purple-700"
+              >
+                <Eye className="h-4 w-4 mr-1" />
+                View Details
+              </Button>
+            </Link>
+          </div>
+        </td>
+      </tr>
+    ));
   };
 
   return (
@@ -117,14 +162,19 @@ export default function ServiceManagementPage() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Search..."
+            placeholder="Search by name or ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
           />
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" className="text-gray-600 bg-transparent">
+          {/* Connect the refetch function to the refresh button */}
+          <Button
+            variant="outline"
+            className="text-gray-600 bg-transparent"
+            onClick={refetch}
+          >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
@@ -154,7 +204,7 @@ export default function ServiceManagementPage() {
                     Visibility
                   </th>
                   <th className="text-left py-3 px-6 font-medium text-gray-700">
-                    Last Updated
+                    Date Created
                   </th>
                   <th className="text-left py-3 px-6 font-medium text-gray-700">
                     Action
@@ -162,49 +212,21 @@ export default function ServiceManagementPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredServices.map((service, index) => (
-                  <tr
-                    key={service.id}
-                    className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                  >
-                    <td className="py-4 px-6 text-gray-900">{service.id}</td>
-                    <td className="py-4 px-6 text-gray-900">{service.name}</td>
-                    <td className="py-4 px-6">
-                      <Badge
-                        variant="outline"
-                        className={getVisibilityColor(service.visibility)}
-                      >
-                        {service.visibility}
-                      </Badge>
-                    </td>
-                    <td className="py-4 px-6 text-gray-500">
-                      {service.lastUpdated}
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2">
-                        <Link href={`/admin/service-management/${service.id}`}>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-purple-600 hover:text-purple-700"
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            View Details
-                          </Button>
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {/* Render the content based on the API state */}
+                {renderTableContent()}
               </tbody>
             </table>
           </div>
         </CardContent>
       </Card>
 
-      {/* Pagination */}
+      {/* Pagination - Note: This is still static. Full implementation requires more state. */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">Showing 1-12 of 150 entries</p>
+        <p className="text-sm text-gray-500">
+          {/* Update pagination text dynamically */}
+          Showing 1-{filteredServices.length} of {filteredServices.length}{" "}
+          entries
+        </p>
         <div className="flex items-center space-x-2">
           <Button variant="outline" size="sm" disabled>
             <ChevronLeft className="h-4 w-4" />
@@ -216,17 +238,8 @@ export default function ServiceManagementPage() {
           >
             1
           </Button>
-          <Button variant="outline" size="sm">
-            2
-          </Button>
-          <Button variant="outline" size="sm">
-            3
-          </Button>
-          <span className="text-gray-500">...</span>
-          <Button variant="outline" size="sm">
-            12
-          </Button>
-          <Button variant="outline" size="sm">
+          {/* These buttons are placeholders until full pagination logic is added */}
+          <Button variant="outline" size="sm" disabled>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>

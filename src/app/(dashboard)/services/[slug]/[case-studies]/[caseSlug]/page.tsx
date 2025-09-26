@@ -1,45 +1,111 @@
+/* eslint-disable react/no-unescaped-entities */
+"use client";
+
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
+import { useGetServiceByIdQuery } from "@/api/servicesApi";
+import { AlertCircle } from "lucide-react";
 
-const caseStudyData = {
-  "mindspare-institute": {
-    title: "Mindspare Institute",
-    subtitle: "Online Education Provider",
-    heroImage: "/online-education-learning.png",
-    challenge: {
-      title: "The Challenge",
-      description:
-        "Mindspare Institute, an online education provider specializing in professional development courses, had a good product but struggled to scale their student enrollments over one year. Their cost per acquisition (CPA) for new students decreased by 18% due to optimized targeting and a more efficient funnel. The clear strategy allowed them to confidently invest more in digital marketing, leading to sustained growth.",
-      image: "/education-challenge-online-learning.png",
-    },
-    solution: {
-      title: "Solution",
-      description:
-        "Our team developed an end-to-end digital strategy focused on content marketing, social media discovery, building robust email marketing funnels for lead nurturing, designing targeted social media ad campaigns (Facebook, LinkedIn), and outlining a content strategy for thought leadership. The plan included detailed budget allocation and projected ROI.",
-      image:
-        "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-0Hz7hgLBzZtDJACNLPk8jhSahRTRZC.png",
-    },
-    result: {
-      title: "The Result",
-      description:
-        "The strategic framework provided by our team enabled Mindspare Institute to achieve a 50% increase in course enrollments over one year. Their cost per acquisition (CPA) for new students decreased by 18% due to optimized targeting and a more efficient funnel. The clear strategy allowed them to confidently invest more in digital marketing, leading to sustained growth.",
-      image: "/education-growth-success.png",
-    },
-  },
-};
+// 1. Define detailed types to match your API data structure
+interface CaseStudy {
+  id: string;
+  title: string;
+  subtitle: string;
+  bannerImageUrl: string;
+  challenge: string;
+  challengeImageUrl: string;
+  solution: string;
+  solutionImageUrl: string;
+  result: string;
+  resultImageUrl: string;
+}
+
+interface Service {
+  id: string;
+  title: string;
+  caseStudies: CaseStudy[];
+  bannerText: string;
+}
+
+// 2. A detailed skeleton component for the case study page
+const CaseStudyDetailSkeleton = () => (
+  <div className="animate-pulse">
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="h-4 w-1/4 bg-gray-200 rounded mb-8"></div>
+      <div className="h-10 w-3/4 bg-gray-200 rounded mb-3"></div>
+      <div className="h-6 w-1/2 bg-gray-200 rounded mb-8"></div>
+      <div className="aspect-video bg-gray-200 rounded-lg"></div>
+    </div>
+    <section className="py-16">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="aspect-square bg-gray-200 rounded-lg"></div>
+          <div>
+            <div className="h-8 w-1/3 bg-gray-200 rounded mb-6"></div>
+            <div className="h-4 w-full bg-gray-200 rounded mb-3"></div>
+            <div className="h-4 w-full bg-gray-200 rounded mb-3"></div>
+            <div className="h-4 w-5/6 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+);
 
 export default function CaseStudyDetailPage({
   params,
 }: {
   params: { slug: string; caseSlug: string };
 }) {
-  const caseStudy =
-    caseStudyData[params.caseSlug as keyof typeof caseStudyData];
+  const { slug: serviceId, caseSlug } = params;
 
-  if (!caseStudy) {
-    return <div>Case study not found</div>;
+  // 3. Fetch the parent service, which contains all its case studies
+  const {
+    data: serviceData,
+    isLoading,
+    isError,
+  } = useGetServiceByIdQuery(serviceId);
+
+  // 4. Use useMemo to efficiently find the current case study and filter for others
+  const { caseStudy, otherCaseStudies, serviceTitle } = useMemo(() => {
+    const service: Service | undefined = serviceData?.data;
+    if (!service) {
+      return { caseStudy: undefined, otherCaseStudies: [], serviceTitle: "" };
+    }
+
+    const current = service.caseStudies.find((cs) => cs.id === caseSlug);
+    const others = service.caseStudies.filter((cs) => cs.id !== caseSlug);
+
+    return {
+      caseStudy: current,
+      otherCaseStudies: others,
+      serviceTitle: service.title,
+    };
+  }, [serviceData, caseSlug]);
+
+  // 5. Handle loading, error, and not found states
+  if (isLoading) {
+    return <CaseStudyDetailSkeleton />;
+  }
+
+  if (isError || !caseStudy) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-center px-6">
+        <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
+        <h1 className="text-3xl font-bold text-gray-800">
+          Case Study Not Found
+        </h1>
+        <p className="text-gray-600 mt-2">
+          We couldn't find the case study you're looking for.
+        </p>
+        <Button asChild className="mt-6 bg-[#7642FE] hover:bg-[#5f35cc]">
+          <Link href={`/services/${serviceId}`}>Back to Service Details</Link>
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -52,10 +118,10 @@ export default function CaseStudyDetailPage({
           </Link>
           <span>/</span>
           <Link
-            href={`/services/${params.slug}`}
+            href={`/services/${serviceId}`}
             className="hover:text-[#7642FE]"
           >
-            Digital Marketing
+            {serviceTitle}
           </Link>
           <span>/</span>
           <span className="text-[#7642FE]">Case study</span>
@@ -64,22 +130,16 @@ export default function CaseStudyDetailPage({
 
       {/* Case Study Header */}
       <section className="max-w-7xl mx-auto px-6 py-8">
-        <div className="mb-6">
-          <span className="text-sm text-[#7642FE] font-medium">
-            Case study 1
-          </span>
-        </div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+        <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-2">
           "{caseStudy.title}"
         </h1>
         <p className="text-xl text-gray-600 mb-8">{caseStudy.subtitle}</p>
-
         <div className="aspect-video relative rounded-lg overflow-hidden">
           <Image
-            src={caseStudy.heroImage || "/placeholder.svg"}
+            src={caseStudy.bannerImageUrl || "/placeholder.svg"}
             alt={caseStudy.title}
             fill
-            className="object-cover"
+            className="object-cover object-top"
           />
         </div>
       </section>
@@ -88,24 +148,20 @@ export default function CaseStudyDetailPage({
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="relative">
+            <div className="relative aspect-video">
               <Image
-                src={caseStudy.challenge.image || "/placeholder.svg"}
+                src={caseStudy.challengeImageUrl || "/placeholder.svg"}
                 alt="Challenge"
-                width={500}
-                height={400}
-                className="rounded-lg"
+                fill
+                className="object-cover object-top rounded-lg"
               />
-              <div className="absolute top-4 left-4 w-12 h-12 bg-[#7642FE] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">?</span>
-              </div>
             </div>
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                {caseStudy.challenge.title}
+                The Challenge
               </h2>
               <p className="text-gray-600 leading-relaxed">
-                {caseStudy.challenge.description}
+                {caseStudy.challenge}
               </p>
             </div>
           </div>
@@ -113,23 +169,20 @@ export default function CaseStudyDetailPage({
       </section>
 
       {/* Solution Section */}
-      <section className="bg-[#7642FE] py-16">
+      <section className="bg-[#7642FE] py-16 text-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="text-white">
-              <h2 className="text-3xl font-bold mb-6">Solution</h2>
-              <p className="leading-relaxed">
-                {caseStudy.solution.description}
-              </p>
-            </div>
-            <div className="relative">
+            <div className="lg:order-2 relative aspect-video">
               <Image
-                src={caseStudy.solution.image || "/placeholder.svg"}
+                src={caseStudy.solutionImageUrl || "/placeholder.svg"}
                 alt="Solution"
-                width={500}
-                height={400}
-                className="rounded-lg"
+                fill
+                className="object-cover object-top rounded-lg"
               />
+            </div>
+            <div className="lg:order-1">
+              <h2 className="text-3xl font-bold mb-6">The Solution</h2>
+              <p className="leading-relaxed">{caseStudy.solution}</p>
             </div>
           </div>
         </div>
@@ -139,26 +192,20 @@ export default function CaseStudyDetailPage({
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="relative">
+            <div className="relative aspect-video">
               <Image
-                src={caseStudy.result.image || "/placeholder.svg"}
+                src={caseStudy.resultImageUrl || "/placeholder.svg"}
                 alt="Result"
-                width={500}
-                height={400}
-                className="rounded-lg"
+                fill
+                className="object-cover object-top rounded-lg"
               />
-              <div className="absolute top-4 right-4 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
-                <div className="w-6 h-6 border-2 border-[#7642FE] rounded-full flex items-center justify-center">
-                  <div className="w-2 h-2 bg-[#7642FE] rounded-full"></div>
-                </div>
-              </div>
             </div>
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                {caseStudy.result.title}
+                The Result
               </h2>
               <p className="text-gray-600 leading-relaxed">
-                {caseStudy.result.description}
+                {caseStudy.result}
               </p>
             </div>
           </div>
@@ -169,8 +216,7 @@ export default function CaseStudyDetailPage({
       <section className="bg-[#4A1A5C] py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold text-white mb-8">
-            Let's build a strategy that turns online effort into real,
-            measurable growth.
+            {serviceData.data.bannerText}
           </h2>
           <Button className="bg-white text-[#4A1A5C] hover:bg-gray-100 px-8 py-3 text-lg">
             Request Service
@@ -179,49 +225,40 @@ export default function CaseStudyDetailPage({
       </section>
 
       {/* More Case Studies */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">
-            More case studies
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="overflow-hidden">
-              <div className="aspect-video relative">
-                <Image
-                  src="/hospital-healthcare-medical.png"
-                  alt="Nova Hospitals"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <CardContent className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Nova Hospitals
-                </h3>
-                <p className="text-gray-600">
-                  Private Healthcare Facility, Nigeria
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="overflow-hidden">
-              <div className="aspect-video relative">
-                <Image
-                  src="/agriculture-technology-farm.png"
-                  alt="FarmReach"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <CardContent className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  FarmReach
-                </h3>
-                <p className="text-gray-600">Agri-Tech Startup, Nigeria</p>
-              </CardContent>
-            </Card>
+      {otherCaseStudies.length > 0 && (
+        <section className="py-16 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">
+              More case studies
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {otherCaseStudies.map((cs) => (
+                <Link
+                  key={cs.id}
+                  href={`/services/${serviceId}/case-studies/${cs.id}`}
+                >
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow group">
+                    <div className="aspect-video relative">
+                      <Image
+                        src={cs.bannerImageUrl || "/placeholder.svg"}
+                        alt={cs.title}
+                        fill
+                        className="object-cover object-top group-hover:scale-105 transition-transform"
+                      />
+                    </div>
+                    <CardContent className="p-6">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        {cs.title}
+                      </h3>
+                      <p className="text-gray-600">{cs.subtitle}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

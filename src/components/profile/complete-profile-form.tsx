@@ -33,7 +33,7 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 
 // Helper to generate temporary preview URLs from File objects
-const getPreviewUrl = (file: File) => URL.createObjectURL(file);
+const getPreviewUrl = (file: any) => URL.createObjectURL(file);
 
 const CompleteProfileForm = () => {
   const router = useRouter();
@@ -74,7 +74,7 @@ const CompleteProfileForm = () => {
     if (currentFiles.length < 5) {
       const newFiles = [...currentFiles, file];
       // Create a new FileList for react-hook-form
-      const dataTransfer = new DataTransfer();
+      const dataTransfer: any = new DataTransfer();
       newFiles.forEach((f) => dataTransfer.items.add(f));
       form.setValue("identification", dataTransfer.files, {
         shouldValidate: true,

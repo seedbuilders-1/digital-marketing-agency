@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -16,19 +18,51 @@ import {
   CartesianGrid,
   ResponsiveContainer,
   Legend,
+  Tooltip,
 } from "recharts";
 
-const data = [
-  { month: "Jan", pending: 2, active: 3, completed: 1 },
-  { month: "Feb", pending: 1, active: 4, completed: 2 },
-  { month: "Mar", pending: 3, active: 2, completed: 3 },
-  { month: "Apr", pending: 2, active: 5, completed: 2 },
-  { month: "May", pending: 4, active: 3, completed: 4 },
-  { month: "Jun", pending: 1, active: 6, completed: 3 },
-  { month: "Jul", pending: 3, active: 4, completed: 5 },
-];
+const ProjectStatsChart = ({ projects }: { projects: any }) => {
+  const chartData = useMemo(() => {
+    const monthlyData: {
+      [key: string]: { pending: number; active: number; completed: number };
+    } = {};
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
 
-const ProjectStatsChart = () => {
+    monthNames.forEach((name) => {
+      monthlyData[name] = { pending: 0, active: 0, completed: 0 };
+    });
+
+    projects.forEach((project: any) => {
+      const monthIndex = new Date(project.created_at).getMonth();
+      const monthName = monthNames[monthIndex];
+      if (project.status === "PENDING_APPROVAL") {
+        monthlyData[monthName].pending += 1;
+      } else if (project.status === "ACTIVE") {
+        monthlyData[monthName].active += 1;
+      } else if (project.status === "COMPLETED") {
+        monthlyData[monthName].completed += 1;
+      }
+    });
+
+    return Object.entries(monthlyData).map(([month, values]) => ({
+      month,
+      ...values,
+    }));
+  }, [projects]);
+
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -39,15 +73,13 @@ const ProjectStatsChart = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="monthly">Monthly</SelectItem>
-            <SelectItem value="weekly">Weekly</SelectItem>
-            <SelectItem value="yearly">Yearly</SelectItem>
           </SelectContent>
         </Select>
       </CardHeader>
       <CardContent>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} barCategoryGap="20%">
+            <BarChart data={chartData} barCategoryGap="20%">
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis
                 dataKey="month"
@@ -59,25 +91,27 @@ const ProjectStatsChart = () => {
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 12, fill: "#666" }}
+                allowDecimals={false}
               />
+              <Tooltip />
               <Legend wrapperStyle={{ paddingTop: "20px" }} iconType="circle" />
               <Bar
                 dataKey="pending"
                 fill="#FFA500"
                 name="Pending"
-                radius={[2, 2, 0, 0]}
+                radius={[4, 4, 0, 0]}
               />
               <Bar
                 dataKey="active"
-                fill="#7642FE"
+                fill="#3B82F6"
                 name="Active"
-                radius={[2, 2, 0, 0]}
+                radius={[4, 4, 0, 0]}
               />
               <Bar
                 dataKey="completed"
                 fill="#10B981"
                 name="Completed"
-                radius={[2, 2, 0, 0]}
+                radius={[4, 4, 0, 0]}
               />
             </BarChart>
           </ResponsiveContainer>

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Search, ChevronDown, Bell } from "lucide-react";
+import { Search, Bell } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -8,7 +8,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@radix-ui/react-dropdown-menu";
 
 const DashboardHeader = () => {
   return (
@@ -17,29 +17,28 @@ const DashboardHeader = () => {
         <div className="flex items-center justify-between">
           {/* Logo and Navigation */}
           <div className="flex items-center gap-8">
-            <Link href="/dashboard" className="flex items-center gap-2">
+            <Link
+              href="/dashboard/dashboard"
+              className="flex items-center gap-2"
+            >
               <div className="bg-[#7642FE] rounded-lg p-3 flex items-center justify-center">
                 <span className="text-white font-bold text-lg">DMA</span>
               </div>
             </Link>
 
             <nav className="hidden md:flex items-center gap-8">
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-1 text-gray-700 hover:text-gray-900 font-medium">
-                  Services
-                  <ChevronDown size={16} />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem asChild>
-                    <Link href="/services">All Services</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>SEO Services</DropdownMenuItem>
-                  <DropdownMenuItem>Social Media Marketing</DropdownMenuItem>
-                  <DropdownMenuItem>Content Marketing</DropdownMenuItem>
-                  <DropdownMenuItem>PPC Advertising</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
+              <Link
+                href="/dashboard/services"
+                className="flex items-center gap-2 text-gray-700 hover:text-gray-900 font-medium"
+              >
+                Services
+                <Badge
+                  variant="secondary"
+                  className="bg-gray-100 text-gray-700 text-xs"
+                >
+                  2
+                </Badge>
+              </Link>
               <Link
                 href="/dashboard/messages"
                 className="flex items-center gap-2 text-gray-700 hover:text-gray-900 font-medium"

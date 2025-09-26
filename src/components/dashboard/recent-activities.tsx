@@ -2,25 +2,33 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+// TODO: This component uses mock data. To make it live, you would need a
+// backend endpoint that returns a list of recent activities or notifications.
 interface Activity {
   id: string;
   title: string;
   time: string;
-  type: "login" | "project" | "message";
+  type: "login" | "project" | "message" | "payment";
 }
 
 const RecentActivities = () => {
   const activities: Activity[] = [
     {
       id: "1",
-      title: "Recent login",
-      time: "9:30",
-      type: "login",
+      title: "You paid an invoice for SEO",
+      time: "10:45 AM",
+      type: "payment",
     },
     {
       id: "2",
-      title: "Your UI/UX project is completed!",
-      time: "9:30",
+      title: "Admin sent a new message",
+      time: "9:30 AM",
+      type: "message",
+    },
+    {
+      id: "3",
+      title: "Your UI/UX project is now Active!",
+      time: "Yesterday",
       type: "project",
     },
   ];
@@ -33,6 +41,8 @@ const RecentActivities = () => {
         return "✅";
       case "message":
         return "💬";
+      case "payment":
+        return "💳";
       default:
         return "📝";
     }

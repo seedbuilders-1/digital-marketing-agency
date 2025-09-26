@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const api = "http://localhost:3000/api";
 const authApi = `${api}/auth`;
 
@@ -10,31 +11,41 @@ export const APIS = {
     RESET_PASSWORD: `${authApi}/password-recovery/reset-password`,
     LOGOUT: `${authApi}/logout`,
     EMAIL_SEND_OTP: `${authApi}/email/send-otp`,
-    EMAIL_VERIFY: (id) => `${authApi}/verify-email/${id}`,
+    EMAIL_VERIFY: (id: any) => `${authApi}/verify-email/${id}`,
     EMAIL_RESEND_OTP: `${authApi}/resend-otp`,
     VERIFY_RESET_PASSWORD_OTP: `${authApi}/password-recovery/verify-otp`,
+  },
+  USER: {
+    INDIVIDUAL_COMPLETE_PROFILE: (userId: any) =>
+      `${api}/users/profile/${userId}`,
   },
   SERVICES: {
     CREATE_SERVICE: `${api}/services`,
     GET_ALL_SERVICES: `${api}/services`,
-    GET_SERVICE_BY_ID: (id) => `${api}/services/${id}`,
-    UPDATE_SERVICE_FORM: (serviceId) => `${api}/services/${serviceId}/form`,
+    GET_SERVICE_BY_ID: (id: any) => `${api}/services/${id}`,
+    UPDATE_SERVICE_FORM: (serviceId: any) =>
+      `${api}/services/${serviceId}/form`,
     INITIALIZE_SERVICE_REQUEST: `${api}/service-requests/initialize`,
     GET_USER_SERVICE_REQUESTS: `${api}/service-requests/my-requests`,
-    GET_SERVICE_REQUEST_BY_ID: (id) => `${api}/service-requests/${id}`,
+    GET_SERVICE_REQUEST_BY_ID: (id: any) => `${api}/service-requests/${id}`,
     GET_ALL_SERVICE_REQUESTS: `${api}/service-requests`,
-    UPDATE_SERVICE_REQUEST_STATUS: (requestId) =>
+    UPDATE_SERVICE_REQUEST_STATUS: (requestId: any) =>
       `${api}/service-requests/${requestId}/status`,
-    UPLOAD_MILESTONE_DELIVERABLE: (milestoneId) =>
+    UPLOAD_MILESTONE_DELIVERABLE: (milestoneId: any) =>
       `${api}/milestones/${milestoneId}/deliverable`,
-    REVIEW_MILESTONE: (milestoneId) =>
+    REVIEW_MILESTONE: (milestoneId: any) =>
       `${api}/milestones/${milestoneId}/review`,
   },
   INVOICE: {
-    GET_INVOICE_BY_ID: (id) => `${api}/invoices/${id}`,
+    GET_INVOICE_BY_ID: (id: any) => `${api}/invoices/${id}`,
     INITIALIZE_PAYSTACK_PAYMENT: `${api}/payments/paystack/initialize`,
-    VERIFY_PAYSTACK_PAYMENT: (reference) =>
+    VERIFY_PAYSTACK_PAYMENT: (reference: any) =>
       `${api}/payments/paystack/verify/${reference}`,
     GET_USER_INVOICES: `${api}/invoices`,
+  },
+  CONVERSATION: {
+    GET_USER_CONVERSATIONS: `${api}/conversations`,
+    GET_MESSAGES_BY_REQUEST_ID: (serviceRequestId: any) =>
+      `${api}/conversations/${serviceRequestId}/messages`,
   },
 };

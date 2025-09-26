@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -30,11 +31,13 @@ import { getLoginDefaultValues } from "@/lib/utils/form";
 import { useLoginMutation } from "@/api/authApi";
 import { useAppDispatch } from "@/hooks/rtk";
 import { setCredentials } from "@/features/auth/authSlice";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const getRedirectPath = useAuthRedirect;
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -50,8 +53,7 @@ const LoginForm = () => {
     try {
       // .unwrap() will automatically throw on error
       const res = await login(data).unwrap();
-
-      toast.success("Login successful! Redirecting...", { id: toastId });
+      console.log("res", res);
 
       dispatch(
         setCredentials({
@@ -60,19 +62,11 @@ const LoginForm = () => {
         })
       );
 
-      // --- Navigation Logic ---
-      if (res?.data?.user?.status === "unverified") {
-        router.push("/verify-otp");
-        return;
-      }
+      const redirectPath = getRedirectPath(res?.data?.user);
+      toast.success("Login successful! Redirecting...", { id: toastId });
 
-      if (res?.data?.user?.category === "individual") {
-        router.push("/complete-profile");
-        return;
-      }
-
-      router.push("/organization-profile");
-    } catch (err) {
+      router.push(redirectPath);
+    } catch (err: any) {
       console.error("Login failed:", err);
       // Provide a user-friendly error message from the API or a fallback
       const errorMessage =

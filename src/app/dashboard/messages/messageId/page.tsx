@@ -27,12 +27,12 @@ import RecentActivities from "@/components/messages/recent-activities";
 export default function MessageDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const messageId = params.messageId as string;
+  const serviceRequestId = params.serviceRequestId as string;
   const [showReminder, setShowReminder] = useState(true);
   const [messageText, setMessageText] = useState("");
   const [activitiesOpen, setActivitiesOpen] = useState(false);
 
-  const message = MESSAGES_DATA.find((m) => m.id === messageId);
+  const message = MESSAGES_DATA.find((m) => m.id === serviceRequestId);
 
   if (!message) {
     return (

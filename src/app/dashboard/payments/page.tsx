@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/app/dashboard/payments/page.tsx (or your path)
 
 "use client";
@@ -32,13 +33,18 @@ export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<PaymentFilter>("all");
 
-  const { data: invoices = [], isLoading, isError } = useGetUserInvoicesQuery();
+  const {
+    data: invoices = [],
+    isLoading,
+    isError,
+    error,
+  } = useGetUserInvoicesQuery();
 
-  console.log("invoices", invoices);
+  console.log("invoices", error);
 
   // Memoize filtered invoices to prevent recalculation on every render
   const filteredInvoices = useMemo(() => {
-    return invoices.filter((invoice) => {
+    return invoices.filter((invoice: any) => {
       const matchesSearch =
         invoice?.service_request?.service?.title
           .toLowerCase()
@@ -56,15 +62,15 @@ export default function PaymentsPage() {
   const stats = useMemo(() => {
     return {
       totalPayments: invoices.reduce(
-        (sum, inv) => sum + parseInt(inv.amount),
+        (sum: any, inv: any) => sum + parseInt(inv.amount),
         0
       ),
       pendingPayments: invoices
-        .filter((inv) => inv.status === "Unpaid")
-        .reduce((sum, inv) => sum + parseInt(inv.amount), 0),
+        .filter((inv: any) => inv.status === "Unpaid")
+        .reduce((sum: any, inv: any) => sum + parseInt(inv.amount), 0),
       completedPayments: invoices
-        .filter((inv) => inv.status === "Paid")
-        .reduce((sum, inv) => sum + parseInt(inv.amount), 0),
+        .filter((inv: any) => inv.status === "Paid")
+        .reduce((sum: any, inv: any) => sum + parseInt(inv.amount), 0),
     };
   }, [invoices]);
 

@@ -4,6 +4,7 @@ import "./globals.css";
 import { ReduxProvider } from "@/components/ReduxProvider";
 import { AuthRedirect } from "@/components/AuthRedirect";
 import { Toaster } from "sonner";
+import { SocketProvider } from "@/context/SocketProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +32,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ReduxProvider>
-          <AuthRedirect>{children}</AuthRedirect>
+          <AuthRedirect>
+            <SocketProvider>{children}</SocketProvider>
+          </AuthRedirect>
         </ReduxProvider>
         <Toaster position="top-center" richColors />
       </body>

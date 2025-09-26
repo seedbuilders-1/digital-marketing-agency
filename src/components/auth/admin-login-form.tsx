@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -63,7 +64,7 @@ const AdminLoginForm = () => {
       // --- Navigation Logic ---
 
       router.push("admin/dashboard");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Login failed:", err);
       // Provide a user-friendly error message from the API or a fallback
       const errorMessage =

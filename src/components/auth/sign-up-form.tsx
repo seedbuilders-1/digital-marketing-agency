@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useCallback, useState } from "react";
@@ -7,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
-import { Toaster, toast } from "sonner"; // --- 1. IMPORT TOASTER AND TOAST ---
+import { toast } from "sonner"; // --- 1. IMPORT TOASTER AND TOAST ---
 
 // Reusable and custom components
 import { PasswordField } from "./PasswordField";
@@ -82,7 +83,7 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
 
         // Redirect to the OTP verification page upon successful registration
         router.push("/verify-otp");
-      } catch (err) {
+      } catch (err: any) {
         console.error("Registration failed:", err);
         // Display a specific error from the API, or a generic fallback
         const errorMessage =

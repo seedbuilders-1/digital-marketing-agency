@@ -1,102 +1,69 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import type { Message } from "@/lib/types/messages";
 
-interface MessagesListProps {
-  messages: Message[];
-  selectedMessages: string[];
-  onSelectMessage: (messageId: string) => void;
-  onSelectAll: () => void;
-}
+// Helper to format date/time for display
+const formatPreviewTime = (dateString?: string) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
 
-const MessagesList = ({
-  messages,
-  selectedMessages,
-  onSelectMessage,
-}: MessagesListProps) => {
+const MessagesList = ({ conversations }: { conversations: any }) => {
   const router = useRouter();
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "project-request-sent":
-        return (
-          <Badge className="bg-orange-100 text-orange-800 text-xs whitespace-nowrap">
-            Project Request Sent
-          </Badge>
-        );
-      case "work-in-progress":
-        return (
-          <Badge className="bg-blue-100 text-blue-800 text-xs whitespace-nowrap">
-            Work In Progress
-          </Badge>
-        );
-      case "completed":
-        return (
-          <Badge className="bg-green-100 text-green-800 text-xs whitespace-nowrap">
-            Completed Project
-          </Badge>
-        );
-      default:
-        return null;
-    }
+    // ... (Your existing getStatusBadge logic can be adapted here)
+    if (status === "ACTIVE")
+      return <Badge className="bg-blue-100 text-blue-800">Active</Badge>;
+    if (status === "COMPLETED")
+      return <Badge className="bg-green-100 text-green-800">Completed</Badge>;
+    // ...etc
+    return null;
   };
 
-  const handleMessageClick = (messageId: string) => {
-    router.push(`/messages/${messageId}`);
+  // Navigate to the correct chat room page
+  const handleConversationClick = (serviceRequestId: string) => {
+    router.push(`/dashboard/messages/${serviceRequestId}`);
   };
 
   return (
     <div className="space-y-2">
-      {messages.map((message) => (
-        <div
-          key={message.id}
-          className={`flex items-center gap-3 sm:gap-4 p-3 sm:p-4 border rounded-lg cursor-pointer transition-colors ${
-            selectedMessages.includes(message.id)
-              ? "bg-purple-50 border-purple-200"
-              : "bg-white hover:bg-gray-50"
-          }`}
-        >
-          <Checkbox
-            checked={selectedMessages.includes(message.id)}
-            onCheckedChange={() => onSelectMessage(message.id)}
-            onClick={(e) => e.stopPropagation()}
-            className="flex-shrink-0"
-          />
+      {conversations.map((convo: any) => {
+        const lastMessage = convo.messages[0]; // The last message we fetched
 
+        return (
           <div
-            className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0"
-            onClick={() => handleMessageClick(message.id)}
+            key={convo.id}
+            onClick={() => handleConversationClick(convo.service_request_id)}
+            className="flex items-center gap-4 p-4 border rounded-lg cursor-pointer bg-white hover:bg-gray-50"
           >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-gray-600 font-medium text-xs sm:text-sm">
-                DM
-              </span>
-            </div>
-
+            {/* ... Avatar/Icon ... */}
             <div className="flex-1 min-w-0">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1">
-                <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate">
-                  {message.title}
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-medium text-gray-900 truncate">
+                  {convo.service_request.service.title}
                 </h3>
-                <div className="flex-shrink-0">
-                  {getStatusBadge(message.status)}
-                </div>
+                {getStatusBadge(convo.service_request.status)}
               </div>
-              <p className="text-xs sm:text-sm text-gray-600 mb-1 line-clamp-2">
-                {message.preview}
+              <p className="text-sm text-gray-600 truncate">
+                {lastMessage
+                  ? `${lastMessage.sender.name}: ${lastMessage.text}`
+                  : "No messages yet"}
               </p>
-              <p className="text-xs text-gray-500">{message.targetDate}</p>
             </div>
-
-            <div className="text-xs sm:text-sm text-gray-500 flex-shrink-0">
-              {message.time}
+            <div className="text-xs text-gray-500 flex-shrink-0">
+              {formatPreviewTime(lastMessage?.created_at)}
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

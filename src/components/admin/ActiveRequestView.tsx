@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // components/admin/request/ActiveRequestView.tsx
 
 "use client";
@@ -31,7 +32,7 @@ export const ActiveRequestView = ({
 
   const statusDetails = getStatusDetails(request.status);
 
-  const handleOpenUploadModal = (milestone) => {
+  const handleOpenUploadModal = (milestone: any) => {
     setSelectedMilestone(milestone);
     setUploadModalOpen(true);
   };
@@ -42,7 +43,7 @@ export const ActiveRequestView = ({
   };
 
   const completedMilestones = request.milestones.filter(
-    (m) => !!m.deliverable_url
+    (m: any) => !!m.deliverable_url
   ).length;
   const progress =
     request.milestones.length > 0
@@ -135,7 +136,7 @@ export const ActiveRequestView = ({
               <CardTitle>Files & Deliverables</CardTitle>
             </CardHeader>
             <CardContent className="divide-y divide-gray-200">
-              {request.milestones.map((milestone) => (
+              {request.milestones.map((milestone: any) => (
                 <div
                   key={milestone.id}
                   className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4"

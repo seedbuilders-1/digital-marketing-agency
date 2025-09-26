@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 
 "use client";
@@ -57,7 +58,7 @@ export default function ProjectsPage() {
   // --- FIX #1: REMOVED the state update from useMemo ---
   const filteredProjects = useMemo(() => {
     // This hook is now only responsible for filtering, which is correct.
-    return projects.filter((project) => {
+    return projects.filter((project: any) => {
       const status = project.status.toLowerCase();
       const invoiceStatus = project.invoice?.status.toLowerCase();
 

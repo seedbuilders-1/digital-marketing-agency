@@ -1,13 +1,19 @@
 "use client";
 
 import type React from "react";
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock, FolderOpen, BarChart3, CheckCircle } from "lucide-react";
 
+interface StatsData {
+  pendingRequests: number;
+  totalProjects: number;
+  inProgress: number;
+  completedProjects: number;
+}
+
 interface StatsCardProps {
   title: string;
-  value: number;
+  value: number | string;
   icon: React.ReactNode;
   color: string;
 }
@@ -28,37 +34,37 @@ const StatsCard = ({ title, value, icon, color }: StatsCardProps) => {
   );
 };
 
-const StatsCards = () => {
-  const stats = [
+const StatsCards = ({ stats }: { stats: StatsData }) => {
+  const cardData = [
     {
       title: "Pending Requests",
-      value: 2,
-      icon: <Clock size={24} className="text-purple-600" />,
-      color: "bg-purple-100",
+      value: stats.pendingRequests,
+      icon: <Clock size={24} className="text-orange-600" />,
+      color: "bg-orange-100",
     },
     {
-      title: "Total projects",
-      value: 10,
+      title: "Total Projects",
+      value: stats.totalProjects,
       icon: <FolderOpen size={24} className="text-purple-600" />,
       color: "bg-purple-100",
     },
     {
-      title: "In progress",
-      value: 1,
-      icon: <BarChart3 size={24} className="text-purple-600" />,
-      color: "bg-purple-100",
+      title: "In Progress",
+      value: stats.inProgress,
+      icon: <BarChart3 size={24} className="text-blue-600" />,
+      color: "bg-blue-100",
     },
     {
       title: "Completed Projects",
-      value: 0,
-      icon: <CheckCircle size={24} className="text-purple-600" />,
-      color: "bg-purple-100",
+      value: stats.completedProjects,
+      icon: <CheckCircle size={24} className="text-green-600" />,
+      color: "bg-green-100",
     },
   ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {stats.map((stat, index) => (
+      {cardData.map((stat, index) => (
         <StatsCard key={index} {...stat} />
       ))}
     </div>

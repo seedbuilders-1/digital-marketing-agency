@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
@@ -5,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -28,14 +29,21 @@ import {
   useEmailResendOtpMutation,
   useVerifyEmailMutation,
 } from "@/api/authApi";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { useAppDispatch } from "@/hooks/rtk";
+import { updateUser } from "@/features/auth/authSlice";
 
-const VerifyOTPForm = ({ email, id }) => {
+const VerifyOTPForm = ({ email, id }: any) => {
   const router = useRouter();
+
+  const getRedirectPath = useAuthRedirect;
 
   const form = useForm<VerifyOTPFormData>({
     resolver: zodResolver(verifyOTPSchema),
     defaultValues: getVerifyOTPDefaultValues(),
   });
+
+  const dispatch = useAppDispatch();
 
   // Destructure isLoading states for UX feedback
   const [verifyOtp, { isLoading: isVerifying }] = useVerifyEmailMutation();
@@ -45,17 +53,35 @@ const VerifyOTPForm = ({ email, id }) => {
     const toastId = toast.loading("Verifying your code...");
 
     try {
-      // .unwrap() will automatically throw an error on a failed request
-      await verifyOtp({
+      const res = await verifyOtp({
         id: id,
         body: { otp: data.otp },
       }).unwrap();
+      console.log("res", res);
+
+      const freshUser = res?.data?.user;
+
+      if (!freshUser) {
+        toast.error("Verification failed: No user data returned.", {
+          id: toastId,
+        });
+        return;
+      }
+
+      // 2. Dispatch the action to update the global Redux store for the rest of the app.
+      // This is still a good thing to do.
+      dispatch(updateUser(freshUser));
 
       toast.success("OTP verified successfully!", { id: toastId });
 
-      // On success, navigate to the next step (e.g., dashboard or create password)
-      router.push("/dashboard");
-    } catch (error) {
+      //    Use the `freshUser` object directly from the API response
+      //    to determine the redirect path. This object is guaranteed to have the
+      //    correct, updated status ("verified").
+      const redirectPath = getRedirectPath(freshUser);
+
+      // 4. Navigate to the correct page.
+      router.push(redirectPath);
+    } catch (error: any) {
       console.error("Verification failed:", error);
       const errorMessage =
         error?.data?.message || "Invalid OTP. Please try again.";
@@ -70,7 +96,7 @@ const VerifyOTPForm = ({ email, id }) => {
       await resendOtp({ email: email }).unwrap();
       toast.success("A new code has been sent to your email.", { id: toastId });
       form.reset(); // Clear the input field for the new code
-    } catch (error) {
+    } catch (error: any) {
       console.error("Resend OTP failed:", error);
       const errorMessage =
         error?.data?.message ||

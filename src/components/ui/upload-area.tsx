@@ -3,23 +3,34 @@
 import * as React from "react";
 import { Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner"; // It's good practice to add user feedback
 
 interface UploadAreaProps {
-  onImageUpload: (imageUrl: string) => void;
+  // This prop is changed to emit the raw File object, not a URL.
+  onFileSelect: (file: File) => void;
   className?: string;
 }
 
-export function UploadArea({ onImageUpload, className }: UploadAreaProps) {
+export function UploadArea({ onFileSelect, className }: UploadAreaProps) {
   const [isDragOver, setIsDragOver] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (files: FileList | null) => {
+  const processFiles = (files: FileList | null) => {
     if (files && files.length > 0) {
+      // Loop through all selected files
       Array.from(files).forEach((file) => {
-        if (file.type.startsWith("image/")) {
-          const imageUrl = URL.createObjectURL(file);
-          onImageUpload(imageUrl);
+        // Basic validation for file type and size
+        if (!file.type.startsWith("image/")) {
+          toast.error(`"${file.name}" is not an image file.`);
+          return; // Skip this file
         }
+        if (file.size > 5 * 1024 * 1024) {
+          // 5MB limit
+          toast.error(`"${file.name}" is larger than 5MB.`);
+          return; // Skip this file
+        }
+        // If the file is valid, pass the File object to the parent component.
+        onFileSelect(file);
       });
     }
   };
@@ -27,7 +38,7 @@ export function UploadArea({ onImageUpload, className }: UploadAreaProps) {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    handleFileSelect(e.dataTransfer.files);
+    processFiles(e.dataTransfer.files);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -45,7 +56,11 @@ export function UploadArea({ onImageUpload, className }: UploadAreaProps) {
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleFileSelect(e.target.files);
+    processFiles(e.target.files);
+    // Clear the input value to allow re-uploading the same file
+    if (e.target) {
+      e.target.value = "";
+    }
   };
 
   return (

@@ -3,10 +3,8 @@
 
 import { useRouter } from "next/navigation";
 import { useGetServiceByIdQuery } from "@/api/servicesApi";
-import { useDispatch } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { setSelectedPlan } from "@/features/auth/requestSlice";
 import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useServiceRequest } from "@/context/ServiceRequestContext";
@@ -18,7 +16,6 @@ export default function SelectPlanPage({
 }) {
   const router = useRouter();
   const serviceId = params.slug;
-  const dispatch = useDispatch();
 
   const { setSelectedPlan } = useServiceRequest();
 
@@ -42,7 +39,7 @@ export default function SelectPlanPage({
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {plans.map((plan, index) => (
+        {plans.map((plan: any, index: any) => (
           <Card key={index} className="flex flex-col">
             <CardContent className="p-8 flex flex-col flex-grow">
               <Badge
@@ -72,7 +69,7 @@ export default function SelectPlanPage({
               <div className="flex-grow">
                 <h4 className="font-semibold text-gray-900 mb-4">Features:</h4>
                 <ul className="space-y-3">
-                  {plan.features.map((feature, featureIndex) => (
+                  {plan.features.map((feature: any, featureIndex: any) => (
                     <li
                       key={featureIndex}
                       className="flex items-start space-x-3"

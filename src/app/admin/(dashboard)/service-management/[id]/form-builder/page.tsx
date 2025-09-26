@@ -79,11 +79,7 @@ const USER_PROFILE_FIELDS: FormField[] = [
   // Add more common fields as needed
 ];
 
-export default function FormBuilderPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function FormBuilderPage({ params }: any) {
   const router = useRouter();
   const { id: serviceId } = params;
   console.log("servieId", serviceId);

@@ -99,7 +99,9 @@ export default function CaseStudyDetailPage({ params }: any) {
           We couldn't find the case study you're looking for.
         </p>
         <Button asChild className="mt-6 bg-[#7642FE] hover:bg-[#5f35cc]">
-          <Link href={`/services/${serviceId}`}>Back to Service Details</Link>
+          <Link href={`/dashboard/services/${serviceId}`}>
+            Back to Service Details
+          </Link>
         </Button>
       </div>
     );
@@ -115,7 +117,7 @@ export default function CaseStudyDetailPage({ params }: any) {
           </Link>
           <span>/</span>
           <Link
-            href={`/services/${serviceId}`}
+            href={`/dashboard/services/${serviceId}`}
             className="hover:text-[#7642FE]"
           >
             {serviceTitle}
@@ -232,7 +234,7 @@ export default function CaseStudyDetailPage({ params }: any) {
               {otherCaseStudies.map((cs) => (
                 <Link
                   key={cs.id}
-                  href={`/services/${serviceId}/case-studies/${cs.id}`}
+                  href={`/dashboard/services/${serviceId}/case-studies/${cs.id}`}
                 >
                   <Card className="overflow-hidden hover:shadow-lg transition-shadow group">
                     <div className="aspect-video relative">

@@ -110,7 +110,9 @@ export default function ServicesPage() {
                 {price}
               </span>
               <Button asChild className="bg-[#7642FE] hover:bg-[#5f35cc]">
-                <Link href={`/services/${service.id}`}>View Details</Link>
+                <Link href={`/dashboard/services/${service.id}`}>
+                  View Details
+                </Link>
               </Button>
             </div>
           </CardContent>

@@ -135,7 +135,7 @@ export default function ServiceDetailPage({ params }: any) {
               asChild
               className="bg-[#7642FE] hover:bg-[#5f35cc] text-white px-8 py-3 text-lg"
             >
-              <Link href={`/services/${service.id}/request`}>
+              <Link href={`/dashboard/services/${service.id}/request`}>
                 Request service
               </Link>
             </Button>
@@ -211,7 +211,7 @@ export default function ServiceDetailPage({ params }: any) {
                     asChild
                     className="w-full bg-[#7642FE] hover:bg-[#5f35cc] mb-6"
                   >
-                    <Link href={`/services/${service.id}/request`}>
+                    <Link href={`/dashboard/services/${service.id}/request`}>
                       Choose this plan
                     </Link>
                   </Button>
@@ -255,7 +255,7 @@ export default function ServiceDetailPage({ params }: any) {
               // --- START: THIS IS THE FIX ---
               <Link
                 key={caseStudy.id}
-                href={`/services/${service.id}/case-studies/${caseStudy.id}`}
+                href={`/dashboard/services/${service.id}/case-studies/${caseStudy.id}`}
               >
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group h-full">
                   <div className="aspect-video relative">
@@ -365,7 +365,7 @@ export default function ServiceDetailPage({ params }: any) {
             asChild
             className="bg-white text-[#4A1A5C] hover:bg-gray-100 px-8 py-3 text-lg"
           >
-            <Link href={`/services/${service.id}/request`}>
+            <Link href={`/dashboard/services/${service.id}/request`}>
               Request Service
             </Link>
           </Button>

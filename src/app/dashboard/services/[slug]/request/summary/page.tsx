@@ -11,11 +11,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useServiceRequest } from "@/context/ServiceRequestContext";
 
-export default function OrderSummaryPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default function OrderSummaryPage({ params }: any) {
   const router = useRouter();
   const serviceId = params.slug;
 

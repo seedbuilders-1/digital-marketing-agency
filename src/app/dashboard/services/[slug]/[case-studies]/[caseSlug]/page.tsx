@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
@@ -55,11 +56,7 @@ const CaseStudyDetailSkeleton = () => (
   </div>
 );
 
-export default function CaseStudyDetailPage({
-  params,
-}: {
-  params: { slug: string; caseSlug: string };
-}) {
+export default function CaseStudyDetailPage({ params }: any) {
   const { slug: serviceId, caseSlug } = params;
 
   // 3. Fetch the parent service, which contains all its case studies

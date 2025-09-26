@@ -9,11 +9,7 @@ import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useServiceRequest } from "@/context/ServiceRequestContext";
 
-export default function SelectPlanPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default function SelectPlanPage({ params }: any) {
   const router = useRouter();
   const serviceId = params.slug;
 

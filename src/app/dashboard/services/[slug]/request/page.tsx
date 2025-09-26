@@ -55,11 +55,7 @@ const Stepper = ({
   </div>
 );
 
-export default function ServiceRequestPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default function ServiceRequestPage({ params }: any) {
   const router = useRouter();
   const serviceId = params.slug;
   const { setFormData } = useServiceRequest();

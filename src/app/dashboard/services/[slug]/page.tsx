@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
@@ -84,11 +85,7 @@ const ServiceDetailSkeleton = () => (
   </div>
 );
 
-export default function ServiceDetailPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default function ServiceDetailPage({ params }: any) {
   const serviceId = params.slug;
   const {
     data: serviceData,

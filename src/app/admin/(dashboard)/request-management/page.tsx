@@ -67,7 +67,7 @@ export default function RequestManagementPage() {
     data: requestsData,
     isLoading,
     isError,
-  } = useGetAllServicesRequestQuery();
+  } = useGetAllServicesRequestQuery(undefined);
   const allRequests = requestsData?.data || [];
 
   // Calculate stats for the cards

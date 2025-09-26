@@ -38,7 +38,7 @@ export default function PaymentsPage() {
     isLoading,
     isError,
     error,
-  } = useGetUserInvoicesQuery();
+  } = useGetUserInvoicesQuery(undefined);
 
   console.log("invoices", error);
 

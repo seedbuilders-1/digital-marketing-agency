@@ -39,13 +39,13 @@ export default function DashboardPage() {
   const user = useSelector(selectCurrentUser);
   console.log("user", user);
   const { data: invoices = [], isLoading: isLoadingInvoices } =
-    useGetUserInvoicesQuery();
+    useGetUserInvoicesQuery(undefined);
   console.log("dahh", invoices);
   const {
     data: projects = [],
     isLoading: isLoadingProjects,
     isError,
-  } = useGetUserServiceRequestsQuery();
+  } = useGetUserServiceRequestsQuery(undefined);
 
   // --- Data Processing & Calculations ---
   const stats = useMemo(() => {

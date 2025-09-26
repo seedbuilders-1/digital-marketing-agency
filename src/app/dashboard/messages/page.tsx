@@ -13,7 +13,7 @@ export default function MessagesPage() {
 
   // Fetch live conversation data
   const { data: conversations = [], isLoading } =
-    useGetUserConversationsQuery();
+    useGetUserConversationsQuery(undefined);
 
   const filteredConversations = useMemo(() => {
     if (selectedFilter === "all") {

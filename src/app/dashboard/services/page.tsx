@@ -39,7 +39,11 @@ const ServiceCardSkeleton = () => (
 
 export default function ServicesPage() {
   // 2. Fetch data using the hook
-  const { data: servicesData, isLoading, isError } = useGetAllServiesQuery();
+  const {
+    data: servicesData,
+    isLoading,
+    isError,
+  } = useGetAllServiesQuery(undefined);
 
   // 3. Filter for public services and memoize the result
   const publicServices: Service[] = (servicesData?.data || []).filter(

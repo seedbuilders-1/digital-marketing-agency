@@ -52,7 +52,7 @@ export default function ProjectsPage() {
     data: projectsData,
     isLoading,
     isError,
-  } = useGetUserServiceRequestsQuery();
+  } = useGetUserServiceRequestsQuery(undefined);
   const projects = projectsData?.data || [];
 
   // --- FIX #1: REMOVED the state update from useMemo ---

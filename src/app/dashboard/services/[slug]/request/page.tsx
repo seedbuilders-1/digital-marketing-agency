@@ -199,7 +199,7 @@ export default function ServiceRequestPage({ params }: any) {
                             <SelectValue placeholder="Select an option..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {field.options?.map((option) => (
+                            {field.options?.map((option: any) => (
                               <SelectItem key={option} value={option}>
                                 {option}
                               </SelectItem>

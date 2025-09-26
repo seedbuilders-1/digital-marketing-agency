@@ -24,7 +24,7 @@ export default function VerifyPaymentPage() {
   useEffect(() => {
     if (!reference && !isLoading) {
       toast.error("Invalid payment URL. No reference found.");
-      router.push("/dashboard"); // Redirect to a safe page
+      router.push("/dashboard/dashboard"); // Redirect to a safe page
     }
   }, [reference, isLoading, router]);
 

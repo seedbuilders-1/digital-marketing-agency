@@ -95,7 +95,7 @@ export default function ServiceRequestPage({ params }: any) {
   // The final onSubmit that dispatches data to Redux and navigates
   const onSubmit = (data: any) => {
     setFormData(data);
-    router.push(`/services/${serviceId}/request/select-plan`);
+    router.push(`/dashboard/services/${serviceId}/request/select-plan`);
   };
 
   const handleNext = async () => {

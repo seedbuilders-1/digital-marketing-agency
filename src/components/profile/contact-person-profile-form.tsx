@@ -112,7 +112,7 @@ const ContactPersonProfileForm = () => {
       console.log("res", res);
 
       // 3. Navigate to the dashboard or next page
-      router.push("/dashboard");
+      router.push("/dashboard/dashboard");
     } catch (err: any) {
       toast.error(err?.data?.message || "An unexpected error occurred.", {
         id: toastId,
@@ -121,7 +121,7 @@ const ContactPersonProfileForm = () => {
   };
 
   const handleSkip = () => {
-    router.push("/dashboard");
+    router.push("/dashboard/dashboard");
   };
 
   return (

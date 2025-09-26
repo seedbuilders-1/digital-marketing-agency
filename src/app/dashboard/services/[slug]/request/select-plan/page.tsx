@@ -21,7 +21,7 @@ export default function SelectPlanPage({ params }: any) {
 
   const handleSelectPlan = (plan: any) => {
     setSelectedPlan(plan);
-    router.push(`/services/${serviceId}/request/summary`);
+    router.push(`dashboard//services/${serviceId}/request/summary`);
   };
 
   if (isLoading) return <div>Loading Plans...</div>;

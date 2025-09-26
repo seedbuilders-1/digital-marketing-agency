@@ -44,7 +44,7 @@ export default function MessageDetailPage() {
           <p className="text-gray-600 mb-4">
             The requested message could not be found.
           </p>
-          <Button onClick={() => router.push("/messages")}>
+          <Button onClick={() => router.push("dashboard//messages")}>
             Back to Messages
           </Button>
         </div>
@@ -83,7 +83,7 @@ export default function MessageDetailPage() {
               <div className="flex items-center justify-between mb-4 sm:mb-6">
                 <Button
                   variant="ghost"
-                  onClick={() => router.push("/messages")}
+                  onClick={() => router.push("dashboard//messages")}
                   className="flex items-center gap-2 text-[#7642FE] hover:text-[#5f35cc] p-2 sm:px-4"
                 >
                   <ArrowLeft size={20} />

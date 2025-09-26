@@ -67,7 +67,7 @@ export default function OrderSummaryPage({ params }: any) {
       toast.success("Invoice created successfully!", { id: toastId });
 
       resetRequest(); // Clear the context state
-      router.push(`/invoice/${invoiceId}`);
+      router.push(`/dashboard/invoice/${invoiceId}`);
     } catch (err) {
       console.log("err", err);
       toast.error("Failed to create invoice.", { id: toastId });
@@ -78,7 +78,7 @@ export default function OrderSummaryPage({ params }: any) {
     return (
       <div className="text-center p-8">
         <h2>Missing order information.</h2>
-        <Button onClick={() => router.push("/services")}>
+        <Button onClick={() => router.push("/dashboard/services")}>
           Return to Services
         </Button>
       </div>

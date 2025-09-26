@@ -51,7 +51,7 @@ const getRequestStatus = (request: any): { text: string; color: string } => {
   }
 };
 
-const getPaymentStatus = (request: any): { text: string; color: string } => {
+const getPaymentStatus = (request: any) => {
   if (request.invoice?.status === "Unpaid") {
     return { text: "Unpaid", color: "bg-red-100 text-red-800" };
   } else if (request.invoice?.status === "Paid") {
@@ -86,7 +86,7 @@ export default function RequestManagementPage() {
 
   // Filter requests based on search and selected filter
   const filteredRequests = useMemo(() => {
-    return allRequests.filter((request) => {
+    return allRequests.filter((request: any) => {
       const statusInfo = getRequestStatus(request);
       // const paymentInfo = getPaymentStatus(request);
 

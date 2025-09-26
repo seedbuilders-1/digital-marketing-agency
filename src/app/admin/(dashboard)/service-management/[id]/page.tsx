@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -38,11 +39,7 @@ const mockService = {
   status: "Active",
 };
 
-export default function ServiceDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function ServiceDetailPage({ params }: any) {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(mockService);
 

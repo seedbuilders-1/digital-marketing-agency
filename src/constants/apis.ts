@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const api = "http://localhost:3000/api";
+const url = process.env.NEXT_PUBLIC_API_BASE_URL;
+export const api = `${url}/api`;
 const authApi = `${api}/auth`;
 
 export const APIS = {

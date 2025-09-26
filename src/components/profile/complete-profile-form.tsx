@@ -45,8 +45,8 @@ const CompleteProfileForm = () => {
   const form = useForm<CompleteProfileFormData>({
     resolver: zodResolver(completeProfileSchema),
     defaultValues: {
-      ownsBusiness: "",
-      registerWithBusiness: "",
+      ownsBusiness: undefined,
+      registerWithBusiness: undefined,
       // No default values needed for files; they will be FileList objects
     },
     mode: "onChange", // Validate fields as the user interacts with them

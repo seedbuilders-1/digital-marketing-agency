@@ -75,11 +75,13 @@ export default function RequestManagementPage() {
     return {
       total: allRequests.length,
       pending: allRequests.filter(
-        (r) => r.status === "PENDING_APPROVAL" || r.invoice?.status === "Unpaid"
+        (r: any) =>
+          r.status === "PENDING_APPROVAL" || r.invoice?.status === "Unpaid"
       ).length,
-      completed: allRequests.filter((r) => r.status === "COMPLETED").length,
+      completed: allRequests.filter((r: any) => r.status === "COMPLETED")
+        .length,
       cancelled: allRequests.filter(
-        (r) => r.status === "CANCELLED" || r.status === "DECLINED"
+        (r: any) => r.status === "CANCELLED" || r.status === "DECLINED"
       ).length,
     };
   }, [allRequests]);
@@ -240,9 +242,9 @@ export default function RequestManagementPage() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredRequests.length > 0 ? (
-                  filteredRequests.map((request) => {
+                  filteredRequests.map((request: any) => {
                     const statusInfo = getRequestStatus(request);
-                    const paymentInfo = getPaymentStatus(request);
+                    const paymentInfo: any = getPaymentStatus(request);
                     return (
                       <tr key={request.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 font-mono">{`...${request.id.slice(

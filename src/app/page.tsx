@@ -363,7 +363,7 @@ export default function LandingPage() {
 
                 {/* Call to Action Button */}
                 <Button className="bg-[#7642FE] text-white font-bold py-3 px-8 rounded-lg hover:bg-purple-700 transition-all duration-300">
-                  Read About Us
+                  <Link href={"/"}></Link>
                 </Button>
               </div>
 
@@ -467,7 +467,7 @@ export default function LandingPage() {
                 the experts who can help your brand grow
               </h2>
               <Button className="bg-transparent border border-white/75 text-white font-semibold py-2 px-6 rounded-lg hover:bg-white hover:text-[#7642FE] transition-colors duration-300">
-                Request Service
+                <Link href={"/signup"}>Request Service</Link>
               </Button>
             </div>
           </div>

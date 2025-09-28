@@ -15,6 +15,7 @@ import { selectCurrentUser } from "@/features/auth/selectors";
 import { useGetUserInvoicesQuery } from "@/api/invoiceApi";
 import { useGetUserServiceRequestsQuery } from "@/api/servicesApi";
 import { AlertCircle } from "lucide-react";
+import Link from "next/link";
 
 const DashboardSkeleton = () => (
   // A simple skeleton loader for the page
@@ -92,11 +93,14 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center gap-3">
               <Button variant="outline" size="sm" className="p-3">
-                <Mail size={16} />
+                <Link href={"/dashboard/messages"}>
+                  {" "}
+                  <Mail size={16} />
+                </Link>
               </Button>
               <Button className="bg-[#7642FE] hover:bg-[#5f35cc] text-white px-6 py-3">
                 <Plus size={16} className="mr-2" />
-                New Request
+                <Link href={"/dashboard/services"}>New Request</Link>
               </Button>
             </div>
           </div>

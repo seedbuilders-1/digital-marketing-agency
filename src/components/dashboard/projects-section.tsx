@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 // Helper function to map backend status to UI-friendly text and color
 const getStatusDetails = (status: any) => {
@@ -81,7 +82,7 @@ const ProjectsSection = ({ projects }: { projects: any }) => {
           variant="outline"
           className="text-[#7642FE] border-[#7642FE] hover:bg-[#7642FE] hover:text-white"
         >
-          View All
+          <Link href={"/dashboard/projects"}> View All</Link>
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">

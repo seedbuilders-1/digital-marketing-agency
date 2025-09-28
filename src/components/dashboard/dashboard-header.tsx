@@ -1,108 +1,158 @@
 "use client";
+import { useState } from "react"; // Import useState for menu toggle
 import Link from "next/link";
-import { Search, Bell } from "lucide-react";
+import { Search, Bell, Menu, X } from "lucide-react"; // Import Menu and X icons
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
+  // DropdownMenuContent,
+  // DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
+} from "@/components/ui/dropdown-menu"; // Using shadcn/ui Dropdown
+import { selectCurrentUser } from "@/features/auth/selectors";
+import { useSelector } from "react-redux";
+import { Button } from "@/components/ui/button";
 
 const DashboardHeader = () => {
+  const user = useSelector(selectCurrentUser);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // State for mobile menu
+
+  // Define navigation links for reuse
+  const navLinks = [
+    {
+      href: "/dashboard/services",
+      label: "Services",
+      // badge: "2",
+    },
+    {
+      href: "/dashboard/messages",
+      label: "Messages",
+      badge: "2",
+    },
+    {
+      href: "/dashboard/projects",
+      label: "Projects",
+    },
+    {
+      href: "/dashboard/payments",
+      label: "Payments & Billings",
+    },
+  ];
+
   return (
-    <header className="bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-6 py-4">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo and Navigation */}
+          {/* Logo and Desktop Navigation */}
           <div className="flex items-center gap-8">
             <Link
               href="/dashboard/dashboard"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 flex-shrink-0"
             >
               <div className="bg-[#7642FE] rounded-lg p-3 flex items-center justify-center">
                 <span className="text-white font-bold text-lg">DMA</span>
               </div>
             </Link>
 
+            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-8">
-              <Link
-                href="/dashboard/services"
-                className="flex items-center gap-2 text-gray-700 hover:text-gray-900 font-medium"
-              >
-                Services
-                <Badge
-                  variant="secondary"
-                  className="bg-gray-100 text-gray-700 text-xs"
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="flex items-center gap-2 text-gray-700 hover:text-gray-900 font-medium"
                 >
-                  2
-                </Badge>
-              </Link>
-              <Link
-                href="/dashboard/messages"
-                className="flex items-center gap-2 text-gray-700 hover:text-gray-900 font-medium"
-              >
-                Messages
-                <Badge
-                  variant="secondary"
-                  className="bg-gray-100 text-gray-700 text-xs"
-                >
-                  2
-                </Badge>
-              </Link>
-
-              <Link
-                href="/dashboard/projects"
-                className="text-gray-700 hover:text-gray-900 font-medium"
-              >
-                Projects
-              </Link>
-
-              <Link
-                href="/dashboard/payments"
-                className="text-gray-700 hover:text-gray-900 font-medium"
-              >
-                Payments & Billings
-              </Link>
+                  {link.label}
+                  {link.badge && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-gray-100 text-gray-700 text-xs"
+                    >
+                      {link.badge}
+                    </Badge>
+                  )}
+                </Link>
+              ))}
             </nav>
           </div>
 
-          {/* Search and User Actions */}
-          <div className="flex items-center gap-4">
-            <div className="relative">
+          {/* Right side actions */}
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* Search Input */}
+            <div className="relative hidden sm:block">
               <Search
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                 size={20}
               />
               <Input
                 placeholder="Search..."
-                className="pl-10 w-64 bg-gray-50 border-gray-200 focus:bg-white rounded-full"
+                className="pl-10 w-40 md:w-64 bg-gray-50 border-gray-200 focus:bg-white rounded-full"
               />
             </div>
 
-            <button className="relative p-2 text-gray-400 hover:text-gray-600">
-              <Bell size={20} />
-            </button>
+            {/* Notification Bell */}
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <Bell size={20} className="text-gray-500" />
+            </Button>
 
+            {/* User Avatar Dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger>
-                <div className="w-10 h-10 rounded-full overflow-hidden">
+              <DropdownMenuTrigger asChild>
+                <button className="w-10 h-10 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7642FE]">
                   <img
-                    src="/placeholder.svg?height=40&width=40"
+                    src={user?.id_url || "https://avatar.vercel.sh/user.png"} // Fallback avatar
                     alt="User Avatar"
                     className="w-full h-full object-cover"
                   />
-                </div>
+                </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              {/* <DropdownMenuContent align="end">
                 <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuItem>Logout</DropdownMenuItem>
-              </DropdownMenuContent>
+              </DropdownMenuContent> */}
             </DropdownMenu>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label="Toggle menu"
+              >
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </Button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {isMenuOpen && (
+          <nav className="md:hidden mt-4 pt-4 border-t border-gray-200">
+            <div className="flex flex-col gap-4">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center justify-between text-gray-700 hover:text-gray-900 font-medium p-2 rounded-md hover:bg-gray-50"
+                >
+                  <span>{link.label}</span>
+                  {link.badge && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-gray-100 text-gray-700 text-xs"
+                    >
+                      {link.badge}
+                    </Badge>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </nav>
+        )}
       </div>
     </header>
   );

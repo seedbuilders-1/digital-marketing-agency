@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
+"use client"; // Required for using state and event listeners in Next.js App Router
+import { useState } from "react"; // Import useState for managing mobile menu state
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +28,8 @@ import {
   Code,
   Users,
   Newspaper,
+  Menu, // Import Menu icon for hamburger button
+  X, // Import X icon for the close button
 } from "lucide-react";
 import Footer from "@/components/layout/footer";
 import Image from "next/image";
@@ -95,7 +99,7 @@ const services = [
 const ServiceCard = ({ icon, title, description, imageUrl }: any) => (
   <div className="bg-white rounded-2xl shadow-sm overflow-hidden w-full">
     <div className="relative">
-      <Image src={imageUrl} alt={title} className="w-full h-36 object-cover" />
+      <img src={imageUrl} alt={title} className="w-full h-36 object-cover" />
       <div className="absolute top-3 left-3 bg-white rounded-full p-2.5 shadow-md">
         {icon}
       </div>
@@ -108,29 +112,41 @@ const ServiceCard = ({ icon, title, description, imageUrl }: any) => (
 );
 
 export default function LandingPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const mainServices = services.slice(0, 6);
   const lastService = services.length > 6 ? services[6] : null;
+
   return (
     <div className="bg-gray-50 text-gray-800">
+      {/* Add smooth scrolling behavior */}
+      <style jsx global>{`
+        html {
+          scroll-behavior: smooth;
+        }
+      `}</style>
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
           <Logo />
+          {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-8">
-            <a href="#" className="text-[#7642FE] font-semibold">
+            <Link href="#" className="text-[#7642FE] font-semibold">
               Home
-            </a>
-            <a href="#" className="hover:text-[#7642FE]">
+            </Link>
+            <Link href="#about-us" className="hover:text-[#7642FE]">
               About Us
-            </a>
-            <a href="#" className="hover:text-[#7642FE] flex items-center">
+            </Link>
+            <Link
+              href="#services"
+              className="hover:text-[#7642FE] flex items-center"
+            >
               Services <ChevronDown className="w-4 h-4 ml-1" />
-            </a>
-            <a href="#" className="hover:text-[#7642FE]">
+            </Link>
+            <Link href="#contact" className="hover:text-[#7642FE]">
               Contact Us
-            </a>
+            </Link>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-4">
             <Button variant="ghost">
               <Link href={"/login"}>Sign In</Link>
             </Button>
@@ -138,7 +154,70 @@ export default function LandingPage() {
               <Link href={"/signup"}>Sign Up</Link>
             </Button>
           </div>
+          {/* Mobile Menu Button */}
+          <div className="lg:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
         </nav>
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="lg:hidden bg-white/95 backdrop-blur-sm absolute w-full shadow-lg">
+            <div className="flex flex-col items-start space-y-4 p-6">
+              <Link
+                href="#"
+                onClick={() => setIsMenuOpen(false)}
+                className="text-[#7642FE] font-semibold"
+              >
+                Home
+              </Link>
+              <Link
+                href="#about-us"
+                onClick={() => setIsMenuOpen(false)}
+                className="hover:text-[#7642FE]"
+              >
+                About Us
+              </Link>
+              <Link
+                href="#services"
+                onClick={() => setIsMenuOpen(false)}
+                className="hover:text-[#7642FE]"
+              >
+                Services
+              </Link>
+              <Link
+                href="#contact"
+                onClick={() => setIsMenuOpen(false)}
+                className="hover:text-[#7642FE]"
+              >
+                Contact Us
+              </Link>
+              <div className="w-full flex flex-col space-y-2 pt-4 border-t">
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="w-full justify-start"
+                >
+                  <Link href={"/login"}>Sign In</Link>
+                </Button>
+                <Button
+                  asChild
+                  className="bg-[#7642FE] hover:bg-purple-700 w-full"
+                >
+                  <Link href={"/signup"}>Sign Up</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       <main>
@@ -201,6 +280,7 @@ export default function LandingPage() {
 
         {/* What Drives Us Section */}
         <section
+          id="about-us"
           className="relative w-full py-20 lg:py-32 overflow-hidden"
           style={{
             background:
@@ -397,7 +477,7 @@ export default function LandingPage() {
         </section>
 
         {/* Popular Services Section */}
-        <div className="bg-white font-sans">
+        <div className="bg-white font-sans" id="services">
           <div className="container mx-auto px-6 lg:px-20 py-24">
             <div className="text-center max-w-2xl mx-auto">
               <h2 className="text-4xl font-bold text-gray-900 tracking-tight">
@@ -496,7 +576,7 @@ export default function LandingPage() {
         </section>
 
         {/* Get In Touch Section */}
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-white" id="contact">
           <div className="container mx-auto px-6">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold">

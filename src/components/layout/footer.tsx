@@ -3,6 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Instagram, Facebook, MessageCircle } from "lucide-react";
+import DMALogo from "../../../public/dma_svg.svg";
+
+const Logo = () => <Image src={DMALogo} alt="" />;
 
 const Footer = () => {
   return (
@@ -16,15 +19,7 @@ const Footer = () => {
           {/* Company Info */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="bg-white rounded-lg p-2">
-                <Image
-                  src="/DMA-uploads/81f50eda-4cdd-4aa2-b217-a1a96ca6757f.png"
-                  alt="DMA Logo"
-                  width={80}
-                  height={30}
-                  className="object-contain"
-                />
-              </div>
+              <Logo />
               <div>
                 <div className="text-lg font-bold">DIGITAL</div>
                 <div className="text-lg font-bold">MARKETING</div>
@@ -38,19 +33,19 @@ const Footer = () => {
             <div className="flex gap-3">
               <Link
                 href="#"
-                className="bg-white bg-opacity-20 p-2 rounded-lg hover:bg-opacity-30 transition-colors"
+                className="  rounded-lg hover:bg-opacity-30 transition-colors"
               >
                 <Instagram size={20} />
               </Link>
               <Link
                 href="#"
-                className="bg-white bg-opacity-20 p-2 rounded-lg hover:bg-opacity-30 transition-colors"
+                className="  rounded-lg hover:bg-opacity-30 transition-colors"
               >
                 <Facebook size={20} />
               </Link>
               <Link
                 href="#"
-                className="bg-white bg-opacity-20 p-2 rounded-lg hover:bg-opacity-30 transition-colors"
+                className="  rounded-lg hover:bg-opacity-30 transition-colors"
               >
                 <MessageCircle size={20} />
               </Link>

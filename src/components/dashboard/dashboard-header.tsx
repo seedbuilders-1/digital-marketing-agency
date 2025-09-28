@@ -14,12 +14,22 @@ import { selectCurrentUser } from "@/features/auth/selectors";
 import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 
+import DMALogo from "../../../public/dma_svg.svg";
+import Image from "next/image";
+
+const Logo = () => <Image src={DMALogo} alt="" width={60} />;
+
 const DashboardHeader = () => {
   const user = useSelector(selectCurrentUser);
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State for mobile menu
 
   // Define navigation links for reuse
   const navLinks = [
+    {
+      href: "/dashboard/dashboard",
+      label: "Dashboard",
+      // badge: "2",
+    },
     {
       href: "/dashboard/services",
       label: "Services",
@@ -46,12 +56,9 @@ const DashboardHeader = () => {
         <div className="flex items-center justify-between">
           {/* Logo and Desktop Navigation */}
           <div className="flex items-center gap-8">
-            <Link
-              href="/dashboard/dashboard"
-              className="flex items-center gap-2 flex-shrink-0"
-            >
-              <div className="bg-[#7642FE] rounded-lg p-3 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">DMA</span>
+            <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+              <div className="bg-[#7642FE] p-3 flex items-center justify-center">
+                <Logo />
               </div>
             </Link>
 

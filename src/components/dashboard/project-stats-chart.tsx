@@ -41,11 +41,11 @@ const ProjectStatsChart = ({ projects }: { projects: any }) => {
       "Dec",
     ];
 
-    monthNames.forEach((name) => {
+    monthNames?.forEach((name) => {
       monthlyData[name] = { pending: 0, active: 0, completed: 0 };
     });
 
-    projects.forEach((project: any) => {
+    projects?.forEach((project: any) => {
       const monthIndex = new Date(project.created_at).getMonth();
       const monthName = monthNames[monthIndex];
       if (project.status === "PENDING_APPROVAL") {

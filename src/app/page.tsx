@@ -37,13 +37,10 @@ import Landing1 from "../../public/landing-1.png";
 import Landing2 from "../../public/landing-2.png";
 import Landing3 from "../../public/landing-3.png";
 import Link from "next/link";
+import DMALogo from "../../public/dma_svg.svg";
 
 // You can create a simple Logo component like this or just use an Image tag.
-const Logo = () => (
-  <div className="bg-[#7642FE] text-white font-bold text-3xl p-2 px-4 rounded-lg">
-    DMA
-  </div>
-);
+const Logo = () => <Image src={DMALogo} alt="" />;
 
 const services = [
   {
@@ -238,10 +235,10 @@ export default function LandingPage() {
             </p>
             <div className="space-x-4">
               <Button size="lg" className="bg-[#7642FE] hover:bg-purple-700">
-                Get Started
+                <Link href={"/signup"}>Get Started</Link>
               </Button>
               <Button size="lg" variant="outline">
-                Get In Touch
+                <Link href={"#contact"}> Get In Touch</Link>
               </Button>
             </div>
           </div>
@@ -596,7 +593,7 @@ export default function LandingPage() {
                     <h4 className="font-bold mb-2 flex items-center">
                       <MapPin className="mr-2" /> Our Location
                     </h4>
-                    <p>42 Kingsway Tower, Victoria Island, Lagos, Nigeria</p>
+                    <p>6A Embu Street, Wuse 2, Abuja. Nigeria</p>
                   </div>
                   <div>
                     <h4 className="font-bold mb-2 flex items-center">

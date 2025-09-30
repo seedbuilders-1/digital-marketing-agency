@@ -5,12 +5,7 @@ import { useState } from "react"; // For that slick mobile menu toggle
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+
 import {
   ChevronDown,
   MapPin,
@@ -21,7 +16,6 @@ import {
   Heart,
   Lightbulb,
   BarChart,
-  Send,
   Search,
   Megaphone,
   PenTool,
@@ -38,8 +32,6 @@ import {
 import Footer from "@/components/layout/footer";
 import Image from "next/image";
 import Landing1 from "../../public/landing-1.png";
-import Landing2 from "../../public/landing-2.png";
-import Landing3 from "../../public/landing-3.png";
 import Link from "next/link";
 import DMALogo from "../../public/dma_svg.svg";
 

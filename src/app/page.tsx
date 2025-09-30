@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
-"use client"; // Required for using state and event listeners in Next.js App Router
-import { useState } from "react"; // Import useState for managing mobile menu state
+"use client"; // Absolutely crucial for our interactive components in Next.js!
+import { useState } from "react"; // For that slick mobile menu toggle
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,9 +28,13 @@ import {
   Code,
   Users,
   Newspaper,
-  Menu, // Import Menu icon for hamburger button
-  X, // Import X icon for the close button
-} from "lucide-react";
+  Menu, // The iconic hamburger for mobile
+  X, // The elegant close icon
+  Zap, // For speed!
+  Wallet, // For cost-effectiveness
+  LayoutDashboard, // For the all-in-one platform
+  Rocket, // For focus on core areas
+} from "lucide-react"; // A stellar icon set, as always!
 import Footer from "@/components/layout/footer";
 import Image from "next/image";
 import Landing1 from "../../public/landing-1.png";
@@ -39,175 +43,216 @@ import Landing3 from "../../public/landing-3.png";
 import Link from "next/link";
 import DMALogo from "../../public/dma_svg.svg";
 
-// You can create a simple Logo component like this or just use an Image tag.
-const Logo = () => <Image src={DMALogo} alt="" />;
+// A simple, elegant Logo component – because branding is everything!
+const Logo = () => (
+  <Image
+    src={DMALogo}
+    alt="Digital Marketing Agency Nigeria Logo"
+    width={120}
+    height={40}
+  />
+);
 
+// Our robust array of services, now with a punchier feel.
 const services = [
   {
     icon: <Search className="h-6 w-6 text-gray-800" />,
     title: "Search Engine Optimization (SEO)",
-    description: "Get your business found by the right customers.",
+    description:
+      "Conquer search rankings. Get your business found where it matters most.",
     imageUrl:
       "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1000&auto=format&fit=crop",
   },
   {
     icon: <Megaphone className="h-6 w-6 text-gray-800" />,
     title: "Social Media Marketing",
-    description: "Transform your social presence into a sales engine.",
+    description:
+      "Ignite your social presence. Turn followers into loyal customers.",
     imageUrl:
       "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1000&auto=format&fit=crop",
   },
   {
     icon: <PenTool className="h-6 w-6 text-gray-800" />,
     title: "Content Marketing",
-    description: "Tell your story, attract your audience.",
+    description:
+      "Craft compelling narratives. Attract, engage, and convert your ideal audience.",
     imageUrl:
       "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1000&auto=format&fit=crop",
   },
   {
     icon: <Code className="h-6 w-6 text-gray-800" />,
     title: "Web Design & Development",
-    description: "Build your dream online presence.",
+    description:
+      "Architect your digital storefront. Build a stunning and highly functional online presence.",
     imageUrl:
       "https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1000&auto=format&fit=crop",
   },
   {
     icon: <BarChart className="h-6 w-6 text-gray-800" />,
     title: "Digital Marketing Strategy",
-    description: "Develop a clear roadmap for online success.",
+    description:
+      "Chart your course to success. A clear, data-driven roadmap for unparalleled online growth.",
     imageUrl:
       "https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1000&auto=format&fit=crop",
   },
   {
     icon: <Users className="h-6 w-6 text-gray-800" />,
     title: "Influencer Marketing",
-    description: "Amplify your brand's reach through authentic voices.",
+    description:
+      "Amplify your message. Connect with authentic voices to skyrocket brand reach.",
     imageUrl:
       "https://images.unsplash.com/photo-1585255285330-aae636831416?q=80&w=1000&auto=format&fit=crop",
   },
   {
     icon: <Newspaper className="h-6 w-6 text-gray-800" />,
     title: "Public Relations (PR) & Online Reputation Management",
-    description: "Build trust and protect your brand's image.",
+    description:
+      "Forge trust. Protect and enhance your brand's pristine image.",
     imageUrl:
       "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1000&auto=format&fit=crop",
   },
 ];
+
+// A visually rich ServiceCard component – because every service deserves to shine!
 const ServiceCard = ({ icon, title, description, imageUrl }: any) => (
-  <div className="bg-white rounded-2xl shadow-sm overflow-hidden w-full">
-    <div className="relative">
-      <img src={imageUrl} alt={title} className="w-full h-36 object-cover" />
-      <div className="absolute top-3 left-3 bg-white rounded-full p-2.5 shadow-md">
+  <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden w-full group">
+    <div className="relative h-40">
+      <img
+        src={imageUrl}
+        alt={title}
+        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+      />
+      <div className="absolute top-4 left-4 bg-white rounded-full p-3 shadow-md group-hover:rotate-6 transition-transform duration-300">
         {icon}
       </div>
     </div>
-    <div className="p-5">
-      <h3 className="font-bold text-gray-900 leading-snug">{title}</h3>
-      <p className="mt-2 text-sm text-gray-600">{description}</p>
+    <div className="p-6">
+      <h3 className="font-extrabold text-xl text-gray-900 leading-tight group-hover:text-[#7642FE] transition-colors duration-300">
+        {title}
+      </h3>
+      <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+        {description}
+      </p>
     </div>
   </div>
 );
 
+// The main event: our stunning LandingPage!
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const mainServices = services.slice(0, 6);
   const lastService = services.length > 6 ? services[6] : null;
 
   return (
-    <div className="bg-gray-50 text-gray-800">
-      {/* Add smooth scrolling behavior */}
+    <div className="bg-gradient-to-b from-gray-50 to-purple-50 text-gray-800 font-sans antialiased">
+      {/* Smooth scrolling is a must for a polished experience! */}
       <style jsx global>{`
         html {
           scroll-behavior: smooth;
         }
       `}</style>
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+
+      {/* Header: The command center for navigation */}
+      <header className="bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
           <Logo />
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation: Clear, concise, and captivating */}
           <div className="hidden lg:flex items-center space-x-8">
-            <Link href="#" className="text-[#7642FE] font-semibold">
+            <Link
+              href="#"
+              className="text-[#7642FE] font-bold transition-colors hover:text-purple-700"
+            >
               Home
             </Link>
-            <Link href="#about-us" className="hover:text-[#7642FE]">
+            <Link
+              href="#about-us"
+              className="text-gray-700 font-medium hover:text-[#7642FE] transition-colors"
+            >
               About Us
             </Link>
             <Link
               href="#services"
-              className="hover:text-[#7642FE] flex items-center"
+              className="text-gray-700 font-medium hover:text-[#7642FE] transition-colors flex items-center group"
             >
-              Services <ChevronDown className="w-4 h-4 ml-1" />
+              Services{" "}
+              <ChevronDown className="w-4 h-4 ml-1 transition-transform group-hover:rotate-180" />
             </Link>
-            <Link href="#contact" className="hover:text-[#7642FE]">
+            <Link
+              href="#contact"
+              className="text-gray-700 font-medium hover:text-[#7642FE] transition-colors"
+            >
               Contact Us
             </Link>
           </div>
           <div className="hidden lg:flex items-center space-x-4">
-            <Button variant="ghost">
+            <Button
+              variant="ghost"
+              className="text-gray-700 hover:text-[#7642FE] hover:bg-purple-50"
+            >
               <Link href={"/login"}>Sign In</Link>
             </Button>
-            <Button className="bg-[#7642FE] hover:bg-purple-700">
+            <Button className="bg-[#7642FE] hover:bg-purple-700 text-white font-semibold shadow-md hover:shadow-lg transition-all">
               <Link href={"/signup"}>Sign Up</Link>
             </Button>
           </div>
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button: Responsive and intuitive */}
           <div className="lg:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle menu"
+              className="p-2 rounded-md hover:bg-gray-100 transition-colors"
             >
               {isMenuOpen ? (
-                <X className="h-6 w-6" />
+                <X className="h-7 w-7 text-gray-700" />
               ) : (
-                <Menu className="h-6 w-6" />
+                <Menu className="h-7 w-7 text-gray-700" />
               )}
             </button>
           </div>
         </nav>
-        {/* Mobile Menu */}
+        {/* Mobile Menu: A clean, accessible overlay */}
         {isMenuOpen && (
-          <div className="lg:hidden bg-white/95 backdrop-blur-sm absolute w-full shadow-lg">
-            <div className="flex flex-col items-start space-y-4 p-6">
+          <div className="lg:hidden bg-white/95 backdrop-blur-md absolute w-full shadow-lg border-t border-gray-100">
+            <div className="flex flex-col items-start space-y-5 p-6">
               <Link
                 href="#"
                 onClick={() => setIsMenuOpen(false)}
-                className="text-[#7642FE] font-semibold"
+                className="text-[#7642FE] font-bold text-lg"
               >
                 Home
               </Link>
               <Link
                 href="#about-us"
                 onClick={() => setIsMenuOpen(false)}
-                className="hover:text-[#7642FE]"
+                className="text-gray-700 hover:text-[#7642FE] text-lg"
               >
                 About Us
               </Link>
               <Link
                 href="#services"
                 onClick={() => setIsMenuOpen(false)}
-                className="hover:text-[#7642FE]"
+                className="text-gray-700 hover:text-[#7642FE] text-lg"
               >
                 Services
               </Link>
               <Link
                 href="#contact"
                 onClick={() => setIsMenuOpen(false)}
-                className="hover:text-[#7642FE]"
+                className="text-gray-700 hover:text-[#7642FE] text-lg"
               >
                 Contact Us
               </Link>
-              <div className="w-full flex flex-col space-y-2 pt-4 border-t">
+              <div className="w-full flex flex-col space-y-3 pt-6 border-t border-gray-100">
                 <Button
                   asChild
                   variant="ghost"
-                  className="w-full justify-start"
+                  className="w-full justify-center text-lg text-gray-700 hover:text-[#7642FE] hover:bg-purple-50"
                 >
                   <Link href={"/login"}>Sign In</Link>
                 </Button>
                 <Button
                   asChild
-                  className="bg-[#7642FE] hover:bg-purple-700 w-full"
+                  className="bg-[#7642FE] hover:bg-purple-700 w-full text-lg font-semibold shadow-md"
                 >
                   <Link href={"/signup"}>Sign Up</Link>
                 </Button>
@@ -218,534 +263,447 @@ export default function LandingPage() {
       </header>
 
       <main>
-        {/* Hero Section */}
-        <section className="py-20 text-center relative overflow-hidden">
-          <div className="absolute inset-0 "></div>
-          <div className="container mx-auto px-6 relative">
-            <p className="text-gray-600 mb-4">
-              Connecting Businesses With The Right
-            </p>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4">
-              Digital <span className="text-[#7642FE]">Marketing</span> Services
-            </h1>
-            <p className="max-w-2xl mx-auto text-gray-600 mb-8">
-              We turn clicks to customers, our data driven strategies increase
-              your brand visibility, boost conversions and maximize your return
-              on investment.
-            </p>
-            <div className="space-x-4">
-              <Button size="lg" className="bg-[#7642FE] hover:bg-purple-700">
-                <Link href={"/signup"}>Get Started</Link>
-              </Button>
-              <Button size="lg" variant="outline">
-                <Link href={"#contact"}> Get In Touch</Link>
-              </Button>
-            </div>
+        {/* Hero Section: The grand entrance, clear and compelling */}
+        <section className="relative isolate overflow-hidden bg-slate-900">
+          {/* Background Gradients and Grid */}
+          <div
+            className="absolute inset-0 -z-10 transform-gpu overflow-hidden blur-3xl"
+            aria-hidden="true"
+          >
+            <div
+              className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#8F75FF] to-[#7642FE] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+              style={{
+                clipPath:
+                  "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
+              }}
+            />
           </div>
-        </section>
+          <div className="absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-slate-900/50 to-transparent -z-10"></div>
 
-        {/* Image below Hero */}
-        <section className="container mx-auto px-6 -mt-10">
-          <Image
-            src={Landing1}
-            alt="Digital Marketing Team"
-            className="rounded-xl w-full"
-          />
-        </section>
-
-        {/* Stats Bar */}
-        <section className="bg-[#7642FE] text-white py-12 mt-16">
-          <div className="container mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <p className="text-4xl font-bold">12</p>
-              <p>Digital Marketing Services</p>
-            </div>
-            <div>
-              <p className="text-4xl font-bold">300+</p>
-              <p>Satisfied Clients</p>
-            </div>
-            <div>
-              <p className="text-4xl font-bold">1200+</p>
-              <p>Successful Campaigns Delivered</p>
-            </div>
-            <div>
-              <p className="text-4xl font-bold">24/7</p>
-              <p>Support and Assistance</p>
-            </div>
-          </div>
-        </section>
-
-        {/* What Drives Us Section */}
-        <section
-          id="about-us"
-          className="relative w-full py-20 lg:py-32 overflow-hidden"
-          style={{
-            background:
-              "linear-gradient(100deg, #fefce8 10%, #ffffff 50%, #f3e8ff 90%)",
-          }}
-        >
-          <div className="container mx-auto px-6">
-            {/* Flex container to align the images and the central text content */}
-            <div className="flex justify-center items-center gap-8">
-              {/* Left Image Placeholder - hidden on smaller screens */}
-              <div className="hidden lg:block transform -rotate-3">
-                <div
-                  className="w-72 h-[26rem] rounded-full overflow-hidden shadow-2xl"
-                  style={{ borderRadius: "30rem" }}
+          {/* Content */}
+          <div className="container mx-auto px-6 py-24 text-center sm:py-32 relative z-10">
+            <div className="max-w-5xl mx-auto">
+              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl">
+                Your Digital Marketing, Done in
+                <span className="mt-2 block text-5xl sm:text-7xl lg:text-8xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-[#7642FE] to-indigo-400">
+                  Hours — Not Weeks
+                </span>
+              </h1>
+              <p className="mt-8 max-w-3xl mx-auto text-lg leading-8 text-slate-300">
+                Why hire staff or chase agencies when you can get{" "}
+                <strong className="font-semibold text-white">
+                  professional digital marketing services instantly?
+                </strong>{" "}
+                With{" "}
+                <strong className="font-semibold text-white">
+                  Digital Marketing Agency Nigeria
+                </strong>
+                , individuals and businesses request exactly what they need —
+                from{" "}
+                <strong className="font-semibold text-white">
+                  social media marketing to SEO, content creation, graphic
+                  design, ads, and more
+                </strong>{" "}
+                — and receive it in{" "}
+                <strong className="font-semibold text-white">
+                  under 3 hours
+                </strong>
+                , all through one seamless platform.
+              </p>
+              <div className="mt-12 flex items-center justify-center gap-x-6">
+                <Link
+                  href="/signup"
+                  className="group relative inline-flex items-center justify-center rounded-full bg-[#7642FE] px-8 py-3.5 text-lg font-semibold text-white shadow-2xl shadow-[#7642FE]/20 transition-transform duration-300 ease-in-out hover:scale-105"
                 >
-                  <Image
-                    src={Landing2}
-                    alt="A person working on a laptop"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-
-              {/* Central Content */}
-              <div className="text-center max-w-2xl mx-auto z-10">
-                {/* Circular Graphic Element */}
-                <div className="w-32 h-32 mx-auto mb-8 flex items-center justify-center rounded-full relative">
-                  {/* Animated rotating text using SVG */}
+                  Request Your First Service
                   <svg
-                    viewBox="0 0 100 100"
-                    className="absolute inset-0 w-full h-full animate-spin"
-                    style={{
-                      animationDuration: "20s",
-                      animationDirection: "reverse",
-                    }}
-                  >
-                    <path
-                      id="circlePath"
-                      fill="none"
-                      d="M 10, 50 a 40,40 0 1,1 80,0 a 40,40 0 1,1 -80,0"
-                    ></path>
-                    <text>
-                      <textPath
-                        href="#circlePath"
-                        className="text-[7px] font-semibold tracking-widest uppercase fill-gray-500"
-                      >
-                        Build a successful brand with digital marketing agency
-                      </textPath>
-                    </text>
-                  </svg>
-                  {/* Arrow Icon in the center */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-8 w-8 text-[#7642FE]"
+                    className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1"
                     fill="none"
-                    viewBox="0 0 24 24"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      d="M5 10l7-7m0 0l7 7m-7-7v18"
-                      transform="rotate(45 12 12)"
-                    />
+                      strokeWidth="2"
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    ></path>
                   </svg>
-                </div>
-
-                {/* Main Heading */}
-                <h2 className="text-4xl lg:text-5xl font-bold mb-4 text-gray-800">
-                  What Drives Digital
-                  <br />
-                  <span className="text-[#7642FE]">Marketing Agency?</span>
-                </h2>
-
-                {/* Paragraph Text */}
-                <p className="max-w-xl mx-auto text-gray-600 mb-8">
-                  Our Digital Marketing Agency platform was built to bridge the
-                  gap between businesses and digital marketing services. We make
-                  it easier for brands to discover, connect, and grow with the
-                  right marketing solutions—all in one platform.
-                </p>
-
-                {/* Call to Action Button */}
-                <Button className="bg-[#7642FE] text-white font-bold py-3 px-8 rounded-lg hover:bg-purple-700 transition-all duration-300">
-                  <Link href={"/"}></Link>
-                </Button>
-              </div>
-
-              {/* Right Image Placeholder - hidden on smaller screens */}
-              <div className="hidden lg:block transform rotate-3">
-                <div
-                  className="w-72 h-[26rem] rounded-full overflow-hidden shadow-2xl"
-                  style={{ borderRadius: "30rem" }}
+                </Link>
+                <Link
+                  href="#about-us"
+                  className="group text-lg font-semibold leading-6 text-slate-200 transition-colors duration-300 hover:text-white"
                 >
-                  <Image
-                    src={Landing3}
-                    alt="A person working at a computer"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                  Discover More{" "}
+                  <span
+                    className="transition-transform duration-300 group-hover:translate-x-1"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
+                </Link>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CTA Section 1 */}
-        <section className="container mx-auto px-6 my-10">
-          {/* Main container with purple background, rounded corners, and relative positioning */}
-          <div className="bg-[#7642FE] text-white rounded-2xl p-12 text-center relative overflow-hidden">
-            {/* Decorative SVG Shapes positioned absolutely */}
-            {/* Left Side Shape */}
-            <div className="absolute left-0 bottom-0 text-[#7642FE] opacity-50 -translate-x-1/4 translate-y-1/4">
-              <svg
-                width="200"
-                height="200"
-                viewBox="0 0 200 200"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M199 100C199 45.2285 154.771 1 100 1C45.2285 1 1 45.2285 1 100"
-                  stroke="currentColor"
-                  strokeWidth="12"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M1 100C1 154.771 45.2285 199 100 199"
-                  stroke="currentColor"
-                  strokeWidth="12"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
+        <section className="container mx-auto px-6 -mt-16 relative z-20 flex justify-center">
+          <Image
+            src={Landing1}
+            alt="Digital Marketing Team collaborating"
+            className="rounded-3xl shadow-2xl border-4 border-white transform hover:scale-101 transition-transform duration-500"
+          />
+        </section>
 
-            {/* Right Side Shape */}
-            <div className="absolute right-0 bottom-0 text-[#7642FE] opacity-50 translate-x-1/4 translate-y-1/4">
-              <svg
-                width="150"
-                height="150"
-                viewBox="0 0 200 200"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M1 100C1 154.771 45.2285 199 100 199C154.771 199 199 154.771 199 100"
-                  stroke="currentColor"
-                  strokeWidth="12"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
+        <section className="py-20 bg-white" id="about-us">
+          <div className="container mx-auto px-6 text-center max-w-4xl">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
+              Digital Marketing Agency Nigeria: <br />
+              <span className="text-[#7642FE]">
+                The Future of Digital Growth.
+              </span>
+            </h2>
+            <p className="text-lg text-gray-700 leading-relaxed mb-8">
+              Digital Marketing Agency Nigeria is Nigeria’s first-ever seamless,
+              one-stop digital platform that connects individuals and businesses
+              with premium digital marketing services at their fingertips, thus
+              saving time and expenses.
+            </p>
+            <p className="text-lg text-gray-700 leading-relaxed mb-8">
+              It is a platform that allows a client (individual or business) to
+              request a service and get it done seamlessly at the proposed time
+              of collection. Users retrieve their solutions and requests from
+              their dashboards without stress or excessive communication,
+              allowing them to focus on their work.
+            </p>
+            <Button
+              size="lg"
+              className="bg-[#7642FE] hover:bg-purple-700 text-white font-bold py-3 px-8 text-lg rounded-full shadow-lg hover:shadow-xl transition-all"
+            >
+              <Link href={"/signup"}>Start Your Journey</Link>
+            </Button>
+          </div>
+        </section>
 
-            {/* Search Icon SVG */}
-            <div className="absolute top-8 right-8 text-white/80 hidden sm:block">
-              <svg
-                width="80"
-                height="80"
-                viewBox="0 0 100 100"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle
-                  cx="45"
-                  cy="45"
-                  r="30"
-                  stroke="currentColor"
-                  strokeWidth="10"
-                />
-                <line
-                  x1="68"
-                  y1="68"
-                  x2="90"
-                  y2="90"
-                  stroke="currentColor"
-                  strokeWidth="10"
-                  strokeLinecap="round"
-                />
-              </svg>
+        {/* Why Businesses Are Switching to Us Section */}
+        <section className="py-20 bg-gradient-to-r from-purple-50 to-blue-50">
+          <div className="container mx-auto px-6 text-center">
+            <h2 className="text-4xl font-bold text-gray-900 mb-12">
+              Why Businesses Are{" "}
+              <span className="text-[#7642FE]">Switching to Us</span>
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300 border-b-4 border-[#7642FE]">
+                <div className="bg-purple-100 p-4 rounded-full mb-4">
+                  <Zap className="text-[#7642FE] h-8 w-8" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  Speed That Matters
+                </h3>
+                <p className="text-gray-600 text-center">
+                  Get your marketing request delivered in under 3 hours —
+                  because your business can’t wait.
+                </p>
+              </div>
+              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300 border-b-4 border-[#7642FE]">
+                <div className="bg-purple-100 p-4 rounded-full mb-4">
+                  <Wallet className="text-[#7642FE] h-8 w-8" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  Cost-Effective
+                </h3>
+                <p className="text-gray-600 text-center">
+                  Only pay for the services you need. No overhead, no staff
+                  salaries. Pure efficiency.
+                </p>
+              </div>
+              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300 border-b-4 border-[#7642FE]">
+                <div className="bg-purple-100 p-4 rounded-full mb-4">
+                  <LayoutDashboard className="text-[#7642FE] h-8 w-8" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  All-in-One Platform
+                </h3>
+                <p className="text-gray-600 text-center">
+                  From SEO to social media campaigns, graphics, ads, and so on —
+                  everything lives in your dashboard.
+                </p>
+              </div>
+              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300 border-b-4 border-[#7642FE]">
+                <div className="bg-purple-100 p-4 rounded-full mb-4">
+                  <Star className="text-[#7642FE] h-8 w-8" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  Superb Process
+                </h3>
+                <p className="text-gray-600 text-center">
+                  No endless phone calls or emails. Your work arrives, ready for
+                  use, right where you need it.
+                </p>
+              </div>
             </div>
-
-            {/* Content container with z-index to stay above the shapes */}
-            <div className="relative z-10">
-              <h2 className="text-2xl md:text-3xl font-bold mb-6 max-w-4xl mx-auto">
-                Ready to take your business to the next level? Let us help you
-                find the right digital marketing service and connect you with
-                the experts who can help your brand grow
-              </h2>
-              <Button className="bg-transparent border border-white/75 text-white font-semibold py-2 px-6 rounded-lg hover:bg-white hover:text-[#7642FE] transition-colors duration-300">
-                <Link href={"/signup"}>Request Service</Link>
-              </Button>
+            <div className="mt-12">
+              <p className="text-xl font-semibold text-gray-800">
+                Seamless Dashboard: Track, review, and collect all deliverables
+                in one place.
+              </p>
             </div>
           </div>
         </section>
 
-        {/* Popular Services Section */}
-        <div className="bg-white font-sans" id="services">
-          <div className="container mx-auto px-6 lg:px-20 py-24">
-            <div className="text-center max-w-2xl mx-auto">
-              <h2 className="text-4xl font-bold text-gray-900 tracking-tight">
-                Popular <span className="text-[#7642FE]">Services.</span>
+        {/* Popular Services Section: Where expertise meets opportunity */}
+        <div className="bg-white font-sans py-24" id="services">
+          <div className="container mx-auto px-6 lg:px-20">
+            <div className="text-center max-w-3xl mx-auto">
+              <h2 className="text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
+                Our Core <span className="text-[#7642FE]">Services.</span>
               </h2>
-              <p className="mt-5 text-base text-gray-600 leading-relaxed">
-                Don't let your messages go unseen. With our email marketing
-                service, you can build real relationships with your audience,
-                deliver personalized experiences, and drive consistent sales.
-                Let your emails work smarter — not harder.
+              <p className="mt-6 text-xl text-gray-700 leading-relaxed">
+                Unlock unparalleled growth with our comprehensive suite of
+                digital marketing solutions. Each service is meticulously
+                crafted to deliver measurable results and propel your brand
+                forward.
               </p>
             </div>
 
-            <div className="mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
+            <div className="mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
               {mainServices.map((service) => (
                 <ServiceCard key={service.title} {...service} />
               ))}
             </div>
 
             {lastService && (
-              <div className="mt-8 flex justify-center">
-                <div className="w-full sm:w-1/2 lg:w-1/3 sm:px-3">
+              <div className="mt-12 flex justify-center">
+                <div className="w-full sm:w-2/3 lg:w-1/3">
                   <ServiceCard {...lastService} />
                 </div>
               </div>
             )}
 
             <div className="mt-20 text-center">
-              <a
-                href="#"
-                className="text-sm text-[#7642FE] font-semibold hover:text-purple-700 transition-colors"
+              <Link
+                href="#contact"
+                className="inline-flex items-center text-xl text-[#7642FE] font-bold hover:text-purple-700 transition-colors group"
               >
-                See all services
-              </a>
+                Explore All Our Solutions{" "}
+                <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* How it Works Section */}
-        <section className="py-20 container mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-4">
-            How it <span className="text-[#7642FE]">Works</span>
+        {/* How It Works Section: Simplicity in action */}
+        <section className="py-24 bg-gradient-to-tl from-purple-50 to-indigo-50 container mx-auto px-6 text-center rounded-3xl shadow-inner my-16">
+          <h2 className="text-5xl font-extrabold mb-6 text-gray-900">
+            How It <span className="text-[#7642FE]">Works</span>
           </h2>
-          <p className="max-w-2xl mx-auto text-gray-600 mb-12">
-            Getting started with us is simple. In just a few steps, you can find
-            the right digital marketing service, connect with trusted experts,
-            and manage everything in one place — stress-free.
+          <p className="max-w-3xl mx-auto text-xl text-gray-700 mb-16 leading-relaxed">
+            Getting started with us is effortlessly simple. In just a few steps,
+            you'll be on your way to elevated digital marketing, connecting with
+            trusted experts and managing everything from one intuitive platform.
           </p>
-          <div className="grid md:grid-cols-5 gap-8">
-            <div className="flex flex-col items-center">
-              <div className="bg-purple-100 p-4 rounded-full mb-4">
-                <Heart className="text-[#7642FE]" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-12">
+            <div className="flex flex-col items-center transform hover:scale-105 transition-transform duration-300">
+              <div className="bg-[#7642FE] text-white p-5 rounded-full mb-5 shadow-lg">
+                <Lightbulb className="h-8 w-8" />
               </div>
-              <h3 className="font-bold">Pick your goal</h3>
-              <p className="text-sm text-gray-600">
-                Choose your preferred service
+              <h3 className="font-extrabold text-xl text-gray-900 mb-2">
+                Request a Service
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Choose precisely the digital marketing service you need.
               </p>
             </div>
-            <div className="flex flex-col items-center">
-              <div className="bg-purple-100 p-4 rounded-full mb-4">
-                <Lightbulb className="text-[#7642FE]" />
+            <div className="flex flex-col items-center transform hover:scale-105 transition-transform duration-300">
+              <div className="bg-[#7642FE] text-white p-5 rounded-full mb-5 shadow-lg">
+                <Code className="h-8 w-8" />
               </div>
-              <h3 className="font-bold">Create a free account</h3>
-              <p className="text-sm text-gray-600">
-                Sign up in minutes to manage your project
+              <h3 className="font-extrabold text-xl text-gray-900 mb-2">
+                Set Your Timeline
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Tell us when you need it delivered – we work fast!
               </p>
             </div>
-            <div className="flex flex-col items-center">
-              <div className="bg-purple-100 p-4 rounded-full mb-4">
-                <Send className="text-[#7642FE]" />
+            <div className="flex flex-col items-center transform hover:scale-105 transition-transform duration-300">
+              <div className="bg-[#7642FE] text-white p-5 rounded-full mb-5 shadow-lg">
+                <LayoutDashboard className="h-8 w-8" />
               </div>
-              <h3 className="font-bold">Make Payment</h3>
-              <p className="text-sm text-gray-600">
-                Complete your payment securely
+              <h3 className="font-extrabold text-xl text-gray-900 mb-2">
+                Track & Collect
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                View progress and retrieve your completed work from your
+                dashboard.
               </p>
             </div>
-            <div className="flex flex-col items-center">
-              <div className="bg-purple-100 p-4 rounded-full mb-4">
-                <BarChart className="text-[#7642FE]" />
+            <div className="flex flex-col items-center transform hover:scale-105 transition-transform duration-300">
+              <div className="bg-[#7642FE] text-white p-5 rounded-full mb-5 shadow-lg">
+                <Rocket className="h-8 w-8" />
               </div>
-              <h3 className="font-bold">Track results</h3>
-              <p className="text-sm text-gray-600">
-                Monitor progress and stay updated
+              <h3 className="font-extrabold text-xl text-gray-900 mb-2">
+                Focus on Your Core
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                You run your business; we handle your marketing and visibility.
               </p>
             </div>
-            <div className="flex flex-col items-center">
-              <div className="bg-purple-100 p-4 rounded-full mb-4">
-                <Star className="text-[#7642FE]" />
+            <div className="flex flex-col items-center transform hover:scale-105 transition-transform duration-300">
+              <div className="bg-[#7642FE] text-white p-5 rounded-full mb-5 shadow-lg">
+                <Heart className="h-8 w-8" />
               </div>
-              <h3 className="font-bold">Share your feedback</h3>
-              <p className="text-sm text-gray-600">
-                Rate your experience and help us serve you better
+              <h3 className="font-extrabold text-xl text-gray-900 mb-2">
+                Experience Growth
+              </h3>
+              <p className="text-gray-600 leading-relaxed">
+                Watch your brand flourish with expert digital strategies.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Get In Touch Section */}
-        <section className="py-20 bg-white" id="contact">
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold">
-                Get In <span className="text-[#7642FE]">Touch</span> With Us
-                Today!
+        {/* CTA Section 1: A powerful prompt to action */}
+        <section className="container mx-auto px-6 my-20">
+          <div className="bg-[#7642FE] text-white rounded-3xl p-12 md:p-16 text-center relative overflow-hidden shadow-2xl">
+            {/* Swirling background elements for visual flair */}
+            <div className="absolute -left-1/4 -bottom-1/4 w-96 h-96 bg-white/10 rounded-full mix-blend-overlay animate-pulse-slow"></div>
+            <div className="absolute -right-1/4 -top-1/4 w-80 h-80 bg-white/10 rounded-full mix-blend-overlay animate-pulse-slow delay-500"></div>
+
+            <div className="relative z-10 max-w-4xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-extrabold mb-8 leading-snug">
+                Your Business Deserves Marketing That Moves as Fast as You Do.
               </h2>
-              <p className="max-w-2xl mx-auto text-gray-600 mt-4">
-                Have questions or ready to get started? Our team is here to help
-                you find the right digital marketing solution for your business.
+              <p className="text-lg md:text-xl mb-10 leading-relaxed">
+                With Digital Marketing Agency Nigeria, digital marketing is no
+                longer complex or slow. It’s seamless, fast, and always at your
+                fingertips.
+              </p>
+              <Button
+                size="lg"
+                className="bg-white text-[#7642FE] font-bold py-3 px-10 text-xl rounded-full hover:bg-gray-100 shadow-xl hover:shadow-2xl transition-all duration-300"
+              >
+                <Link href={"/signup"}>👉 Request Your First Service Now!</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Get In Touch Section: Building connections */}
+        <section className="py-24 bg-white" id="contact">
+          <div className="container mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-5xl font-extrabold text-gray-900">
+                Let's Make <span className="text-[#7642FE]">Magic</span> Happen!
+              </h2>
+              <p className="max-w-2xl mx-auto text-xl text-gray-700 mt-6 leading-relaxed">
+                Have burning questions or ready to ignite your digital presence?
+                Our dedicated team is eager to connect and craft the perfect
+                strategy for your business.
               </p>
             </div>
-            <div className="grid lg:grid-cols-5 gap-12">
-              <div className="lg:col-span-2 bg-[#7642FE] text-white p-8 rounded-lg">
-                <h3 className="text-2xl font-bold mb-6">Contact Info</h3>
-                <div className="space-y-6">
-                  <div>
-                    <h4 className="font-bold mb-2 flex items-center">
-                      <MapPin className="mr-2" /> Our Location
-                    </h4>
-                    <p>6A Embu Street, Wuse 2, Abuja. Nigeria</p>
-                  </div>
-                  <div>
-                    <h4 className="font-bold mb-2 flex items-center">
-                      <Phone className="mr-2" /> Phone Number
-                    </h4>
-                    <p>+234 000 000 0000</p>
-                  </div>
-                  <div>
-                    <h4 className="font-bold mb-2 flex items-center">
-                      <Mail className="mr-2" /> Email address
-                    </h4>
-                    <p>hello@digitalmarketingagency.com</p>
+            <div className="grid lg:grid-cols-5 gap-16">
+              <div className="lg:col-span-2 bg-[#7642FE] text-white p-10 rounded-2xl shadow-xl flex flex-col justify-between">
+                <div>
+                  <h3 className="text-3xl font-bold mb-8">Reach Out Today!</h3>
+                  <div className="space-y-8">
+                    <div className="flex items-start">
+                      <MapPin className="mr-4 mt-1 flex-shrink-0 h-7 w-7" />
+                      <div>
+                        <h4 className="font-bold text-xl mb-1">Our Hub</h4>
+                        <p className="text-lg">
+                          6A Embu Street, Wuse 2, Abuja. Nigeria
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <Phone className="mr-4 mt-1 flex-shrink-0 h-7 w-7" />
+                      <div>
+                        <h4 className="font-bold text-xl mb-1">Direct Line</h4>
+                        <p className="text-lg">+234 909 000 8888</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <Mail className="mr-4 mt-1 flex-shrink-0 h-7 w-7" />
+                      <div>
+                        <h4 className="font-bold text-xl mb-1">Email Us</h4>
+                        <p className="text-lg">
+                          hello@digitalmarketingagency.com
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
+                <div className="mt-10 text-center">
+                  <p className="text-lg font-semibold italic">
+                    We're here to help you shine!
+                  </p>
+                </div>
               </div>
-              <div className="lg:col-span-3">
-                <form className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <Input placeholder="First Name" />
-                    <Input placeholder="Last Name" />
+              <div className="lg:col-span-3 bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
+                <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+                  Send Us a Message
+                </h3>
+                <form className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <Input
+                      placeholder="Your First Name"
+                      className="p-3 text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
+                    />
+                    <Input
+                      placeholder="Your Last Name"
+                      className="p-3 text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
+                    />
                   </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <Input type="email" placeholder="Email Address" />
-                    <Input type="tel" placeholder="Phone Number" />
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <Input
+                      type="email"
+                      placeholder="Your Best Email"
+                      className="p-3 text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
+                    />
+                    <Input
+                      type="tel"
+                      placeholder="Your Phone Number (Optional)"
+                      className="p-3 text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
+                    />
                   </div>
                   <div>
-                    <select className="w-full p-2 border rounded">
-                      <option>Service Type</option>
-                      <option>SEO</option>
-                      <option>Social Media</option>
+                    <select className="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-700 text-lg focus:border-[#7642FE] focus:ring-[#7642FE]">
+                      <option className="text-gray-500">
+                        What service are you interested in?
+                      </option>
+                      <option>Search Engine Optimization (SEO)</option>
+                      <option>Social Media Marketing</option>
+                      <option>Content Marketing</option>
+                      <option>Web Design & Development</option>
+                      <option>Digital Marketing Strategy</option>
+                      <option>Influencer Marketing</option>
+                      <option>
+                        Public Relations & Online Reputation Management
+                      </option>
+                      <option>Other</option>
                     </select>
                   </div>
-                  <Textarea placeholder="Your Message" rows={5} />
+                  <Textarea
+                    placeholder="Tell us about your project or question..."
+                    rows={6}
+                    className="p-3 text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
+                  />
                   <Button
                     type="submit"
                     size="lg"
-                    className="bg-[#7642FE] hover:bg-purple-700 w-full"
+                    className="bg-[#7642FE] hover:bg-purple-700 w-full text-white font-bold py-4 text-xl rounded-lg shadow-md hover:shadow-xl transition-all"
                   >
-                    Free Consultation <ArrowRight className="ml-2 w-5 h-5" />
+                    Get a Free Consultation{" "}
+                    <ArrowRight className="ml-3 w-6 h-6" />
                   </Button>
                 </form>
               </div>
             </div>
           </div>
         </section>
-
-        {/* Newsletter CTA */}
-        <section className="container mx-auto px-6 py-16">
-          <div className="bg-[#7642FE] text-white rounded-2xl p-12 text-center">
-            <h2 className="text-3xl font-bold mb-4">
-              Stay Ahead With Digital Marketing Agency
-            </h2>
-            <p className="max-w-xl mx-auto mb-8">
-              Get the latest tips, insights, and updates on digital marketing
-              delivered straight to your inbox. No spam, just value.
-            </p>
-            <form className="max-w-md mx-auto flex gap-2">
-              <Input
-                type="email"
-                placeholder="Enter Email"
-                className="bg-white text-gray-800"
-              />
-              <Button
-                type="submit"
-                className="bg-white text-[#7642FE] hover:bg-gray-200"
-              >
-                Subscribe Now
-              </Button>
-            </form>
-          </div>
-        </section>
-
-        {/* FAQs Section */}
-        <section className="py-20 container mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold">FAQs</h2>
-            <p className="max-w-2xl mx-auto text-gray-600 mt-4">
-              Get quick solutions to popular questions in our FAQ, giving you
-              essential info at a glance.
-            </p>
-          </div>
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <img
-                src="https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                alt="FAQ"
-                className="rounded-lg shadow-lg"
-              />
-            </div>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="item-1">
-                <AccordionTrigger>
-                  How long does it take to see results from email marketing?
-                </AccordionTrigger>
-                <AccordionContent>
-                  The timeframe for seeing results can vary depending on your
-                  industry, audience, and the goals of your campaigns.
-                  Generally, you can start seeing increased engagement and
-                  initial conversions within a few weeks of consistent
-                  campaigning. Building a strong, responsive email list and
-                  achieving significant ROI often takes a few months.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-2">
-                <AccordionTrigger>
-                  Can I provide my own email list?
-                </AccordionTrigger>
-                <AccordionContent>
-                  Yes, you can provide your own email list. However, we
-                  recommend a verification process to ensure the list is clean
-                  and compliant with anti-spam laws, which helps improve
-                  deliverability and campaign performance.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-3">
-                <AccordionTrigger>
-                  Do you manage subscriber lists?
-                </AccordionTrigger>
-                <AccordionContent>
-                  Absolutely. We manage subscriber lists, including
-                  segmentation, cleanup of inactive subscribers, and growth
-                  strategies to ensure your list remains healthy and engaged.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-4">
-                <AccordionTrigger>
-                  Do I need to share my email platform login?
-                </AccordionTrigger>
-                <AccordionContent>
-                  For us to manage your campaigns effectively, we would
-                  typically need access to your email marketing platform. We can
-                  work with you to set up appropriate user permissions to ensure
-                  security.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-5">
-                <AccordionTrigger>
-                  Can I request changes to the email content or design
-                  mid-campaign?
-                </AccordionTrigger>
-                <AccordionContent>
-                  Yes, we are flexible and can accommodate changes. We'll work
-                  with you to make necessary adjustments, keeping in mind that
-                  significant changes might affect the campaign timeline and
-                  performance.
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        </section>
+        <Footer />
       </main>
-      <Footer />
     </div>
   );
 }

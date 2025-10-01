@@ -12,9 +12,12 @@ export const AuthRedirect = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // If there's no access token and the user is not on a public page, redirect to login
-    const isPublicPage = ["/login", "/signup", "/", "/admin/login"].includes(
-      pathname
-    );
+    const isPublicPage = [
+      "/login",
+      "/signup",
+      "/",
+      "/admin/auth/login",
+    ].includes(pathname);
 
     if (!accessToken && !isPublicPage) {
       router.replace("/login");

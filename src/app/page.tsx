@@ -71,12 +71,9 @@ const ServiceCard = ({ title, description, heroImageUrl }: any) => (
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: servicesData } = useGetAllPublicServicesQuery(undefined);
-  console.log("servicesData", servicesData);
 
   // The actual services array is inside the response data
   const services: Service[] = servicesData?.data || [];
-  const mainServices = services.slice(0, 6);
-  const lastService = services.length > 6 ? services[6] : null;
 
   return (
     <div className="bg-gradient-to-b from-gray-50 to-purple-50 text-gray-800 font-sans antialiased">
@@ -403,18 +400,10 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-              {mainServices.map((service) => (
+              {services.map((service) => (
                 <ServiceCard key={service.title} {...service} />
               ))}
             </div>
-
-            {lastService && (
-              <div className="mt-12 flex justify-center">
-                <div className="w-full sm:w-2/3 lg:w-1/3">
-                  <ServiceCard {...lastService} />
-                </div>
-              </div>
-            )}
 
             <div className="mt-20 text-center">
               <Link

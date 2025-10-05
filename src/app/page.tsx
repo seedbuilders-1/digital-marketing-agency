@@ -70,10 +70,8 @@ const ServiceCard = ({ title, description, heroImageUrl }: any) => (
 // The main event: our stunning LandingPage!
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { data: servicesData } = useGetAllPublicServicesQuery(undefined, {
-    // Polling can be useful to keep data fresh
-    // pollingInterval: 30000,
-  });
+  const { data: servicesData } = useGetAllPublicServicesQuery(undefined);
+  console.log("servicesData", servicesData);
 
   // The actual services array is inside the response data
   const services: Service[] = servicesData?.data || [];

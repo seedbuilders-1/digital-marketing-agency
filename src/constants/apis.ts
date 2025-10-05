@@ -23,6 +23,7 @@ export const APIS = {
   SERVICES: {
     CREATE_SERVICE: `${api}/services`,
     GET_ALL_SERVICES: `${api}/services`,
+    GET_ALL_PUBLIC_SERVICES: `${api}/services/public`,
     GET_SERVICE_BY_ID: (id: any) => `${api}/services/${id}`,
     UPDATE_SERVICE_FORM: (serviceId: any) =>
       `${api}/services/${serviceId}/form`,

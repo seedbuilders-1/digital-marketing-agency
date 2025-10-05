@@ -34,6 +34,8 @@ import Image from "next/image";
 import Landing1 from "../../public/landing-1.png";
 import Link from "next/link";
 import DMALogo from "../../public/dma_svg.svg";
+import { useGetAllPublicServicesQuery } from "@/api/servicesApi";
+import { Service } from "@/lib/types/services";
 
 // A simple, elegant Logo component – because branding is everything!
 const Logo = () => (
@@ -46,77 +48,19 @@ const Logo = () => (
 );
 
 // Our robust array of services, now with a punchier feel.
-const services = [
-  {
-    icon: <Search className="h-6 w-6 text-gray-800" />,
-    title: "Search Engine Optimization (SEO)",
-    description:
-      "Conquer search rankings. Get your business found where it matters most.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=1000&auto=format&fit=crop",
-  },
-  {
-    icon: <Megaphone className="h-6 w-6 text-gray-800" />,
-    title: "Social Media Marketing",
-    description:
-      "Ignite your social presence. Turn followers into loyal customers.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1000&auto=format&fit=crop",
-  },
-  {
-    icon: <PenTool className="h-6 w-6 text-gray-800" />,
-    title: "Content Marketing",
-    description:
-      "Craft compelling narratives. Attract, engage, and convert your ideal audience.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1000&auto=format&fit=crop",
-  },
-  {
-    icon: <Code className="h-6 w-6 text-gray-800" />,
-    title: "Web Design & Development",
-    description:
-      "Architect your digital storefront. Build a stunning and highly functional online presence.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=1000&auto=format&fit=crop",
-  },
-  {
-    icon: <BarChart className="h-6 w-6 text-gray-800" />,
-    title: "Digital Marketing Strategy",
-    description:
-      "Chart your course to success. A clear, data-driven roadmap for unparalleled online growth.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1000&auto=format&fit=crop",
-  },
-  {
-    icon: <Users className="h-6 w-6 text-gray-800" />,
-    title: "Influencer Marketing",
-    description:
-      "Amplify your message. Connect with authentic voices to skyrocket brand reach.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1585255285330-aae636831416?q=80&w=1000&auto=format&fit=crop",
-  },
-  {
-    icon: <Newspaper className="h-6 w-6 text-gray-800" />,
-    title: "Public Relations (PR) & Online Reputation Management",
-    description:
-      "Forge trust. Protect and enhance your brand's pristine image.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1000&auto=format&fit=crop",
-  },
-];
 
 // A visually rich ServiceCard component – because every service deserves to shine!
-const ServiceCard = ({ icon, title, description, imageUrl }: any) => (
+const ServiceCard = ({ title, description, heroImageUrl }: any) => (
   <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden w-full group">
     <div className="relative h-40">
       <img
-        src={imageUrl}
+        src={heroImageUrl}
         alt={title}
         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
       />
-      <div className="absolute top-4 left-4 bg-white rounded-full p-3 shadow-md group-hover:rotate-6 transition-transform duration-300">
+      {/* <div className="absolute top-4 left-4 bg-white rounded-full p-3 shadow-md group-hover:rotate-6 transition-transform duration-300">
         {icon}
-      </div>
+      </div> */}
     </div>
     <div className="p-6">
       <h3 className="font-extrabold text-xl text-gray-900 leading-tight group-hover:text-[#7642FE] transition-colors duration-300">
@@ -132,6 +76,18 @@ const ServiceCard = ({ icon, title, description, imageUrl }: any) => (
 // The main event: our stunning LandingPage!
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const {
+    data: servicesData,
+    isLoading,
+    isError,
+    refetch, // To power the refresh button
+  } = useGetAllPublicServicesQuery(undefined, {
+    // Polling can be useful to keep data fresh
+    // pollingInterval: 30000,
+  });
+
+  // The actual services array is inside the response data
+  const services: Service[] = servicesData?.data || [];
   const mainServices = services.slice(0, 6);
   const lastService = services.length > 6 ? services[6] : null;
 

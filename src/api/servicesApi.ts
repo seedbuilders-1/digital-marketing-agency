@@ -16,6 +16,12 @@ export const servicesApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    getAllPublicServices: builder.query({
+      query: () => ({
+        url: APIS.SERVICES.GET_ALL_PUBLIC_SERVICES,
+        method: "GET",
+      }),
+    }),
     getServiceById: builder.query({
       query: (id) => ({
         url: APIS.SERVICES.GET_SERVICE_BY_ID(id),
@@ -92,6 +98,7 @@ export const servicesApi = baseApi.injectEndpoints({
 export const {
   useCreateServiceMutation,
   useGetAllServiesQuery,
+  useGetAllPublicServicesQuery,
   useGetServiceByIdQuery,
   useInitializeServiceRequestMutation,
   useUpdateServiceFormMutation,

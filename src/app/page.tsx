@@ -15,17 +15,7 @@ import {
   Star,
   Heart,
   Lightbulb,
-  BarChart,
-  Search,
-  Megaphone,
-  PenTool,
   Code,
-  Users,
-  Newspaper,
-  Menu, // The iconic hamburger for mobile
-  X, // The elegant close icon
-  Zap, // For speed!
-  Wallet, // For cost-effectiveness
   LayoutDashboard, // For the all-in-one platform
   Rocket, // For focus on core areas
 } from "lucide-react"; // A stellar icon set, as always!
@@ -78,9 +68,7 @@ export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const {
     data: servicesData,
-    isLoading,
-    isError,
-    refetch, // To power the refresh button
+  o power the refresh button
   } = useGetAllPublicServicesQuery(undefined, {
     // Polling can be useful to keep data fresh
     // pollingInterval: 30000,

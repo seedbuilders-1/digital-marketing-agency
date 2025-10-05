@@ -66,10 +66,7 @@ const ServiceCard = ({ title, description, heroImageUrl }: any) => (
 // The main event: our stunning LandingPage!
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const {
-    data: servicesData,
-  o power the refresh button
-  } = useGetAllPublicServicesQuery(undefined, {
+  const { data: servicesData } = useGetAllPublicServicesQuery(undefined, {
     // Polling can be useful to keep data fresh
     // pollingInterval: 30000,
   });

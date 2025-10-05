@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2, // For loading state
-  AlertCircle, // For error state
+  AlertCircle,
+  Pen, // For error state
 } from "lucide-react";
 import Link from "next/link";
 import { useGetAllServiesQuery } from "@/api/servicesApi";
@@ -146,6 +147,20 @@ export default function ServiceManagementPage() {
             </Link>
           </div>
         </td>
+        <td className="py-4 px-6">
+          <div className="flex items-center gap-2">
+            <Link href={`/admin/service-management/${service.id}/edit`}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-purple-600 hover:text-purple-700"
+              >
+                <Pen className="h-4 w-4 mr-1" />
+                Edit
+              </Button>
+            </Link>
+          </div>
+        </td>
       </tr>
     ));
   };
@@ -208,6 +223,9 @@ export default function ServiceManagementPage() {
                   </th>
                   <th className="text-left py-3 px-6 font-medium text-gray-700">
                     Action
+                  </th>
+                  <th className="text-left py-3 px-6 font-medium text-gray-700">
+                    Edit
                   </th>
                 </tr>
               </thead>

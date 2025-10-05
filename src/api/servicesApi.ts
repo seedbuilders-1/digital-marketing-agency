@@ -29,6 +29,13 @@ export const servicesApi = baseApi.injectEndpoints({
         body: { formFields }, // Sends the JSON in the body
       }),
     }),
+    updateService: builder.mutation({
+      query: ({ serviceId, data }) => ({
+        url: APIS.SERVICES.UPDATE_SERVICE(serviceId), // Matches your new route
+        method: "PUT",
+        body: data, // Sends the JSON in the body
+      }),
+    }),
     initializeServiceRequest: builder.mutation({
       query: (requestData) => ({
         url: APIS.SERVICES.INITIALIZE_SERVICE_REQUEST, // <-- This is the API route it calls
@@ -94,4 +101,5 @@ export const {
   useUpdateServiceRequestStatusMutation,
   useUploadMilestoneDeliverableMutation,
   useReviewMilestoneMutation,
+  useUpdateServiceMutation,
 } = servicesApi;

@@ -2,8 +2,8 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { Toaster, toast } from "sonner";
 
@@ -15,12 +15,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { ArrowLeft, Save, Plus, X, Loader2 } from "lucide-react";
-import { ImageUpload } from "@/components/ImageUpload"; // The reusable component we built
-import { useCreateServiceMutation } from "@/api/servicesApi";
+import { ImageUpload } from "@/components/ImageUpload";
 
-// API Hooks (replace with your actual API slice)
+// API Hooks (Update with your actual API slice)
+import {
+  useGetServiceByIdQuery,
+  useUpdateServiceMutation,
+} from "@/api/servicesApi";
 
-// --- Type Definitions for our complex form state ---
+// --- Type Definitions ---
 interface Plan {
   name: string;
   price: string;
@@ -32,12 +35,16 @@ interface CaseStudy {
   title: string;
   subtitle: string;
   bannerImageFile: File | null;
+  bannerImageUrl?: string | null;
   challenge: string;
   challengeImageFile: File | null;
+  challengeImageUrl?: string | null;
   solution: string;
   solutionImageFile: File | null;
+  solutionImageUrl?: string | null;
   result: string;
   resultImageFile: File | null;
+  resultImageUrl?: string | null;
 }
 interface Testimonial {
   quote: string;
@@ -45,18 +52,28 @@ interface Testimonial {
   authorTitle: string;
   stars: number;
   authorImageFile: File | null;
+  authorImageUrl?: string | null;
 }
 interface Faq {
   question: string;
   answer: string;
 }
 
-export default function CreateServicePage() {
+export default function EditServicePage() {
   const router = useRouter();
-  const [createService, { isLoading: isCreatingService }] =
-    useCreateServiceMutation();
+  const params = useParams();
+  const serviceId = params.id as string;
 
-  // --- The Single Source of Truth for the entire page ---
+  // --- API Hooks ---
+  const {
+    data: specificService,
+    error: serviceError,
+    isLoading: isServiceLoading,
+  } = useGetServiceByIdQuery(serviceId);
+  const [updateService, { isLoading: isUpdatingService }] =
+    useUpdateServiceMutation();
+
+  // --- Form State ---
   const [formData, setFormData] = useState({
     title: "",
     visibility: true,
@@ -64,11 +81,13 @@ export default function CreateServicePage() {
       headline: "",
       paragraph: "",
       imageFile: null as File | null,
+      imageUrl: null as string | null,
     },
     blueprintSection: {
       headline: "",
       paragraph: "",
       imageFile: null as File | null,
+      imageUrl: null as string | null,
     },
     bannerText: "",
     plans: [] as Plan[],
@@ -77,9 +96,63 @@ export default function CreateServicePage() {
     faqs: [] as Faq[],
   });
 
-  // --- Generic and Nested State Handlers ---
+  // --- Effect to Populate Form on Data Load ---
+  useEffect(() => {
+    if (specificService?.data) {
+      const service = specificService.data;
+      setFormData({
+        title: service.title || "",
+        visibility: service.isPublic,
+        heroSection: {
+          headline: service.heroHeadline || "",
+          paragraph: service.heroParagraph || "",
+          imageFile: null,
+          imageUrl: service.heroImageUrl || null,
+        },
+        blueprintSection: {
+          headline: service.blueprintHeadline || "",
+          paragraph: service.blueprintParagraph || "",
+          imageFile: null,
+          imageUrl: service.blueprintImageUrl || null,
+        },
+        bannerText: service.bannerText || "",
+        plans:
+          service.plans?.map((p: any) => ({
+            ...p,
+            features:
+              typeof p.features === "string"
+                ? JSON.parse(p.features || "[]")
+                : p.features || [],
+          })) || [],
+        // UPDATED: Map all existing image URLs for Case Studies
+        caseStudies:
+          service.caseStudies?.map((cs: any) => ({
+            ...cs,
+            bannerImageFile: null,
+            bannerImageUrl: cs.bannerImageUrl || null,
+            challengeImageFile: null,
+            challengeImageUrl: cs.challengeImageUrl || null,
+            solutionImageFile: null,
+            solutionImageUrl: cs.solutionImageUrl || null,
+            resultImageFile: null,
+            resultImageUrl: cs.resultImageUrl || null,
+          })) || [],
+        // UPDATED: Map all existing image URLs for Testimonials
+        testimonials:
+          service.testimonials?.map((ts: any) => ({
+            ...ts,
+            authorImageFile: null,
+            authorImageUrl: ts.authorImageUrl || null,
+          })) || [],
+        faqs: service.faqs || [],
+      });
+    }
+  }, [specificService]);
+
+  // --- State Handlers (reused from create form) ---
   const handleInputChange = (field: string, value: any) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
+
   const handleFileChange = (
     section: "heroSection" | "blueprintSection",
     file: File | null
@@ -88,6 +161,7 @@ export default function CreateServicePage() {
       ...prev,
       [section]: { ...prev[section], imageFile: file },
     }));
+
   const handleSectionChange = (
     section: "heroSection" | "blueprintSection",
     field: string,
@@ -98,17 +172,18 @@ export default function CreateServicePage() {
       [section]: { ...prev[section], [field]: value },
     }));
 
-  // --- Dynamic Array Handlers ---
   const addArrayItem = <T,>(field: keyof typeof formData, newItem: T) =>
     setFormData((prev) => ({
       ...prev,
       [field]: [...(prev[field] as T[]), newItem],
     }));
+
   const removeArrayItem = <T,>(field: keyof typeof formData, index: number) =>
     setFormData((prev) => ({
       ...prev,
       [field]: (prev[field] as T[]).filter((_, i) => i !== index),
     }));
+
   const handleArrayItemChange = <T,>(
     field: keyof typeof formData,
     index: number,
@@ -121,6 +196,7 @@ export default function CreateServicePage() {
       return { ...prev, [field]: newArray };
     });
   };
+
   const handleNestedArrayChange = (
     planIndex: number,
     featureIndex: number,
@@ -143,19 +219,17 @@ export default function CreateServicePage() {
     setFormData((prev) => ({ ...prev, plans: newPlans }));
   };
 
+  // --- Form Submission Handler ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const toastId = toast.loading("Creating new service...");
+    const toastId = toast.loading("Updating service...");
 
-    // 1. Initialize FormData
     const submissionData = new FormData();
 
-    // 2. Append all simple, top-level fields
+    // Append all fields just like in the create function
     submissionData.append("title", formData.title);
-    submissionData.append("isPublic", String(formData.visibility)); // Send boolean as a string
+    submissionData.append("isPublic", String(formData.visibility));
     submissionData.append("bannerText", formData.bannerText);
-
-    // 3. Flatten and append nested object fields (Hero & Blueprint)
     submissionData.append("heroHeadline", formData.heroSection.headline);
     submissionData.append("heroParagraph", formData.heroSection.paragraph);
     submissionData.append(
@@ -167,14 +241,11 @@ export default function CreateServicePage() {
       formData.blueprintSection.paragraph
     );
 
-    // 4. Flatten the arrays of objects into individual fields
-    // This matches the reconstruction logic on the server.
     formData.plans.forEach((plan, index) => {
       submissionData.append(`plans[${index}][name]`, plan.name);
       submissionData.append(`plans[${index}][price]`, plan.price);
       submissionData.append(`plans[${index}][priceUnit]`, plan.priceUnit);
       submissionData.append(`plans[${index}][audience]`, plan.audience);
-      // The server expects the 'features' array to be a JSON string
       submissionData.append(
         `plans[${index}][features]`,
         JSON.stringify(plan.features)
@@ -204,10 +275,10 @@ export default function CreateServicePage() {
         `testimonials[${index}][authorTitle]`,
         ts.authorTitle
       );
-      submissionData.append(`testimonials[${index}][stars]`, String(ts.stars)); // Send number as a string
+      submissionData.append(`testimonials[${index}][stars]`, String(ts.stars));
     });
 
-    // 5. Append all files, making sure to check for their existence first
+    // Append new files if they have been selected
     if (formData.heroSection.imageFile) {
       submissionData.append("heroImage", formData.heroSection.imageFile);
     }
@@ -249,26 +320,39 @@ export default function CreateServicePage() {
         );
     });
 
-    // 6. Submit the form data and handle the response
     try {
-      const res = await createService(submissionData).unwrap();
-      console.log("Service created response:", res);
-
-      const newServiceId = res.data.service.id;
-      toast.success("Step 1 Complete! Redirecting to Form Builder...", {
-        id: toastId,
-      });
-      console.log("newServiceId", newServiceId);
-      // Redirect to the new Form Builder page for this specific service
-      router.push(`/admin/service-management/${newServiceId}/form-builder`);
+      // Call the update mutation with the ID and data
+      await updateService({
+        serviceId: serviceId,
+        data: submissionData,
+      }).unwrap();
+      toast.success("Service updated successfully!", { id: toastId });
+      router.push("/admin/service-management");
     } catch (err) {
-      console.error("Failed to create service:", err);
-      // Safely access the error message
+      console.error("Failed to update service:", err);
       const errorMessage =
         (err as any)?.data?.message || "An unexpected error occurred.";
       toast.error(errorMessage, { id: toastId });
     }
   };
+
+  // --- Render Logic ---
+  if (isServiceLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (serviceError) {
+    return (
+      <div className="text-red-500 text-center mt-10">
+        Error loading service data. Please try again later.
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6 max-w-4xl mx-auto">
       <Toaster position="top-center" richColors />
@@ -279,12 +363,12 @@ export default function CreateServicePage() {
             Back to Service Management
           </Button>
         </Link>
-        <h1 className="text-2xl font-semibold">Create New Service</h1>
+        <h1 className="text-2xl font-semibold">Edit Service</h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <fieldset disabled={isCreatingService} className="space-y-6">
-          {/* --- All sections from here are now part of the form --- */}
+        <fieldset disabled={isUpdatingService} className="space-y-6">
+          {/* --- Basic Information --- */}
           <Card>
             <CardHeader>
               <CardTitle>Basic Information</CardTitle>
@@ -312,6 +396,7 @@ export default function CreateServicePage() {
             </CardContent>
           </Card>
 
+          {/* --- Hero Section --- */}
           <Card>
             <CardHeader>
               <CardTitle>Hero Section</CardTitle>
@@ -339,10 +424,12 @@ export default function CreateServicePage() {
               <ImageUpload
                 file={formData.heroSection.imageFile}
                 onFileChange={(file) => handleFileChange("heroSection", file)}
+                previewUrl={formData.heroSection.imageUrl}
               />
             </CardContent>
           </Card>
 
+          {/* --- Blueprint Section --- */}
           <Card>
             <CardHeader>
               <CardTitle>Blueprint Section</CardTitle>
@@ -376,10 +463,12 @@ export default function CreateServicePage() {
                 onFileChange={(file) =>
                   handleFileChange("blueprintSection", file)
                 }
+                previewUrl={formData.blueprintSection.imageUrl}
               />
             </CardContent>
           </Card>
 
+          {/* --- CTA Banner --- */}
           <Card>
             <CardHeader>
               <CardTitle>CTA Banner</CardTitle>
@@ -395,6 +484,7 @@ export default function CreateServicePage() {
             </CardContent>
           </Card>
 
+          {/* --- Pricing Plans --- */}
           <Card>
             <CardHeader>
               <CardTitle>Pricing Plans</CardTitle>
@@ -529,6 +619,7 @@ export default function CreateServicePage() {
             </CardContent>
           </Card>
 
+          {/* --- Case Studies --- */}
           <Card>
             <CardHeader>
               <CardTitle>Case Studies</CardTitle>
@@ -583,6 +674,7 @@ export default function CreateServicePage() {
                         file
                       )
                     }
+                    previewUrl={cs.bannerImageUrl}
                   />
                   <Label>Challenge Text</Label>
                   <Textarea
@@ -607,6 +699,7 @@ export default function CreateServicePage() {
                         file
                       )
                     }
+                    previewUrl={cs.challengeImageUrl}
                   />
                   <Label>Solution Text</Label>
                   <Textarea
@@ -631,6 +724,7 @@ export default function CreateServicePage() {
                         file
                       )
                     }
+                    previewUrl={cs.solutionImageUrl}
                   />
                   <Label>Result Text</Label>
                   <Textarea
@@ -655,6 +749,7 @@ export default function CreateServicePage() {
                         file
                       )
                     }
+                    previewUrl={cs.resultImageUrl}
                   />
                 </div>
               ))}
@@ -681,6 +776,7 @@ export default function CreateServicePage() {
             </CardContent>
           </Card>
 
+          {/* --- Testimonials --- */}
           <Card>
             <CardHeader>
               <CardTitle>Testimonials</CardTitle>
@@ -762,6 +858,7 @@ export default function CreateServicePage() {
                         file
                       )
                     }
+                    previewUrl={ts.authorImageUrl}
                   />
                 </div>
               ))}
@@ -784,6 +881,7 @@ export default function CreateServicePage() {
             </CardContent>
           </Card>
 
+          {/* --- FAQs --- */}
           <Card>
             <CardHeader>
               <CardTitle>FAQs</CardTitle>
@@ -842,14 +940,22 @@ export default function CreateServicePage() {
             </CardContent>
           </Card>
 
+          {/* --- Action Buttons --- */}
           <div className="flex justify-end gap-4">
             <Link href="/admin/service-management">
               <Button type="button" variant="outline">
                 Cancel
               </Button>
             </Link>
+
+            <Link href={`/admin/service-management/${serviceId}/form-builder`}>
+              <Button type="button" variant="outline">
+                Skip and move to form builder
+              </Button>
+            </Link>
+
             <Button type="submit" className="bg-purple-600 hover:bg-purple-700">
-              {isCreatingService ? (
+              {isUpdatingService ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Saving...
@@ -857,7 +963,7 @@ export default function CreateServicePage() {
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save & Continue to Form Builder
+                  Save Changes
                 </>
               )}
             </Button>

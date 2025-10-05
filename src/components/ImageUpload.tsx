@@ -1,104 +1,117 @@
+// src/components/ImageUpload.tsx
+
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { UploadCloud, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import { useState, useEffect, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import { Image as ImageIcon, X } from "lucide-react";
 
 interface ImageUploadProps {
   file: File | null;
   onFileChange: (file: File | null) => void;
+  previewUrl?: string | null;
 }
 
-export const ImageUpload: React.FC<ImageUploadProps> = ({
+export function ImageUpload({
   file,
   onFileChange,
-}) => {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  previewUrl,
+}: ImageUploadProps) {
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Generate a preview URL whenever the file prop changes
+  // This effect updates the preview whenever the props change
   useEffect(() => {
-    if (!file) {
-      setPreviewUrl(null);
-      return;
+    let objectUrl: string | null = null;
+
+    // State 1: A new file has been selected by the user
+    if (file) {
+      // Create a temporary local URL to preview the selected file
+      objectUrl = URL.createObjectURL(file);
+      setImagePreview(objectUrl);
     }
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
-
-    // Clean up the object URL to prevent memory leaks
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [file]);
-
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0] || null;
-    if (selectedFile && selectedFile.type.startsWith("image/")) {
-      onFileChange(selectedFile);
+    // State 2: No new file, but an existing image URL is provided
+    else if (previewUrl) {
+      setImagePreview(previewUrl);
     }
-  };
+    // State 3: No file and no existing URL
+    else {
+      setImagePreview(null);
+    }
 
+    // Cleanup function to revoke the temporary URL and prevent memory leaks
+    return () => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [file, previewUrl]);
+
+  // Handler for when a file is dropped or selected
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      if (acceptedFiles.length > 0) {
+        // Update the parent component's state with the new file
+        onFileChange(acceptedFiles[0]);
+      }
+    },
+    [onFileChange]
+  );
+
+  // Function to clear the current selection
   const handleRemoveImage = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the file input click
+    e.stopPropagation(); // Prevent the file dialog from opening
     onFileChange(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // Reset the file input
-    }
   };
 
-  // Handlers for drag and drop functionality
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const droppedFile = e.dataTransfer.files?.[0] || null;
-    if (droppedFile && droppedFile.type.startsWith("image/")) {
-      onFileChange(droppedFile);
-    }
-  };
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "image/png": [".png"],
+      "image/jpeg": [".jpeg", ".jpg"],
+      "image/gif": [".gif"],
+      "image/webp": [".webp"],
+    },
+    multiple: false,
+  });
 
   return (
     <div
-      className="relative flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-      onClick={() => fileInputRef.current?.click()}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
+      {...getRootProps()}
+      className={`relative w-full border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors
+        ${
+          isDragActive
+            ? "border-purple-600 bg-purple-50"
+            : "border-gray-300 hover:border-gray-400"
+        }
+        ${imagePreview ? "border-solid" : ""}`} // Make border solid if there's an image
     >
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileSelect}
-        accept="image/*"
-        className="hidden"
-      />
+      <input {...getInputProps()} />
 
-      {previewUrl ? (
-        <>
-          <Image
-            src={previewUrl}
-            alt="Image preview"
-            layout="fill"
-            objectFit="contain"
-            className="rounded-lg"
+      {imagePreview ? (
+        // --- VIEW WHEN AN IMAGE EXISTS (PREVIEW OR NEW FILE) ---
+        <div className="relative">
+          <img
+            src={imagePreview}
+            alt="Preview"
+            className="w-full h-auto max-h-80 object-contain rounded-md"
           />
-          <Button
+          <button
             type="button"
-            variant="destructive"
-            size="icon"
-            className="absolute top-2 right-2 z-10 h-7 w-7"
             onClick={handleRemoveImage}
+            className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100"
+            aria-label="Remove image"
           >
-            <X className="h-4 w-4" />
-          </Button>
-        </>
+            <X className="h-5 w-5 text-gray-700" />
+          </button>
+        </div>
       ) : (
-        <div className="text-center text-gray-500">
-          <UploadCloud className="w-10 h-10 mx-auto mb-2" />
+        // --- VIEW WHEN NO IMAGE EXISTS ---
+        <div className="flex flex-col items-center justify-center space-y-2 text-gray-500">
+          <ImageIcon className="h-12 w-12" />
           <p className="font-semibold">Click to upload or drag and drop</p>
-          <p className="text-xs">PNG, JPG, GIF up to 10MB</p>
+          <p className="text-sm">PNG, JPG, GIF up to 10MB</p>
         </div>
       )}
     </div>
   );
-};
+}

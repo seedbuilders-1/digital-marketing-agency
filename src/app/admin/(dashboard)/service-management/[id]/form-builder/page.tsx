@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUpdateServiceFormMutation } from "@/api/servicesApi";
+import {
+  useUpdateServiceFormMutation,
+  useGetServiceByIdQuery, // <-- IMPORT THE QUERY HOOK
+} from "@/api/servicesApi";
 import { v4 as uuidv4 } from "uuid";
 import { Toaster, toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -19,7 +22,6 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Plus, X, Save, ArrowLeft, Loader2, GripVertical } from "lucide-react";
-// For drag-and-drop, you'd install a library like @dnd-kit/core
 
 // Define the shape of a form field
 interface FormField {
@@ -28,9 +30,9 @@ interface FormField {
   label: string;
   type: "text" | "textarea" | "select" | "radio" | "file" | "date";
   required: boolean;
-  fromUser: boolean; // Flag for pre-filling from user profile
-  step: number; // <-- ADD THIS
-  groupName: string; // <-- ADD THIS
+  fromUser: boolean;
+  step: number;
+  groupName: string;
   options?: string[];
 }
 
@@ -76,18 +78,33 @@ const USER_PROFILE_FIELDS: FormField[] = [
     step: 1,
     groupName: "Organization details",
   },
-  // Add more common fields as needed
 ];
 
 export default function FormBuilderPage({ params }: any) {
   const router = useRouter();
   const { id: serviceId } = params;
-  console.log("servieId", serviceId);
-  console.log("params", params);
+
+  // --- API HOOKS ---
   const [fields, setFields] = useState<FormField[]>([]);
   const [updateServiceForm, { isLoading: isSaving }] =
     useUpdateServiceFormMutation();
 
+  // Fetch the service data, including any existing form
+  const {
+    data: specificService,
+    isLoading: isServiceLoading,
+    error: serviceError,
+  } = useGetServiceByIdQuery(serviceId);
+
+  // --- EFFECT TO POPULATE FORM ---
+  useEffect(() => {
+    // Check if data is loaded and if there are existing form fields
+    if (specificService?.data?.form?.formFields?.length > 0) {
+      setFields(specificService.data.form.formFields);
+    }
+  }, [specificService]); // Dependency array ensures this runs when data arrives
+
+  // --- FIELD HANDLERS (No changes needed) ---
   const addField = () => {
     setFields([
       ...fields,
@@ -105,7 +122,6 @@ export default function FormBuilderPage({ params }: any) {
   };
 
   const addProfileBlock = () => {
-    // Ensure no duplicate name attributes if added multiple times
     const existingNames = new Set(fields.map((f) => f.name));
     const fieldsToAdd = USER_PROFILE_FIELDS.filter(
       (pf) => !existingNames.has(pf.name)
@@ -118,7 +134,6 @@ export default function FormBuilderPage({ params }: any) {
   };
 
   const updateField = (id: string, prop: keyof FormField, value: any) => {
-    // When updating options, split comma-separated string into an array
     if (prop === "options") {
       const optionsArray =
         typeof value === "string" ? value.split(",").map((s) => s.trim()) : [];
@@ -136,10 +151,10 @@ export default function FormBuilderPage({ params }: any) {
     }
   };
 
+  // --- SAVE HANDLER (No changes needed) ---
   const handleSaveForm = async () => {
     const toastId = toast.loading("Saving request form...");
     try {
-      // Basic validation
       for (const field of fields) {
         if (!field.label.trim() || !field.name.trim()) {
           throw new Error(
@@ -147,8 +162,6 @@ export default function FormBuilderPage({ params }: any) {
           );
         }
       }
-      console.log("serviceId", serviceId);
-
       await updateServiceForm({ serviceId, formFields: fields }).unwrap();
       toast.success("Form saved successfully!", { id: toastId });
       router.push("/admin/service-management");
@@ -161,6 +174,26 @@ export default function FormBuilderPage({ params }: any) {
       toast.error(errorMessage, { id: toastId });
     }
   };
+
+  // --- RENDER LOGIC ---
+
+  // Show a loading state while fetching initial data
+  if (isServiceLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Show an error message if fetching fails
+  if (serviceError) {
+    return (
+      <div className="text-red-500 text-center mt-10">
+        Error loading service form data. Please try again later.
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6 max-w-4xl mx-auto">

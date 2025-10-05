@@ -63,7 +63,7 @@ const AdminLoginForm = () => {
 
       // --- Navigation Logic ---
 
-      router.push("/dashboard");
+      router.push("/admin/dashboard");
     } catch (err: any) {
       console.error("Login failed:", err);
       // Provide a user-friendly error message from the API or a fallback

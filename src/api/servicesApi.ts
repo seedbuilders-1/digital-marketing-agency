@@ -9,24 +9,28 @@ export const servicesApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["Services"],
     }),
     getAllServies: builder.query({
       query: () => ({
         url: APIS.SERVICES.GET_ALL_SERVICES,
         method: "GET",
       }),
+      providesTags: ["Services"],
     }),
     getAllPublicServices: builder.query({
       query: () => ({
         url: APIS.SERVICES.GET_ALL_PUBLIC_SERVICES,
         method: "GET",
       }),
+      providesTags: ["Services"],
     }),
     getServiceById: builder.query({
       query: (id) => ({
         url: APIS.SERVICES.GET_SERVICE_BY_ID(id),
         method: "GET",
       }),
+      providesTags: ["Services"],
     }),
     updateServiceForm: builder.mutation({
       query: ({ serviceId, formFields }) => ({
@@ -34,6 +38,7 @@ export const servicesApi = baseApi.injectEndpoints({
         method: "PUT",
         body: { formFields }, // Sends the JSON in the body
       }),
+      invalidatesTags: ["Services"],
     }),
     updateService: builder.mutation({
       query: ({ serviceId, data }) => ({
@@ -41,6 +46,7 @@ export const servicesApi = baseApi.injectEndpoints({
         method: "PUT",
         body: data, // Sends the JSON in the body
       }),
+      invalidatesTags: ["Services"],
     }),
     initializeServiceRequest: builder.mutation({
       query: (requestData) => ({
@@ -48,6 +54,7 @@ export const servicesApi = baseApi.injectEndpoints({
         method: "POST",
         body: requestData,
       }),
+      invalidatesTags: ["Services"],
     }),
     getUserServiceRequests: builder.query({
       query: () => ({
@@ -55,18 +62,21 @@ export const servicesApi = baseApi.injectEndpoints({
         method: "GET",
         // providesTags: ["ServiceRequest"],
       }),
+      providesTags: ["Services"],
     }),
     getServiceRequestById: builder.query({
       query: (id) => ({
         url: APIS.SERVICES.GET_SERVICE_REQUEST_BY_ID(id),
         method: "GET",
       }),
+      providesTags: ["Services"],
     }),
     getAllServicesRequest: builder.query({
       query: () => ({
         url: APIS.SERVICES.GET_ALL_SERVICE_REQUESTS,
         method: "GET",
       }),
+      providesTags: ["Services"],
     }),
     updateServiceRequestStatus: builder.mutation({
       query: ({ requestId, status, milestones }) => ({
@@ -74,6 +84,7 @@ export const servicesApi = baseApi.injectEndpoints({
         method: "PATCH",
         body: { status, milestones },
       }),
+      invalidatesTags: ["Services"],
     }),
     uploadMilestoneDeliverable: builder.mutation({
       query: ({ milestoneId, formData }) => {
@@ -83,6 +94,7 @@ export const servicesApi = baseApi.injectEndpoints({
           body: formData,
         };
       },
+      invalidatesTags: ["Services"],
     }),
     reviewMilestone: builder.mutation({
       query: ({ milestoneId, ...body }) => ({
@@ -90,12 +102,14 @@ export const servicesApi = baseApi.injectEndpoints({
         method: "PATCH",
         body,
       }),
+      invalidatesTags: ["Services"],
     }),
     deleteService: builder.mutation({
       query: (id) => ({
         url: APIS.SERVICES.DELETE_SERVICE(id),
         method: "DELETE",
       }),
+      invalidatesTags: ["Services"],
     }),
   }),
   overrideExisting: true,

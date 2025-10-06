@@ -22,6 +22,7 @@ import { useGetServiceRequestByIdQuery } from "@/api/servicesApi";
 import { AlertCircle } from "lucide-react";
 import { getFilenameFromUrl, isUrl } from "@/lib/utils";
 import MilestoneActionModal from "@/components/projects/MilestoneActionModal";
+import Link from "next/link";
 
 // A detailed skeleton for the loading state
 const ProjectDetailSkeleton = () => (
@@ -357,13 +358,15 @@ export default function ProjectDetailPage() {
                   </div>
                 ))}
               </div>
-              <Button
-                variant="outline"
-                className="mt-6 text-[#7642FE] border-[#7642FE] hover:bg-[#7642FE] hover:text-white bg-transparent"
-              >
-                <MessageCircle size={16} className="mr-2" />
-                Open conversation
-              </Button>
+              <Link href={`/dashboard/messages/${project?.id}`}>
+                <Button
+                  variant="outline"
+                  className="mt-6 text-[#7642FE] border-[#7642FE] hover:bg-[#7642FE] hover:text-white bg-transparent"
+                >
+                  <MessageCircle size={16} className="mr-2" />
+                  Open conversation
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 

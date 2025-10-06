@@ -4,10 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  useGetAllPublicServicesQuery,
-  useGetAllServiesQuery,
-} from "@/api/servicesApi";
+import { useGetAllPublicServicesQuery } from "@/api/servicesApi";
 import { AlertCircle } from "lucide-react";
 
 // 1. Define types to match your API data structure

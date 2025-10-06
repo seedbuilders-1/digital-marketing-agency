@@ -51,7 +51,6 @@ const LoginForm = () => {
     const toastId = toast.loading("Signing in...");
 
     try {
-      // .unwrap() will automatically throw on error
       const res = await login(data).unwrap();
       console.log("res", res);
 

@@ -1,6 +1,7 @@
 import type React from "react";
 import type { Metadata } from "next";
 import "@/app/globals.css";
+import AuthWrapper from "@/components/auth/auth-wrapper";
 
 export const metadata: Metadata = {
   title: "Digital Marketing Agency - Authentication",
@@ -13,5 +14,5 @@ export default function AuthLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <>{children}</>;
+  return <AuthWrapper>{children}</AuthWrapper>;
 }

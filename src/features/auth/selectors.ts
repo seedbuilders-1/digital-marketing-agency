@@ -7,3 +7,8 @@ export const selectCurrentUser = createSelector(
   [selectAuth],
   (auth) => auth.user
 );
+
+export const selectAccessToken = createSelector(
+  [selectAuth],
+  (auth) => auth.accessToken
+);

@@ -44,27 +44,29 @@ const Logo = () => (
 // Our robust array of services, now with a punchier feel.
 
 // A visually rich ServiceCard component – because every service deserves to shine!
-const ServiceCard = ({ title, description, heroImageUrl }: any) => (
-  <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden w-full group">
-    <div className="relative h-40">
-      <img
-        src={heroImageUrl}
-        alt={title}
-        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-      />
-      {/* <div className="absolute top-4 left-4 bg-white rounded-full p-3 shadow-md group-hover:rotate-6 transition-transform duration-300">
+const ServiceCard = ({ id, title, description, heroImageUrl }: any) => (
+  <Link href={`/service/${id}`}>
+    <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden w-full group">
+      <div className="relative h-40">
+        <img
+          src={heroImageUrl}
+          alt={title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        {/* <div className="absolute top-4 left-4 bg-white rounded-full p-3 shadow-md group-hover:rotate-6 transition-transform duration-300">
         {icon}
       </div> */}
+      </div>
+      <div className="p-6">
+        <h3 className="font-extrabold text-xl text-gray-900 leading-tight group-hover:text-[#7642FE] transition-colors duration-300">
+          {title}
+        </h3>
+        <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+          {description}
+        </p>
+      </div>
     </div>
-    <div className="p-6">
-      <h3 className="font-extrabold text-xl text-gray-900 leading-tight group-hover:text-[#7642FE] transition-colors duration-300">
-        {title}
-      </h3>
-      <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-        {description}
-      </p>
-    </div>
-  </div>
+  </Link>
 );
 
 // The main event: our stunning LandingPage!
@@ -74,6 +76,7 @@ export default function LandingPage() {
 
   // The actual services array is inside the response data
   const services: Service[] = servicesData?.data || [];
+  console.log("srrvices", services);
 
   return (
     <div className="bg-gradient-to-b from-gray-50 to-purple-50 text-gray-800 font-sans antialiased">

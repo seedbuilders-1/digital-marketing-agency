@@ -91,10 +91,12 @@ export default function ServiceDetailPage({ params }: any) {
     data: serviceData,
     isLoading,
     isError,
+    error,
   } = useGetServiceByIdQuery(serviceId);
   const service: Service | undefined = serviceData?.data;
 
-  console.log("serviceData", serviceData);
+  console.log("serviceId", serviceId);
+  console.log("error", error);
 
   // ... (loading, error, and not found states remain the same) ...
   if (isLoading) {

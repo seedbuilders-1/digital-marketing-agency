@@ -83,9 +83,9 @@ export default function ServicesPage() {
 
     return publicServices.map((service) => {
       // 4. Derive the price from the first plan, with a fallback
-      const price = service.plans?.[0]?.price
-        ? `From ₦${Number(service.plans[0].price).toLocaleString()}`
-        : "Contact for Price";
+      // const price = service.plans?.[0]?.price
+      //   ? `From ₦${Number(service.plans[0].price).toLocaleString()}`
+      //   : "Contact for Price";
 
       return (
         <Card
@@ -108,9 +108,9 @@ export default function ServicesPage() {
               {service.heroParagraph}
             </p>
             <div className="flex items-center justify-between mt-auto pt-4 border-t">
-              <span className="text-lg font-semibold text-[#7642FE]">
+              {/* <span className="text-lg font-semibold text-[#7642FE]">
                 {price}
-              </span>
+              </span> */}
               <Button asChild className="bg-[#7642FE] hover:bg-[#5f35cc]">
                 <Link href={`/dashboard/services/${service.id}`}>
                   View Details

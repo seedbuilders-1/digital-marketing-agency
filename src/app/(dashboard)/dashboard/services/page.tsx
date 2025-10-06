@@ -49,9 +49,8 @@ export default function ServicesPage() {
   console.log("err", error);
 
   // 3. Filter for public services and memoize the result
-  const publicServices: Service[] = (servicesData?.data || []).filter(
-    (service: Service) => service.isPublic
-  );
+  const publicServices: Service[] = servicesData?.data || [];
+  console.log("publicServices", publicServices);
 
   const renderServiceGrid = () => {
     if (isLoading) {

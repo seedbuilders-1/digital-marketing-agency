@@ -1,3 +1,5 @@
+"use client";
+
 import { selectAccessToken } from "@/features/auth/selectors";
 import { redirect } from "next/navigation";
 import { useSelector } from "react-redux";

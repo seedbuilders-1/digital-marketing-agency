@@ -1,6 +1,6 @@
 "use client";
 
-import CompleteProfileForm from "@/components/profile/complete-profile-form";
+import CompleteProfileForm from "@/components/auth/complete-profile-form";
 import { Mail, Phone } from "lucide-react";
 import Image from "next/image";
 import { Suspense } from "react";

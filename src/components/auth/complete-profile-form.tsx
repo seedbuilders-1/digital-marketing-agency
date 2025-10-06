@@ -29,8 +29,8 @@ import {
   type CompleteProfileFormData,
 } from "@/lib/schemas/profile";
 import { useCompleteUserProfileMutation } from "@/api/userApi";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { Label } from "../ui/label";
+// import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+// import { Label } from "../ui/label";
 
 // Helper to generate temporary preview URLs from File objects
 const getPreviewUrl = (file: any) => URL.createObjectURL(file);
@@ -45,8 +45,8 @@ const CompleteProfileForm = () => {
   const form = useForm<CompleteProfileFormData>({
     resolver: zodResolver(completeProfileSchema),
     defaultValues: {
-      ownsBusiness: undefined,
-      registerWithBusiness: undefined,
+      // ownsBusiness: undefined,
+      // registerWithBusiness: undefined,
       // No default values needed for files; they will be FileList objects
     },
     mode: "onChange", // Validate fields as the user interacts with them
@@ -115,8 +115,8 @@ const CompleteProfileForm = () => {
     Array.from(data.identification).forEach((file) => {
       formData.append("IDs", file);
     });
-    formData.append("business_status", data.ownsBusiness);
-    formData.append("registered_with_a_business", data.registerWithBusiness);
+    // formData.append("business_status", data.ownsBusiness);
+    // formData.append("registered_with_a_business", data.registerWithBusiness);
 
     try {
       // 3. Call the RTK Query mutation
@@ -244,7 +244,7 @@ const CompleteProfileForm = () => {
           />
 
           {/* Business Ownership Question */}
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <h2 className="text-xl font-semibold text-[#333333] mb-3 font-['Sora']">
               Do you own a registered business?
             </h2>
@@ -298,10 +298,10 @@ const CompleteProfileForm = () => {
                 )}
               />
             </div>
-          </div>
+          </div> */}
 
           {/* Business Registration Question */}
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <h2 className="text-xl font-semibold text-[#333333] mb-3 font-['Sora']">
               Are you registered with a business or organization?
             </h2>
@@ -355,7 +355,7 @@ const CompleteProfileForm = () => {
                 )}
               />
             </div>
-          </div>
+          </div> */}
 
           {/* --- Form Buttons --- */}
           <div className="flex gap-4 mt-8">

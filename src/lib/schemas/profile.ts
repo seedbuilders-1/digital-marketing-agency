@@ -50,12 +50,12 @@ export const completeProfileSchema = z.object({
     ),
 
   // --- Radio Button Validations ---
-  ownsBusiness: z.enum(["yes", "no"], {
-    required_error: "Please select if you own a business.",
-  }),
-  registerWithBusiness: z.enum(["yes", "no"], {
-    required_error: "Please select if you are registered with a business.",
-  }),
+  // ownsBusiness: z.enum(["yes", "no"], {
+  //   required_error: "Please select if you own a business.",
+  // }),
+  // registerWithBusiness: z.enum(["yes", "no"], {
+  //   required_error: "Please select if you are registered with a business.",
+  // }),
 });
 
 const singleFileSchema = z

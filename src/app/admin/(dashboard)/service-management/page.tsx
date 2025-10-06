@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -14,10 +15,15 @@ import {
   ChevronRight,
   Loader2, // For loading state
   AlertCircle,
-  Pen, // For error state
+  Pen,
+  Trash2, // For error state
 } from "lucide-react";
 import Link from "next/link";
-import { useGetAllServiesQuery } from "@/api/servicesApi";
+import {
+  useDeleteServiceMutation,
+  useGetAllServiesQuery,
+} from "@/api/servicesApi";
+import { toast } from "sonner";
 
 // 1. Define a type that matches your actual API response
 interface Service {
@@ -53,6 +59,41 @@ export default function ServiceManagementPage() {
     // Polling can be useful to keep data fresh
     // pollingInterval: 30000,
   });
+
+  const [deleteServiceMutation, { isLoading: isDeleting }] =
+    useDeleteServiceMutation();
+
+  // 2. Create the handler function with proper logic.
+  const handleDeleteService = async (serviceId: any) => {
+    // 3. Add a confirmation dialog. This is crucial for destructive actions.
+    const isConfirmed = window.confirm(
+      `Are you sure you want to delete the service "${serviceId}"? This will remove all associated images and cannot be undone.`
+    );
+
+    // If the user clicks "Cancel", do nothing.
+    if (!isConfirmed) {
+      return;
+    }
+
+    // 4. Provide immediate feedback with a loading toast.
+    const toastId = toast.loading("Deleting service and removing assets...");
+
+    try {
+      // 5. Call the mutation trigger correctly with the ID.
+      //    Using .unwrap() allows you to use try/catch for error handling.
+      await deleteServiceMutation(serviceId).unwrap();
+
+      // If the promise resolves, show a success message.
+      toast.success("Service deleted successfully!", { id: toastId });
+      // The UI will automatically update if you have `invalidatesTags` set up.
+    } catch (err) {
+      // If the promise rejects, show an error message.
+      console.error("Failed to delete service:", err);
+      const errorMessage =
+        (err as any)?.data?.message || "An unexpected error occurred.";
+      toast.error(errorMessage, { id: toastId });
+    }
+  };
 
   // The actual services array is inside the response data
   const services: Service[] = servicesData?.data || [];
@@ -153,13 +194,33 @@ export default function ServiceManagementPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-purple-600 hover:text-purple-700"
+                className="text-purple-600 hover:text-purple-700 cursor-pointer"
               >
                 <Pen className="h-4 w-4 mr-1" />
                 Edit
               </Button>
             </Link>
           </div>
+        </td>
+        <td className="py-4 px-6 text-red-700 underline">
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => handleDeleteService(service?.id)}
+            disabled={isDeleting}
+          >
+            {isDeleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Service
+              </>
+            )}
+          </Button>
         </td>
       </tr>
     ));
@@ -226,6 +287,9 @@ export default function ServiceManagementPage() {
                   </th>
                   <th className="text-left py-3 px-6 font-medium text-gray-700">
                     Edit
+                  </th>
+                  <th className="text-left py-3 px-6 font-medium text-red-700">
+                    Delete
                   </th>
                 </tr>
               </thead>

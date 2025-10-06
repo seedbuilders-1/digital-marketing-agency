@@ -91,6 +91,12 @@ export const servicesApi = baseApi.injectEndpoints({
         body,
       }),
     }),
+    deleteService: builder.mutation({
+      query: (id) => ({
+        url: APIS.SERVICES.DELETE_SERVICE(id),
+        method: "DELETE",
+      }),
+    }),
   }),
   overrideExisting: true,
 });
@@ -100,6 +106,7 @@ export const {
   useGetAllServiesQuery,
   useGetAllPublicServicesQuery,
   useGetServiceByIdQuery,
+  useDeleteServiceMutation,
   useInitializeServiceRequestMutation,
   useUpdateServiceFormMutation,
   useGetUserServiceRequestsQuery,

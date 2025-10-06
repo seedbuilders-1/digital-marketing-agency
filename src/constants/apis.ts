@@ -28,6 +28,7 @@ export const APIS = {
     UPDATE_SERVICE_FORM: (serviceId: any) =>
       `${api}/services/${serviceId}/form`,
     UPDATE_SERVICE: (serviceId: any) => `${api}/services/${serviceId}`,
+    DELETE_SERVICE: (serviceId: any) => `${api}/services/${serviceId}`,
     INITIALIZE_SERVICE_REQUEST: `${api}/service-requests/initialize`,
     GET_USER_SERVICE_REQUESTS: `${api}/service-requests/my-requests`,
     GET_SERVICE_REQUEST_BY_ID: (id: any) => `${api}/service-requests/${id}`,

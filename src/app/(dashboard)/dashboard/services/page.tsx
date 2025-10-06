@@ -43,7 +43,10 @@ export default function ServicesPage() {
     data: servicesData,
     isLoading,
     isError,
+    error,
   } = useGetAllServiesQuery(undefined);
+
+  console.log("err", error);
 
   // 3. Filter for public services and memoize the result
   const publicServices: Service[] = (servicesData?.data || []).filter(

@@ -11,7 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Star, Check, AlertCircle, X, Menu, ChevronDown } from "lucide-react";
+import { Star, Check, AlertCircle, X, Menu } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useGetServiceByIdQuery } from "@/api/servicesApi";

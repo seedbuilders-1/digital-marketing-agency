@@ -241,7 +241,7 @@ export default function ServiceDetailPage({ params }: any) {
           )}
         </header>
         <div className="min-h-screen bg-white">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 text-center p-5">
+          <h1 className="text-2xl lg:text-5xl font-bold text-[#7642FE] mb-6 text-center p-5">
             {service?.title}
           </h1>
           {/* Hero Section */}

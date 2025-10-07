@@ -121,7 +121,7 @@ export default function ServiceDetailPage({ params }: any) {
   return (
     <div className="min-h-screen bg-white">
       {/* --- (Breadcrumb and other sections are fine) --- */}
-      <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 text-center p-5">
+      <h1 className="text-2xl lg:text-5xl font-bold text-[#7642FE] mb-6 text-center p-5">
         {service?.title}
       </h1>
       {/* Hero Section */}

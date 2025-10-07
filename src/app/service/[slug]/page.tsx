@@ -98,7 +98,7 @@ export default function ServiceDetailPage({ params }: any) {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  console.log("serviceId", serviceId);
+  console.log("serviceData", serviceData);
   console.log("error", error);
 
   // ... (loading, error, and not found states remain the same) ...
@@ -241,8 +241,9 @@ export default function ServiceDetailPage({ params }: any) {
           )}
         </header>
         <div className="min-h-screen bg-white">
-          {/* --- (Breadcrumb and other sections are fine) --- */}
-
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 text-center p-5">
+            {service?.title}
+          </h1>
           {/* Hero Section */}
           <section className="max-w-7xl mx-auto px-6 py-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">

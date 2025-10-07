@@ -51,5 +51,6 @@ export const APIS = {
     GET_USER_CONVERSATIONS: `${api}/conversations`,
     GET_MESSAGES_BY_REQUEST_ID: (serviceRequestId: any) =>
       `${api}/conversations/${serviceRequestId}/messages`,
+    GET_ADMIN_CONVOS: `${api}/conversations/admin`,
   },
 };

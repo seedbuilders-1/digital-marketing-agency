@@ -219,7 +219,13 @@ export default function ServiceDetailPage({ params }: any) {
                           ₦{Number(discountedPrice).toLocaleString()}
                         </span>
                       </div>
-                      <span className="text-gray-600">{plan.priceUnit}</span>
+                      {/* Price unit + discount badge */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-600">{plan.priceUnit}</span>
+                        <Badge className="bg-green-100 text-green-700 border-none text-xs font-semibold">
+                          50% OFF
+                        </Badge>
+                      </div>
                     </div>
 
                     <p className="text-gray-600 mb-6">{plan.audience}</p>

@@ -267,6 +267,10 @@ export default function ProjectDetailPage() {
               <h1 className="text-2xl font-bold text-gray-900">
                 {project.service.title}
               </h1>
+              {project.status === "PENDING_APPROVAL" && (
+                <p>Admin is reviewing your service request</p>
+              )}
+
               {/* Only show cancel button if the project is in a cancellable state */}
               {["PENDING_APPROVAL", "ACTIVE"].includes(project.status) && (
                 <Button

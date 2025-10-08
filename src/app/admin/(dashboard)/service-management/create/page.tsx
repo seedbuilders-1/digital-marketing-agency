@@ -317,7 +317,100 @@ export default function CreateServicePage() {
     e.preventDefault();
     const toastId = toast.loading("Creating new service...");
     const submissionData = new FormData();
-    // ... all the FormData appending logic remains exactly the same
+    // Append all fields just like in the create function
+    submissionData.append("title", formData.title);
+    submissionData.append("isPublic", String(formData.visibility));
+    submissionData.append("bannerText", formData.bannerText);
+    submissionData.append("heroHeadline", formData.heroSection.headline);
+    submissionData.append("heroParagraph", formData.heroSection.paragraph);
+    submissionData.append(
+      "blueprintHeadline",
+      formData.blueprintSection.headline
+    );
+    submissionData.append(
+      "blueprintParagraph",
+      formData.blueprintSection.paragraph
+    );
+
+    formData.plans.forEach((plan, index) => {
+      submissionData.append(`plans[${index}][name]`, plan.name);
+      submissionData.append(`plans[${index}][price]`, plan.price);
+      submissionData.append(`plans[${index}][priceUnit]`, plan.priceUnit);
+      submissionData.append(`plans[${index}][audience]`, plan.audience);
+      submissionData.append(
+        `plans[${index}][features]`,
+        JSON.stringify(plan.features)
+      );
+    });
+
+    formData.faqs.forEach((faq, index) => {
+      submissionData.append(`faqs[${index}][question]`, faq.question);
+      submissionData.append(`faqs[${index}][answer]`, faq.answer);
+    });
+
+    formData.caseStudies.forEach((cs, index) => {
+      submissionData.append(`caseStudies[${index}][title]`, cs.title);
+      submissionData.append(`caseStudies[${index}][subtitle]`, cs.subtitle);
+      submissionData.append(`caseStudies[${index}][challenge]`, cs.challenge);
+      submissionData.append(`caseStudies[${index}][solution]`, cs.solution);
+      submissionData.append(`caseStudies[${index}][result]`, cs.result);
+    });
+
+    formData.testimonials.forEach((ts, index) => {
+      submissionData.append(`testimonials[${index}][quote]`, ts.quote);
+      submissionData.append(
+        `testimonials[${index}][authorName]`,
+        ts.authorName
+      );
+      submissionData.append(
+        `testimonials[${index}][authorTitle]`,
+        ts.authorTitle
+      );
+      submissionData.append(`testimonials[${index}][stars]`, String(ts.stars));
+    });
+
+    // Append new files if they have been selected
+    if (formData.heroSection.imageFile) {
+      submissionData.append("heroImage", formData.heroSection.imageFile);
+    }
+    if (formData.blueprintSection.imageFile) {
+      submissionData.append(
+        "blueprintImage",
+        formData.blueprintSection.imageFile
+      );
+    }
+
+    formData.caseStudies.forEach((cs, index) => {
+      if (cs.bannerImageFile)
+        submissionData.append(
+          `caseStudy_${index}_bannerImage`,
+          cs.bannerImageFile
+        );
+      if (cs.challengeImageFile)
+        submissionData.append(
+          `caseStudy_${index}_challengeImage`,
+          cs.challengeImageFile
+        );
+      if (cs.solutionImageFile)
+        submissionData.append(
+          `caseStudy_${index}_solutionImage`,
+          cs.solutionImageFile
+        );
+      if (cs.resultImageFile)
+        submissionData.append(
+          `caseStudy_${index}_resultImage`,
+          cs.resultImageFile
+        );
+    });
+
+    formData.testimonials.forEach((ts, index) => {
+      if (ts.authorImageFile)
+        submissionData.append(
+          `testimonial_${index}_authorImage`,
+          ts.authorImageFile
+        );
+    });
+
     try {
       const res = await createService(submissionData).unwrap();
       const newServiceId = res.data.service.id;

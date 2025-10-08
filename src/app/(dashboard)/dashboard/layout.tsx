@@ -1,12 +1,12 @@
+// This file is located at: app/(dashboard)/layout.tsx
+
+"use client";
+
 import type React from "react";
-import type { Metadata } from "next";
 import DashboardHeader from "@/components/dashboard/dashboard-header";
 import Footer from "@/components/layout/footer";
-
-export const metadata: Metadata = {
-  title: "Dashboard - Digital Marketing Agency",
-  description: "Manage your digital marketing projects and campaigns",
-};
+import DashboardGuard from "@/components/dashboard/DashboardGuards";
+// Make sure this import path is correct based on where you created the Guard
 
 export default function DashboardLayout({
   children,
@@ -16,7 +16,13 @@ export default function DashboardLayout({
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <DashboardHeader />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1">
+        {/*
+          The Guard is placed here. It will protect all routes that use this layout,
+          such as /dashboard, /services, /projects, etc.
+        */}
+        <DashboardGuard>{children}</DashboardGuard>
+      </main>
       <Footer />
     </div>
   );

@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   useUpdateServiceFormMutation,
-  useGetServiceByIdQuery, // <-- IMPORT THE QUERY HOOK
+  useGetServiceByIdQuery,
 } from "@/api/servicesApi";
 import { v4 as uuidv4 } from "uuid";
 import { Toaster, toast } from "sonner";
@@ -36,47 +36,47 @@ interface FormField {
   options?: string[];
 }
 
-// A constant for the common user profile fields
+// A constant for the common user profile fields with updated generic naming
 const USER_PROFILE_FIELDS: FormField[] = [
   {
     id: uuidv4(),
-    name: "org_name",
-    label: "Name of organisation/brand",
+    name: "user_name", // Changed from org_name
+    label: "Name",
     type: "text",
     required: true,
     fromUser: true,
     step: 1,
-    groupName: "Organization details",
+    groupName: "User Details",
   },
   {
     id: uuidv4(),
-    name: "org_address",
+    name: "user_address",
     label: "Address",
     type: "text",
     required: true,
     fromUser: true,
     step: 1,
-    groupName: "Organization details",
+    groupName: "User Details",
   },
   {
     id: uuidv4(),
-    name: "phone_no",
+    name: "user_phone",
     label: "Phone No",
     type: "text",
     required: true,
     fromUser: true,
     step: 1,
-    groupName: "Organization details",
+    groupName: "User Details",
   },
   {
     id: uuidv4(),
-    name: "email",
+    name: "user_email",
     label: "Email",
     type: "text",
     required: true,
     fromUser: true,
     step: 1,
-    groupName: "Organization details",
+    groupName: "User Details",
   },
 ];
 
@@ -104,7 +104,7 @@ export default function FormBuilderPage({ params }: any) {
     }
   }, [specificService]); // Dependency array ensures this runs when data arrives
 
-  // --- FIELD HANDLERS (No changes needed) ---
+  // --- FIELD HANDLERS ---
   const addField = () => {
     setFields([
       ...fields,
@@ -116,7 +116,7 @@ export default function FormBuilderPage({ params }: any) {
         required: false,
         fromUser: false,
         step: 1,
-        groupName: "Organization details",
+        groupName: "User Details",
       },
     ]);
   };
@@ -151,7 +151,7 @@ export default function FormBuilderPage({ params }: any) {
     }
   };
 
-  // --- SAVE HANDLER (No changes needed) ---
+  // --- SAVE HANDLER ---
   const handleSaveForm = async () => {
     const toastId = toast.loading("Saving request form...");
     try {
@@ -284,7 +284,7 @@ export default function FormBuilderPage({ params }: any) {
                     onChange={(e) =>
                       updateField(field.id, "groupName", e.target.value)
                     }
-                    placeholder="e.g., Organization details"
+                    placeholder="e.g., User Details"
                   />
                 </div>
                 <div>

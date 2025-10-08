@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { useGetServiceByIdQuery } from "@/api/servicesApi";
@@ -18,6 +18,9 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useServiceRequest } from "@/context/ServiceRequestContext";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/features/auth/selectors";
+// NOTE: Replace this with your actual authentication hook
 
 const Stepper = ({
   currentStep,
@@ -60,20 +63,79 @@ export default function ServiceRequestPage({ params }: any) {
   const serviceId = params.slug;
   const { setFormData } = useServiceRequest();
 
+  // Get the user object from your auth context/hook
+  const user = useSelector(selectCurrentUser);
+  console.log("user", user);
+
   const { data: serviceData, isLoading: isLoadingService } =
     useGetServiceByIdQuery(serviceId);
 
   const [currentStep, setCurrentStep] = useState(1);
+
+  const service: Service | undefined = serviceData?.data;
+  const formFields: any[] = service?.form?.formFields || [];
+  console.log("formFields", formFields);
+
+  // Prepare default values for the form based on the user object
+  const defaultValues = useMemo(() => {
+    if (!user || formFields.length === 0) {
+      return {};
+    }
+
+    const prefilledData: { [key: string]: any } = {};
+    const fieldToUserKeyMap: { [key: string]: string } = {
+      user_name: "name",
+      user_address: "address",
+      user_phone: "tel", // The key remains 'tel'
+      user_email: "email",
+    };
+
+    // This dataSource is now only for fields that exist in both contexts (name, address, email)
+    const dataSource =
+      user.category === "organisation" && user.organisation
+        ? user.organisation
+        : user;
+
+    for (const field of formFields) {
+      if (field.fromUser) {
+        // --- THIS IS THE NEW, CORRECTED LOGIC ---
+
+        // SPECIAL CASE: The phone number is always on the top-level user object.
+        if (field.name === "user_phone") {
+          if (user.tel) {
+            prefilledData[field.name] = user.tel;
+          }
+        } else {
+          // STANDARD LOGIC: For all other fields, use the dataSource as before.
+          const userObjectKey = fieldToUserKeyMap[field.name];
+          if (userObjectKey && dataSource[userObjectKey]) {
+            prefilledData[field.name] = dataSource[userObjectKey];
+          }
+        }
+      }
+    }
+    return prefilledData;
+  }, [user, formFields]);
+
   const {
     register,
     handleSubmit,
     trigger,
     control,
     formState: { errors },
-  } = useForm();
+    reset,
+  } = useForm({
+    // Pass the calculated default values to useForm
+    defaultValues,
+  });
 
-  const service: Service | undefined = serviceData?.data;
-  const formFields: any = service?.form?.formFields || [];
+  useEffect(() => {
+    // Check if there are actual values to set.
+    // This prevents resetting the form with an empty object unnecessarily.
+    if (Object.keys(defaultValues).length > 0) {
+      reset(defaultValues);
+    }
+  }, [defaultValues, reset]);
 
   const { fieldsByStep, stepNames } = useMemo(() => {
     const steps: { [key: number]: any[] } = {};
@@ -92,7 +154,7 @@ export default function ServiceRequestPage({ params }: any) {
 
   const totalSteps = Object.keys(fieldsByStep).length;
 
-  // The final onSubmit that dispatches data to Redux and navigates
+  // The final onSubmit that dispatches data and navigates
   const onSubmit = (data: any) => {
     setFormData(data);
     router.push(`/dashboard/services/${serviceId}/request/select-plan`);
@@ -107,7 +169,6 @@ export default function ServiceRequestPage({ params }: any) {
       if (currentStep < totalSteps) {
         setCurrentStep((prev) => prev + 1);
       } else {
-        // If it's the last step, call the final submit handler
         handleSubmit(onSubmit)();
       }
     }
@@ -148,7 +209,6 @@ export default function ServiceRequestPage({ params }: any) {
 
       <Stepper currentStep={currentStep} steps={stepNames} />
 
-      {/* The form tag now only wraps the fields, not the buttons */}
       <form
         id="service-request-form"
         onSubmit={handleSubmit(onSubmit)}
@@ -161,13 +221,13 @@ export default function ServiceRequestPage({ params }: any) {
               {field.required && "*"}
             </label>
 
-            {/* Use a switch statement for cleaner conditional rendering */}
             {(() => {
               switch (field.type) {
                 case "textarea":
                   return (
                     <Textarea
                       {...register(field.name, { required: field.required })}
+                      disabled={field.fromUser}
                     />
                   );
 
@@ -176,6 +236,7 @@ export default function ServiceRequestPage({ params }: any) {
                     <Input
                       type="date"
                       {...register(field.name, { required: field.required })}
+                      disabled={field.fromUser}
                     />
                   );
 
@@ -184,6 +245,7 @@ export default function ServiceRequestPage({ params }: any) {
                     <Input
                       type="file"
                       {...register(field.name, { required: field.required })}
+                      disabled={field.fromUser}
                     />
                   );
 
@@ -194,7 +256,11 @@ export default function ServiceRequestPage({ params }: any) {
                       name={field.name}
                       rules={{ required: field.required }}
                       render={({ field: { onChange, value } }) => (
-                        <Select onValueChange={onChange} value={value}>
+                        <Select
+                          onValueChange={onChange}
+                          value={value}
+                          disabled={field.fromUser}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Select an option..." />
                           </SelectTrigger>
@@ -210,11 +276,11 @@ export default function ServiceRequestPage({ params }: any) {
                     />
                   );
 
-                // Default case for 'text' and any other unknown types
                 default:
                   return (
                     <Input
                       {...register(field.name, { required: field.required })}
+                      disabled={field.fromUser}
                     />
                   );
               }

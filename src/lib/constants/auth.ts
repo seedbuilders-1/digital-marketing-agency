@@ -1,6 +1,6 @@
 export const USER_TYPES = {
   INDIVIDUAL: "individual",
-  ORGANIZATION: "organization",
+  ORGANIZATION: "organisation",
 } as const;
 
 export const AUTH_ROUTES = {
@@ -56,4 +56,6 @@ export const ASSETS = {
     "/DMA-uploads/befc692c-cf56-4860-ae18-5b102cb416c0.png",
   CREATE_PASSWORD_BACKGROUND:
     "/DMA-uploads/aec76fd4-e352-49eb-b87b-68bdb9022190.png",
+  COMPLETE_PROFILE_BACKGROUND: `url("/DMA-uploads/0589d284-827d-4b54-96dc-a6b830dded54.png")`,
+  CONTACT_PERSON_PROFILE_BACKGROUND: `url("/DMA-uploads/207b1138-6b5c-47f8-a2b1-e26cb35e6f02.png")`,
 } as const;

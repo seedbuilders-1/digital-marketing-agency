@@ -12,6 +12,7 @@ export default function AuthWrapper({
 }) {
   const pathname = usePathname();
 
+  // This function remains the same
   const getBackgroundImage = () => {
     switch (pathname) {
       case "/signup":
@@ -20,29 +21,40 @@ export default function AuthWrapper({
         return ASSETS.FORGOT_PASSWORD_BACKGROUND;
       case "/verify-otp":
         return ASSETS.VERIFY_OTP_BACKGROUND;
-      case "/sadiq":
-        return ASSETS.CREATE_PASSWORD_BACKGROUND;
+      case "/complete-profile":
+        return ASSETS.COMPLETE_PROFILE_BACKGROUND;
+      case "/organization-profile":
+        return ASSETS.BACKGROUND_IMAGE;
+      case "/contact-person-profile":
+        return ASSETS.CONTACT_PERSON_PROFILE_BACKGROUND;
       default:
         return ASSETS.BACKGROUND_IMAGE;
     }
   };
 
   return (
-    <div className="flex min-h-screen font-['Sora'] w-full">
-      {/* Form Section - Left Side - Scrollable */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center bg-white relative z-10 overflow-y-auto">
-        <div className="w-full max-w-md mx-auto p-8 lg:p-12 min-h-screen flex items-center justify-center">
+    <div className="flex min-h-screen w-full font-['Sora']">
+      {/* Form Section - Left Side */}
+      {/* 
+        This section now takes up the full width on mobile and 50% on large screens.
+        The child component will control its own internal max-width and padding.
+        `justify-start` ensures content aligns to the top.
+      */}
+      <div className="w-full lg:w-1/2 bg-white flex flex-col justify-start items-center p-6 sm:p-10 lg:p-12 overflow-y-auto">
+        <div className="w-full max-w-lg">
+          {" "}
+          {/* Allow child to be wider */}
           {children}
         </div>
       </div>
 
-      {/* Image Section - Right Side - Fixed */}
-      <div className="hidden lg:block lg:w-1/2 fixed right-0 top-0 h-screen">
-        <AuthImageSection backgroundImage={getBackgroundImage()} />
-      </div>
-
-      {/* Mobile: Image as fixed background */}
-      <div className="lg:hidden fixed inset-0 z-0">
+      {/* Image Section - Right Side */}
+      {/* 
+        This section is hidden on mobile and appears on large screens.
+        No need for a separate mobile background div, which simplifies the code
+        and fixes the "form disappearing" issue.
+      */}
+      <div className="hidden lg:block lg:w-1/2 h-screen sticky top-0">
         <AuthImageSection backgroundImage={getBackgroundImage()} />
       </div>
     </div>

@@ -4,9 +4,10 @@ export interface UserRegistrationData {
   tel: string;
   address: string;
   country: string;
+  // city: string;
   password: string;
   confirmPassword: string;
-  category: "individual" | "organization";
+  category: "individual" | "organisation";
   agreeToTerms: boolean;
 }
 

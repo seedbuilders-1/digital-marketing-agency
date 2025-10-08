@@ -91,7 +91,7 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
         toast.error(errorMessage, { id: toastId });
       }
     },
-    [register, selectedCountryCode, router] // Dependencies
+    [register, selectedCountryCode, router]
   );
 
   const handleGoogleRegistration = useCallback(() => {
@@ -188,6 +188,20 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
               <FormItem>
                 <FormLabel>Country</FormLabel>
                 <CountrySelector countries={countries} field={field} />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter your city" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

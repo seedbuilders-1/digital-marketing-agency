@@ -10,9 +10,10 @@ export const signUpSchema = z
       .regex(/^\d+$/, "Please enter only numbers"),
     address: z.string().min(1, "Address is required"),
     country: z.string().min(1, "Country is required"),
+    // city: z.string().min(1, "City is required"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(1, "Confirm password is required"),
-    category: z.enum(["individual", "organization"], {
+    category: z.enum(["individual", "organisation"], {
       required_error: "Please select user type",
     }),
     agreeToTerms: z.boolean().refine((val) => val === true, {

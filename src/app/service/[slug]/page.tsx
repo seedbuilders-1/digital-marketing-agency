@@ -310,54 +310,74 @@ export default function ServiceDetailPage({ params }: any) {
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {service.plans.map((plan, index) => (
-                  <Card key={index} className="flex flex-col">
-                    <CardContent className="p-8 flex flex-col flex-grow">
-                      {/* ... (Plan details) ... */}
-                      <Badge
-                        variant="outline"
-                        className="mb-4 text-[#7642FE] border-[#7642FE] w-fit"
-                      >
-                        {plan.name}
-                      </Badge>
-                      <div className="mb-4">
-                        <span className="text-4xl font-bold text-gray-900">
-                          ₦{Number(plan.price).toLocaleString()}
-                        </span>
-                        <span className="text-gray-600">{plan.priceUnit}</span>
-                      </div>
-                      <p className="text-gray-600 mb-6">{plan.audience}</p>
+                {service.plans.map((plan, index) => {
+                  // Example: apply 50% off discount
+                  const discountedPrice = (plan.price as any) * 0.5;
 
-                      {/* --- FIX #2: Added Link to Choose Plan Button --- */}
-                      <Button
-                        asChild
-                        className="w-full bg-[#7642FE] hover:bg-[#5f35cc] mb-6"
-                      >
-                        <Link href={"/signup"}>Choose this plan</Link>
-                      </Button>
+                  return (
+                    <Card key={index} className="flex flex-col">
+                      <CardContent className="p-8 flex flex-col flex-grow">
+                        <Badge
+                          variant="outline"
+                          className="mb-4 text-[#7642FE] border-[#7642FE] w-fit"
+                        >
+                          {plan.name}
+                        </Badge>
 
-                      {/* ... (Plan features) ... */}
-                      <div className="flex-grow">
-                        <h4 className="font-semibold text-gray-900 mb-4">
-                          Features:
-                        </h4>
-                        <ul className="space-y-3">
-                          {plan.features.map((feature, featureIndex) => (
-                            <li
-                              key={featureIndex}
-                              className="flex items-start space-x-3"
-                            >
-                              <Check className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                              <span className="text-sm text-gray-600">
-                                {feature}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        {/* PRICE SECTION */}
+                        <div className="mb-4 flex flex-col">
+                          {/* Original price with strikethrough */}
+                          <span className="text-gray-400 line-through text-lg">
+                            ₦{Number(plan.price).toLocaleString()}
+                          </span>
+
+                          {/* Discounted price */}
+                          <span className="text-4xl font-bold text-gray-900">
+                            ₦{Number(discountedPrice).toLocaleString()}
+                          </span>
+
+                          {/* Price unit + discount badge */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-600">
+                              {plan.priceUnit}
+                            </span>
+                            <Badge className="bg-green-100 text-green-700 border-none text-xs font-semibold">
+                              50% OFF
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <p className="text-gray-600 mb-6">{plan.audience}</p>
+
+                        <Button
+                          asChild
+                          className="w-full bg-[#7642FE] hover:bg-[#5f35cc] mb-6"
+                        >
+                          <Link href={"/signup"}>Choose this plan</Link>
+                        </Button>
+
+                        <div className="flex-grow">
+                          <h4 className="font-semibold text-gray-900 mb-4">
+                            Features:
+                          </h4>
+                          <ul className="space-y-3">
+                            {plan.features.map((feature, featureIndex) => (
+                              <li
+                                key={featureIndex}
+                                className="flex items-start space-x-3"
+                              >
+                                <Check className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                                <span className="text-sm text-gray-600">
+                                  {feature}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </div>
           </section>

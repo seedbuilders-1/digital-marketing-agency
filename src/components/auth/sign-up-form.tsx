@@ -193,7 +193,7 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
             )}
           />
 
-          <FormField
+          {/* <FormField
             control={form.control}
             name="city"
             render={({ field }) => (
@@ -205,7 +205,7 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
 
           <FormField
             control={form.control}

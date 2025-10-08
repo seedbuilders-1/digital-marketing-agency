@@ -193,7 +193,7 @@ export default function ServiceDetailPage({ params }: any) {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {service.plans.map((plan, index) => {
-              const discountedPrice = plan.price * 0.5;
+              const discountedPrice = (plan.price as any) * 0.5;
 
               return (
                 <Card key={index} className="flex flex-col">

@@ -36,7 +36,7 @@ const Logo = () => (
   <Image
     src={DMALogo}
     alt="Digital Marketing Agency Nigeria Logo"
-    width={120}
+    width={100}
     height={40}
   />
 );
@@ -555,7 +555,7 @@ export default function LandingPage() {
                       <div>
                         <h4 className="font-bold text-xl mb-1">Email Us</h4>
                         <p className="text-lg">
-                          hello@digitalmarketingagency.com
+                          support@digitalmarketingagency.ng
                         </p>
                       </div>
                     </div>

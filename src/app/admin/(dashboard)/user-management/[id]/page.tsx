@@ -8,7 +8,7 @@ export default function UserDetailsPage() {
   const userInfo = {
     userName: "Babalola Jide",
     userEmail: "babalolajide@123.com",
-    phoneNumber: "+234 800 000 0000",
+    phoneNumber: "+234 909 000 8888",
     address: "6 Adekotopo Road, Wuse, Abuja",
     nameOfOrganisation: "Jide Consultancy",
     website: "Jide Consultancy",

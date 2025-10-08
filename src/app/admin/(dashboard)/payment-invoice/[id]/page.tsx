@@ -15,7 +15,7 @@ export default function PaymentDetailsPage({}) {
   const userInfo = {
     name: "Babalola Jide",
     email: "babalolajide@123.com",
-    phone: "+234 800 000 0000",
+    phone: "+234 909 000 8888",
     address: "6 Adekotubọ Road, Wuse, Abuja",
     organization: "Jide Consultancy",
     website: "Jide Consultancy",
@@ -387,9 +387,9 @@ export default function PaymentDetailsPage({}) {
 
             {/* Footer */}
             <div className="mt-8 bg-purple-50 p-4 rounded flex justify-between text-sm text-gray-600">
-              <span>www.digitalmarketingagencyng.com</span>
-              <span>+91 00000 00000</span>
-              <span>hello@email.com</span>
+              <span>www.digitalmarketingagency.ng</span>
+              <span>+234 909 000 8888</span>
+              <span>support@digitalmarketingagency.ng</span>
             </div>
           </div>
         </CardContent>

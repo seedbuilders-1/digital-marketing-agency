@@ -67,6 +67,7 @@ const VerifyOTPForm = ({ email, id }: any) => {
         });
         return;
       }
+      console.log("freshUser", freshUser);
 
       // 2. Dispatch the action to update the global Redux store for the rest of the app.
       // This is still a good thing to do.

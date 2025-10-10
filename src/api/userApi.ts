@@ -22,7 +22,14 @@ export const userApi = baseApi.injectEndpoints({
       //     { type: "User", id: userId },
       //   ],
     }),
+    getAuthenticateduser: builder.query({
+      query: () => ({
+        url: APIS.USER.GET_LOGGED_IN_USER,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useCompleteUserProfileMutation } = userApi;
+export const { useCompleteUserProfileMutation, useGetAuthenticateduserQuery } =
+  userApi;

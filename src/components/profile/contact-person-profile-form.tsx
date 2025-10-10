@@ -31,8 +31,12 @@ import {
   type ContactPersonProfileFormData,
 } from "@/lib/schemas/profile";
 import { selectCurrentUser } from "@/features/auth/selectors";
-import { updateOrganisationContact } from "@/features/auth/authSlice";
+import {
+  updateOrganisationContact,
+  updateUser,
+} from "@/features/auth/authSlice";
 import { useAppDispatch } from "@/hooks/rtk";
+import { useGetAuthenticateduserQuery } from "@/api/userApi";
 
 // Helper to generate temporary preview URLs
 const getPreviewUrl = (file: File) => URL.createObjectURL(file);
@@ -40,7 +44,8 @@ const getPreviewUrl = (file: File) => URL.createObjectURL(file);
 const ContactPersonProfileForm = () => {
   const router = useRouter();
   const user = useSelector(selectCurrentUser) as any;
-  console.log("user", user);
+  const { refetch: refetchUser } = useGetAuthenticateduserQuery(undefined);
+
   const organization = user?.organisation;
   const [createContact, { isLoading }] = useCreateContactMutation();
 
@@ -110,6 +115,9 @@ const ContactPersonProfileForm = () => {
       dispatch(updateOrganisationContact(res));
 
       console.log("res", res);
+      const refetchUserDetails = await refetchUser();
+      const newUser = refetchUserDetails?.data?.data;
+      dispatch(updateUser(newUser));
 
       // 3. Navigate to the dashboard or next page
       router.push("/dashboard/dashboard");

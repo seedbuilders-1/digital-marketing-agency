@@ -19,6 +19,8 @@ export const APIS = {
   USER: {
     INDIVIDUAL_COMPLETE_PROFILE: (userId: any) =>
       `${api}/users/profile/${userId}`,
+    GET_USER: (id: any) => `${api}/users/${id}`,
+    GET_LOGGED_IN_USER: `${api}/users/me`,
   },
   SERVICES: {
     CREATE_SERVICE: `${api}/services`,

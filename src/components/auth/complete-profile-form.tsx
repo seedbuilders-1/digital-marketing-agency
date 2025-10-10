@@ -28,7 +28,12 @@ import {
   completeProfileSchema,
   type CompleteProfileFormData,
 } from "@/lib/schemas/profile";
-import { useCompleteUserProfileMutation } from "@/api/userApi";
+import {
+  useCompleteUserProfileMutation,
+  useGetAuthenticateduserQuery,
+} from "@/api/userApi";
+import { useAppDispatch } from "@/hooks/rtk";
+import { updateUser } from "@/features/auth/authSlice";
 // import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 // import { Label } from "../ui/label";
 
@@ -39,6 +44,10 @@ const CompleteProfileForm = () => {
   const router = useRouter();
   const user = useSelector(selectCurrentUser);
   const [completeProfile, { isLoading }] = useCompleteUserProfileMutation();
+
+  const { refetch: refetchUser } = useGetAuthenticateduserQuery(undefined);
+
+  const dispatch = useAppDispatch();
 
   // --- FORM SETUP ---
   // react-hook-form is now the single source of truth for all form fields, including files.
@@ -121,6 +130,9 @@ const CompleteProfileForm = () => {
     try {
       // 3. Call the RTK Query mutation
       await completeProfile({ userId: user.id, formData }).unwrap();
+      const refetchUserDetails = await refetchUser();
+      const newUser = refetchUserDetails?.data?.data;
+      dispatch(updateUser(newUser));
       toast.success("Profile completed successfully!", { id: toastId });
       router.push("/dashboard/dashboard");
     } catch (err: any) {

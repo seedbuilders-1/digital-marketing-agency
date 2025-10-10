@@ -40,7 +40,8 @@ import {
   type OrganizationProfileFormData,
 } from "@/lib/schemas/profile";
 import { useAppDispatch } from "@/hooks/rtk";
-import { updateUserOrganization } from "@/features/auth/authSlice";
+import { updateUser, updateUserOrganization } from "@/features/auth/authSlice";
+import { useGetAuthenticateduserQuery } from "@/api/userApi";
 
 // A reusable sub-component for a clean, single file upload field
 const FileUploadField = ({
@@ -104,6 +105,7 @@ export default function OrganizationProfileForm() {
   const [createOrganization, { isLoading }] = useCreateOrganizationMutation();
 
   const dispatch = useAppDispatch();
+  const { refetch: refetchUser } = useGetAuthenticateduserQuery(undefined);
 
   const form = useForm<OrganizationProfileFormData>({
     resolver: zodResolver(organizationProfileSchema),
@@ -149,6 +151,9 @@ export default function OrganizationProfileForm() {
       toast.success("Organization profile created successfully!", {
         id: toastId,
       });
+      const refetchUserDetails = await refetchUser();
+      const newUser = refetchUserDetails?.data?.data;
+      dispatch(updateUser(newUser));
 
       // 4. Navigate to the next step on success
       router.push("/contact-person-profile");

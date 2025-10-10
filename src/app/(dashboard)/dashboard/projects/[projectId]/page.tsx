@@ -8,6 +8,8 @@ import {
   ArrowLeft,
   CheckCircle,
   Clock,
+  ExternalLink,
+  File,
   FileText,
   MessageCircle,
   ThumbsDown,
@@ -119,24 +121,21 @@ const MilestoneItem = ({ milestone }: { milestone: any }) => {
     action: null,
   });
 
-  const openModal = (action: "APPROVE" | "REJECT") => {
+  const openModal = (action: "APPROVE" | "REJECT") =>
     setModalState({ isOpen: true, action });
-  };
-
-  const closeModal = () => {
-    setModalState({ isOpen: false, action: null });
-  };
+  const closeModal = () => setModalState({ isOpen: false, action: null });
 
   return (
     <>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between py-4 border-b last:border-b-0">
+        {/* Left Side: Title, Deadline, Rejection Reason */}
         <div className="mb-4 sm:mb-0">
           <p className="font-semibold text-gray-800">{milestone.title}</p>
           <p className="text-sm text-gray-500">
             Deadline: {formatDate(milestone.deadline)}
           </p>
           {milestone.status === "REJECTED" && milestone.rejection_reason && (
-            <div className="mt-2 flex items-start gap-2 text-red-700 bg-red-50 border border-red-200 p-2 rounded-md text-xs">
+            <div className="mt-2 flex items-start gap-2 text-red-700 bg-red-50 ...">
               <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
               <p>
                 <span className="font-semibold">Reason:</span>{" "}
@@ -145,51 +144,73 @@ const MilestoneItem = ({ milestone }: { milestone: any }) => {
             </div>
           )}
         </div>
-        <div className="flex items-center flex-wrap gap-2 self-start sm:self-center">
-          {/* Always show the status */}
+
+        {/* Right Side: Status, Links, and Action Buttons */}
+        <div className="flex flex-col items-start sm:items-end gap-2">
           <MilestoneStatusBadge status={milestone.status} />
 
-          {/* Always show the file link if it exists */}
-          {milestone.deliverable_url && (
-            <Button
-              asChild
-              variant="link"
-              className="text-[#7642FE] p-0 h-auto"
-            >
-              <a
-                href={milestone.deliverable_url}
-                target="_blank"
-                rel="noopener noreferrer"
+          <div className="flex items-center gap-4">
+            {/* --- THE FIX: Conditionally render the FILE link --- */}
+            {milestone.deliverable_file_url && (
+              <Button
+                asChild
+                variant="link"
+                className="text-[#7642FE] p-0 h-auto"
               >
-                View File
-              </a>
-            </Button>
-          )}
+                <a
+                  href={milestone.deliverable_file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1"
+                >
+                  <File className="h-4 w-4" /> View File
+                </a>
+              </Button>
+            )}
 
-          {/* ONLY show action buttons when approval is pending */}
+            {/* --- THE FIX: Conditionally render the EXTERNAL link --- */}
+            {milestone.deliverable_link_url && (
+              <Button
+                asChild
+                variant="link"
+                className="text-[#7642FE] p-0 h-auto"
+              >
+                <a
+                  href={milestone.deliverable_link_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1"
+                >
+                  <ExternalLink className="h-4 w-4" /> Visit Link
+                </a>
+              </Button>
+            )}
+          </div>
+
+          {/* Action buttons only show when approval is pending */}
           {milestone.status === "PENDING_CLIENT_APPROVAL" && (
-            <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+            <div className="flex items-center gap-2 w-full sm:w-auto mt-2">
               <Button
                 size="sm"
                 variant="outline"
-                className="flex-1 text-red-600 border-red-300 hover:bg-red-50 hover:text-red-700"
+                className="flex-1 text-red-600 ..."
                 onClick={() => openModal("REJECT")}
               >
-                <ThumbsDown className="h-4 w-4 mr-2" />
-                Request Changes
+                <ThumbsDown className="h-4 w-4 mr-2" /> Request Changes
               </Button>
               <Button
                 size="sm"
-                className="flex-1 bg-green-600 hover:bg-green-700"
+                className="flex-1 bg-green-600 ..."
                 onClick={() => openModal("APPROVE")}
               >
-                <ThumbsUp className="h-4 w-4 mr-2" />
-                Approve
+                <ThumbsUp className="h-4 w-4 mr-2" /> Approve
               </Button>
             </div>
           )}
         </div>
       </div>
+
+      {/* Modal remains unchanged */}
       {modalState.isOpen && modalState.action && (
         <MilestoneActionModal
           milestone={milestone}

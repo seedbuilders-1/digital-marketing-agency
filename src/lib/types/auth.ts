@@ -4,7 +4,7 @@ export interface UserRegistrationData {
   tel: string;
   address: string;
   country: string;
-  // city: string;
+  city: string;
   password: string;
   confirmPassword: string;
   category: "individual" | "organisation";

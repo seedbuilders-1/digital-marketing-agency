@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Toaster, toast } from "sonner";
@@ -32,17 +33,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { ArrowLeft, Save, Plus, X, Loader2, GripVertical } from "lucide-react";
 import { ImageUpload } from "@/components/ImageUpload";
+
+// API Hooks
 import { useCreateServiceMutation } from "@/api/servicesApi";
 
-// --- Type Definitions for our complex form state ---
+// --- Type Definitions ---
+interface Feature {
+  id: string;
+  text: string;
+}
 interface Plan {
+  id: string;
   name: string;
   price: string;
   priceUnit: string;
   audience: string;
-  features: string[];
+  features: Feature[];
 }
 interface CaseStudy {
+  id: string;
   title: string;
   subtitle: string;
   bannerImageFile: File | null;
@@ -54,6 +63,7 @@ interface CaseStudy {
   resultImageFile: File | null;
 }
 interface Testimonial {
+  id: string;
   quote: string;
   authorName: string;
   authorTitle: string;
@@ -61,145 +71,155 @@ interface Testimonial {
   authorImageFile: File | null;
 }
 interface Faq {
+  id: string;
   question: string;
   answer: string;
 }
 
-// --- NEW Draggable Plan Sub-Component ---
-// This component renders a single, draggable pricing plan form.
-const SortablePlan = ({
-  plan,
-  planIndex,
-  removeArrayItem,
-  handleArrayItemChange,
-  handleNestedArrayChange,
-  addNestedArrayItem,
-  removeNestedArrayItem,
-}: any) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: plan.name + planIndex }); // A unique ID for dnd-kit
+// --- Draggable Plan Sub-Component (Wrapped in React.memo) ---
+const SortablePlan = memo(
+  ({
+    plan,
+    planIndex,
+    removeArrayItem,
+    handleArrayItemChange,
+    handleNestedArrayChange,
+    addNestedArrayItem,
+    removeNestedArrayItem,
+  }: any) => {
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id: plan.id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
 
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="p-4 border rounded-lg space-y-4 relative bg-white shadow-sm"
-    >
-      {/* Drag Handle: This is the element you grab to reorder */}
+    return (
       <div
-        {...attributes}
-        {...listeners}
-        className="absolute top-1/2 -left-8 -translate-y-1/2 text-gray-400 cursor-grab active:cursor-grabbing p-2"
+        ref={setNodeRef}
+        style={style}
+        className="p-4 border rounded-lg space-y-4 relative bg-white shadow-sm"
       >
-        <GripVertical />
-      </div>
-
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="absolute top-2 right-2 h-7 w-7 text-gray-500 hover:bg-red-50 hover:text-red-600"
-        onClick={() => removeArrayItem("plans", planIndex)}
-      >
-        <X className="h-4 w-4" />
-      </Button>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <Label>Plan Name</Label>
-          <Input
-            value={plan.name}
-            onChange={(e) =>
-              handleArrayItemChange("plans", planIndex, "name", e.target.value)
-            }
-          />
+        <div
+          {...attributes}
+          {...listeners}
+          className="absolute top-1/2 -left-8 -translate-y-1/2 text-gray-400 cursor-grab active:cursor-grabbing p-2"
+        >
+          <GripVertical />
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="absolute top-2 right-2 h-7 w-7 text-gray-500 hover:bg-red-50 hover:text-red-600"
+          onClick={() => removeArrayItem("plans", planIndex)}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Label>Plan Name</Label>
+            <Input
+              value={plan.name}
+              onChange={(e) =>
+                handleArrayItemChange(
+                  "plans",
+                  planIndex,
+                  "name",
+                  e.target.value
+                )
+              }
+            />
+          </div>
+          <div>
+            <Label>Audience</Label>
+            <Input
+              value={plan.audience}
+              onChange={(e) =>
+                handleArrayItemChange(
+                  "plans",
+                  planIndex,
+                  "audience",
+                  e.target.value
+                )
+              }
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Label>Price</Label>
+            <Input
+              type="number"
+              value={plan.price}
+              onChange={(e) =>
+                handleArrayItemChange(
+                  "plans",
+                  planIndex,
+                  "price",
+                  e.target.value
+                )
+              }
+            />
+          </div>
+          <div>
+            <Label>Price Unit</Label>
+            <Input
+              value={plan.priceUnit}
+              onChange={(e) =>
+                handleArrayItemChange(
+                  "plans",
+                  planIndex,
+                  "priceUnit",
+                  e.target.value
+                )
+              }
+            />
+          </div>
         </div>
         <div>
-          <Label>Audience</Label>
-          <Input
-            value={plan.audience}
-            onChange={(e) =>
-              handleArrayItemChange(
-                "plans",
-                planIndex,
-                "audience",
-                e.target.value
-              )
-            }
-          />
+          <Label>Features</Label>
+          <div className="space-y-2 mt-2">
+            {plan.features.map((feature: Feature, featureIndex: number) => (
+              <div key={feature.id} className="flex items-center gap-2">
+                <Input
+                  value={feature.text}
+                  onChange={(e) =>
+                    handleNestedArrayChange(
+                      planIndex,
+                      featureIndex,
+                      e.target.value
+                    )
+                  }
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9 flex-shrink-0"
+                  onClick={() => removeNestedArrayItem(planIndex, featureIndex)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => addNestedArrayItem(planIndex)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Feature
+            </Button>
+          </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <Label>Price</Label>
-          <Input
-            type="number"
-            value={plan.price}
-            onChange={(e) =>
-              handleArrayItemChange("plans", planIndex, "price", e.target.value)
-            }
-          />
-        </div>
-        <div>
-          <Label>Price Unit (e.g., /month)</Label>
-          <Input
-            value={plan.priceUnit}
-            onChange={(e) =>
-              handleArrayItemChange(
-                "plans",
-                planIndex,
-                "priceUnit",
-                e.target.value
-              )
-            }
-          />
-        </div>
-      </div>
-      <div>
-        <Label>Features</Label>
-        <div className="space-y-2 mt-2">
-          {plan.features.map((feature: string, featureIndex: number) => (
-            <div key={featureIndex} className="flex items-center gap-2">
-              <Input
-                value={feature}
-                onChange={(e) =>
-                  handleNestedArrayChange(
-                    planIndex,
-                    featureIndex,
-                    e.target.value
-                  )
-                }
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-9 w-9 flex-shrink-0"
-                onClick={() => removeNestedArrayItem(planIndex, featureIndex)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => addNestedArrayItem(planIndex)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Feature
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
+    );
+  }
+);
+SortablePlan.displayName = "SortablePlan";
 
 export default function CreateServicePage() {
   const router = useRouter();
@@ -226,29 +246,23 @@ export default function CreateServicePage() {
     faqs: [] as Faq[],
   });
 
-  // --- Drag and Drop Setup for Plans ---
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setFormData((prev) => {
-        const oldIndex = prev.plans.findIndex(
-          (p, i) => p.name + i === active.id
-        );
-        const newIndex = prev.plans.findIndex((p, i) => p.name + i === over.id);
-        // Use the arrayMove utility from dnd-kit to update the state
+        const oldIndex = prev.plans.findIndex((p) => p.id === active.id);
+        const newIndex = prev.plans.findIndex((p) => p.id === over.id);
         return { ...prev, plans: arrayMove(prev.plans, oldIndex, newIndex) };
       });
     }
   }
 
-  // --- All other state handlers remain unchanged ---
+  // --- IMMUTABLE STATE HANDLERS ---
   const handleInputChange = (field: string, value: any) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
   const handleFileChange = (
@@ -268,56 +282,99 @@ export default function CreateServicePage() {
       ...prev,
       [section]: { ...prev[section], [field]: value },
     }));
-  const addArrayItem = <T,>(field: keyof typeof formData, newItem: T) =>
+
+  const addArrayItem = <T extends { id: string }>(
+    field: keyof typeof formData,
+    newItem: Omit<T, "id">
+  ) => {
+    const itemWithId = { ...newItem, id: `new_${Date.now()}` } as T;
     setFormData((prev) => ({
       ...prev,
-      [field]: [...(prev[field] as T[]), newItem],
+      [field]: [...(prev[field] as any), itemWithId],
     }));
+  };
+
   const removeArrayItem = <T,>(field: keyof typeof formData, index: number) =>
     setFormData((prev) => ({
       ...prev,
       [field]: (prev[field] as T[]).filter((_, i) => i !== index),
     }));
+
   const handleArrayItemChange = <T,>(
     field: keyof typeof formData,
     index: number,
     itemField: keyof T,
     value: any
   ) => {
-    setFormData((prev) => {
-      const newArray = [...(prev[field] as T[])];
-      newArray[index] = { ...newArray[index], [itemField]: value };
-      return { ...prev, [field]: newArray };
-    });
+    setFormData((prev) => ({
+      ...prev,
+      [field]: (prev[field] as T[]).map((item, i) =>
+        i === index ? { ...item, [itemField]: value } : item
+      ),
+    }));
   };
+
   const handleNestedArrayChange = (
     planIndex: number,
     featureIndex: number,
     value: string
   ) => {
-    const newPlans = [...formData.plans];
-    newPlans[planIndex].features[featureIndex] = value;
-    setFormData((prev) => ({ ...prev, plans: newPlans }));
-  };
-  const addNestedArrayItem = (planIndex: number) => {
-    const newPlans = [...formData.plans];
-    newPlans[planIndex].features.push("");
-    setFormData((prev) => ({ ...prev, plans: newPlans }));
-  };
-  const removeNestedArrayItem = (planIndex: number, featureIndex: number) => {
-    const newPlans = [...formData.plans];
-    newPlans[planIndex].features = newPlans[planIndex].features.filter(
-      (_, i) => i !== featureIndex
-    );
-    setFormData((prev) => ({ ...prev, plans: newPlans }));
+    setFormData((prev) => ({
+      ...prev,
+      plans: prev.plans.map((plan, pIndex) => {
+        if (pIndex === planIndex) {
+          return {
+            ...plan,
+            features: plan.features.map((feature, fIndex) =>
+              fIndex === featureIndex ? { ...feature, text: value } : feature
+            ),
+          };
+        }
+        return plan;
+      }),
+    }));
   };
 
-  // --- Form Submission (unchanged) ---
+  const addNestedArrayItem = (planIndex: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      plans: prev.plans.map((plan, pIndex) => {
+        if (pIndex === planIndex) {
+          return {
+            ...plan,
+            features: [
+              ...plan.features,
+              { id: `new_feature_${Date.now()}`, text: "" },
+            ],
+          };
+        }
+        return plan;
+      }),
+    }));
+  };
+
+  const removeNestedArrayItem = (planIndex: number, featureIndex: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      plans: prev.plans.map((plan, pIndex) => {
+        if (pIndex === planIndex) {
+          return {
+            ...plan,
+            features: plan.features.filter(
+              (_, fIndex) => fIndex !== featureIndex
+            ),
+          };
+        }
+        return plan;
+      }),
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const toastId = toast.loading("Creating new service...");
     const submissionData = new FormData();
-    // Append all fields just like in the create function
+
     submissionData.append("title", formData.title);
     submissionData.append("isPublic", String(formData.visibility));
     submissionData.append("bannerText", formData.bannerText);
@@ -331,54 +388,44 @@ export default function CreateServicePage() {
       "blueprintParagraph",
       formData.blueprintSection.paragraph
     );
+    submissionData.append(
+      "plans",
+      JSON.stringify(
+        formData.plans.map((p) => ({
+          ...p,
+          features: p.features.map((f) => f.text),
+        }))
+      )
+    );
+    submissionData.append("faqs", JSON.stringify(formData.faqs));
+    submissionData.append(
+      "caseStudies",
+      JSON.stringify(
+        formData.caseStudies.map(
+          ({
+            bannerImageFile,
+            challengeImageFile,
+            solutionImageFile,
+            resultImageFile,
+            ...rest
+          }) => rest
+        )
+      )
+    );
+    submissionData.append(
+      "testimonials",
+      JSON.stringify(
+        formData.testimonials.map(({ authorImageFile, ...rest }) => rest)
+      )
+    );
 
-    formData.plans.forEach((plan, index) => {
-      submissionData.append(`plans[${index}][name]`, plan.name);
-      submissionData.append(`plans[${index}][price]`, plan.price);
-      submissionData.append(`plans[${index}][priceUnit]`, plan.priceUnit);
-      submissionData.append(`plans[${index}][audience]`, plan.audience);
-      submissionData.append(
-        `plans[${index}][features]`,
-        JSON.stringify(plan.features)
-      );
-    });
-
-    formData.faqs.forEach((faq, index) => {
-      submissionData.append(`faqs[${index}][question]`, faq.question);
-      submissionData.append(`faqs[${index}][answer]`, faq.answer);
-    });
-
-    formData.caseStudies.forEach((cs, index) => {
-      submissionData.append(`caseStudies[${index}][title]`, cs.title);
-      submissionData.append(`caseStudies[${index}][subtitle]`, cs.subtitle);
-      submissionData.append(`caseStudies[${index}][challenge]`, cs.challenge);
-      submissionData.append(`caseStudies[${index}][solution]`, cs.solution);
-      submissionData.append(`caseStudies[${index}][result]`, cs.result);
-    });
-
-    formData.testimonials.forEach((ts, index) => {
-      submissionData.append(`testimonials[${index}][quote]`, ts.quote);
-      submissionData.append(
-        `testimonials[${index}][authorName]`,
-        ts.authorName
-      );
-      submissionData.append(
-        `testimonials[${index}][authorTitle]`,
-        ts.authorTitle
-      );
-      submissionData.append(`testimonials[${index}][stars]`, String(ts.stars));
-    });
-
-    // Append new files if they have been selected
-    if (formData.heroSection.imageFile) {
+    if (formData.heroSection.imageFile)
       submissionData.append("heroImage", formData.heroSection.imageFile);
-    }
-    if (formData.blueprintSection.imageFile) {
+    if (formData.blueprintSection.imageFile)
       submissionData.append(
         "blueprintImage",
         formData.blueprintSection.imageFile
       );
-    }
 
     formData.caseStudies.forEach((cs, index) => {
       if (cs.bannerImageFile)
@@ -414,7 +461,9 @@ export default function CreateServicePage() {
     try {
       const res = await createService(submissionData).unwrap();
       const newServiceId = res.data.service.id;
-      toast.success("Step 1 Complete! Redirecting...", { id: toastId });
+      toast.success("Service created! Redirecting to Form Builder...", {
+        id: toastId,
+      });
       router.push(`/admin/service-management/${newServiceId}/form-builder`);
     } catch (err) {
       const errorMessage =
@@ -553,22 +602,19 @@ export default function CreateServicePage() {
               <CardTitle>Pricing Plans</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* --- DND-KIT IMPLEMENTATION --- */}
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
               >
                 <SortableContext
-                  items={formData.plans.map((p, i) => p.name + i)}
+                  items={formData.plans.map((p) => p.id)}
                   strategy={verticalListSortingStrategy}
                 >
                   <div className="space-y-4 pl-8">
-                    {" "}
-                    {/* Added padding for the drag handle */}
                     {formData.plans.map((plan, planIndex) => (
                       <SortablePlan
-                        key={plan.name + planIndex}
+                        key={plan.id}
                         plan={plan}
                         planIndex={planIndex}
                         removeArrayItem={removeArrayItem}
@@ -581,7 +627,6 @@ export default function CreateServicePage() {
                   </div>
                 </SortableContext>
               </DndContext>
-
               <Button
                 type="button"
                 variant="secondary"
@@ -591,7 +636,7 @@ export default function CreateServicePage() {
                     price: "",
                     priceUnit: "/month",
                     audience: "",
-                    features: [""],
+                    features: [],
                   })
                 }
               >
@@ -608,7 +653,7 @@ export default function CreateServicePage() {
             <CardContent className="space-y-4">
               {formData.caseStudies.map((cs, index) => (
                 <div
-                  key={index}
+                  key={cs.id}
                   className="p-4 border rounded-lg space-y-4 relative"
                 >
                   <Button
@@ -760,7 +805,7 @@ export default function CreateServicePage() {
             <CardContent className="space-y-4">
               {formData.testimonials.map((ts, index) => (
                 <div
-                  key={index}
+                  key={ts.id}
                   className="p-4 border rounded-lg space-y-4 relative"
                 >
                   <Button
@@ -863,7 +908,7 @@ export default function CreateServicePage() {
             <CardContent className="space-y-4">
               {formData.faqs.map((faq, index) => (
                 <div
-                  key={index}
+                  key={faq.id}
                   className="p-4 border rounded-lg space-y-2 relative"
                 >
                   <Button

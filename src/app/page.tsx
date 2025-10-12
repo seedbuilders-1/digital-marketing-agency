@@ -25,7 +25,7 @@ import {
 } from "lucide-react"; // A stellar icon set, as always!
 import Footer from "@/components/layout/footer";
 import Image from "next/image";
-import Landing1 from "../../public/landing-1.png";
+import Landing1 from "../../public/dma-banner.jpg";
 import Link from "next/link";
 import DMALogo from "../../public/dma_svg.svg";
 import { useGetAllPublicServicesQuery } from "@/api/servicesApi";
@@ -286,6 +286,7 @@ export default function LandingPage() {
         <section className="container mx-auto px-6 -mt-16 relative z-20 flex justify-center">
           <Image
             src={Landing1}
+            width={1000}
             alt="Digital Marketing Team collaborating"
             className="rounded-3xl shadow-2xl border-4 border-white transform hover:scale-101 transition-transform duration-500"
           />

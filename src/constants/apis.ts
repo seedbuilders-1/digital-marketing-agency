@@ -32,6 +32,7 @@ export const APIS = {
     UPDATE_SERVICE: (serviceId: any) => `${api}/services/${serviceId}`,
     DELETE_SERVICE: (serviceId: any) => `${api}/services/${serviceId}`,
     INITIALIZE_SERVICE_REQUEST: `${api}/service-requests/initialize`,
+    INITIALIZE_WITH_REFERRAL_REQUEST: `${api}/service-requests/initialize-with-referral`,
     GET_USER_SERVICE_REQUESTS: `${api}/service-requests/my-requests`,
     GET_SERVICE_REQUEST_BY_ID: (id: any) => `${api}/service-requests/${id}`,
     GET_ALL_SERVICE_REQUESTS: `${api}/service-requests`,

@@ -19,11 +19,10 @@ export default function InvoicePage() {
     data: invoiceData,
     isLoading,
     isError,
-    error,
   } = useGetInvoiceByIdQuery(invoiceId);
   const invoice = invoiceData?.data;
 
-  console.log("invoiceData", error);
+  console.log("invoiceData", invoiceData);
 
   if (isLoading) {
     return (

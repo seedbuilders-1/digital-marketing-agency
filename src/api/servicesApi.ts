@@ -11,6 +11,7 @@ export const servicesApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Services"],
     }),
+
     getAllServies: builder.query({
       query: () => ({
         url: APIS.SERVICES.GET_ALL_SERVICES,
@@ -51,6 +52,14 @@ export const servicesApi = baseApi.injectEndpoints({
     initializeServiceRequest: builder.mutation({
       query: (requestData) => ({
         url: APIS.SERVICES.INITIALIZE_SERVICE_REQUEST, // <-- This is the API route it calls
+        method: "POST",
+        body: requestData,
+      }),
+      invalidatesTags: ["Services"],
+    }),
+    initializeWithReferral: builder.mutation({
+      query: (requestData) => ({
+        url: APIS.SERVICES.INITIALIZE_WITH_REFERRAL_REQUEST,
         method: "POST",
         body: requestData,
       }),
@@ -130,4 +139,5 @@ export const {
   useUploadMilestoneDeliverableMutation,
   useReviewMilestoneMutation,
   useUpdateServiceMutation,
+  useInitializeWithReferralMutation,
 } = servicesApi;

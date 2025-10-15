@@ -139,9 +139,7 @@ export default function ServiceDetailPage({ params }: any) {
               asChild
               className="bg-[#7642FE] hover:bg-[#5f35cc] text-white px-8 py-3 text-lg"
             >
-              <Link href={`/dashboard/services/${service.id}/request`}>
-                Request service
-              </Link>
+              <Link href={`#plan`}>Request service</Link>
             </Button>
           </div>
           <div className="relative aspect-video">
@@ -180,7 +178,7 @@ export default function ServiceDetailPage({ params }: any) {
       </section>
 
       {/* Pricing Plans */}
-      <section className="py-16">
+      <section className="py-16" id="plan">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">

@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Logo } from "@/app/page";
 import { Card, CardContent } from "@/components/ui/card";
+import { selectCurrentUser } from "@/features/auth/selectors";
+import { useSelector } from "react-redux";
 
 interface InvoicePreviewProps {
   invoice: any & {
@@ -26,6 +29,9 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
   const tax = subtotal * taxRate;
   const totalDue = subtotal + tax;
 
+  console.log("Invoice:", invoice);
+  const user = useSelector(selectCurrentUser);
+
   return (
     <Card className="max-w-4xl mx-auto shadow-lg border-none">
       <CardContent className="p-10">
@@ -36,13 +42,14 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
               <p className="font-semibold">Billed to</p>
               <p>{invoice.user.name}</p>
               {/* You would fetch the user's address from their profile */}
-              <p>123 Highway Crescent</p>
-              <p>LA, USA</p>
+              <p>{user?.address}</p>
             </div>
           </div>
           <div className="text-right">
             <div className="h-12 w-24 bg-purple-600 flex items-center justify-center rounded-lg">
-              <p className="text-white text-2xl font-bold">DM</p>
+              <p className="text-white text-2xl font-bold">
+                <Logo />
+              </p>
             </div>
             <div className="text-sm text-purple-600 font-semibold mt-2">
               Digital Marketing Agency NG
@@ -67,13 +74,7 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
               {formatDate(invoice.created_at)}
             </p>
           </div>
-          <div>
-            <p className="font-semibold text-gray-500">Reference</p>
-            <p className="font-bold text-gray-800">{`SR-${invoice.service_request_id.substring(
-              0,
-              6
-            )}`}</p>
-          </div>
+
           <div>
             <p className="font-semibold text-gray-500">Due date</p>
             <p className="font-bold text-gray-800">
@@ -132,9 +133,9 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
           </div>
         </div>
 
-        <p className="text-xs text-gray-500 text-center">
+        {/* <p className="text-xs text-gray-500 text-center">
           Please pay within 15 days of receiving this invoice.
-        </p>
+        </p> */}
 
         <footer className="text-center mt-10 pt-4 border-t text-xs text-gray-500 flex justify-between">
           <span>www.digitalmarketingagency.ng</span>

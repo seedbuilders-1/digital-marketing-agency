@@ -56,4 +56,7 @@ export const APIS = {
       `${api}/conversations/${serviceRequestId}/messages`,
     GET_ADMIN_CONVOS: `${api}/conversations/admin`,
   },
+  REFERRAL: {
+    VALIDATE: `${api}/referrals/validate`,
+  },
 };

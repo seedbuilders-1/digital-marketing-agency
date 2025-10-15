@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PAYMENTS_DATA } from "@/lib/constants/payments";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "@/features/auth/selectors";
 
 export default function PaymentDetailPage() {
   const params = useParams();
@@ -14,6 +16,8 @@ export default function PaymentDetailPage() {
   const paymentId = params.paymentId as string;
 
   const payment = PAYMENTS_DATA.find((p) => p.transactionId === paymentId);
+
+  const user = useSelector(selectCurrentUser);
 
   if (!payment) {
     return (
@@ -126,9 +130,7 @@ export default function PaymentDetailPage() {
                         <div>
                           <strong>Billed to</strong>
                         </div>
-                        <div>ABC Company</div>
-                        <div>123 Highway Crescent</div>
-                        <div>LA, USA</div>
+                        <div>{user.address}</div>
                       </div>
                     </div>
                     <div className="text-right">

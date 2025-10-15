@@ -381,9 +381,9 @@ export default function PaymentDetailsPage({}) {
               </div>
             </div>
 
-            <div className="mt-8 text-center text-gray-500 text-sm">
+            {/* <div className="mt-8 text-center text-gray-500 text-sm">
               Please pay within 15 days of receiving this invoice.
-            </div>
+            </div> */}
 
             {/* Footer */}
             <div className="mt-8 bg-purple-50 p-4 rounded flex justify-between text-sm text-gray-600">

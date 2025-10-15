@@ -32,7 +32,7 @@ import { useGetAllPublicServicesQuery } from "@/api/servicesApi";
 import { Service } from "@/lib/types/services";
 
 // A simple, elegant Logo component – because branding is everything!
-const Logo = () => (
+export const Logo = () => (
   <Image
     src={DMALogo}
     alt="Digital Marketing Agency Nigeria Logo"

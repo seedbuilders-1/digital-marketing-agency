@@ -14,11 +14,11 @@ import { cn } from "@/lib/utils";
 
 // Update the payment methods array to include Paystack
 const paymentMethods = [
-  { id: "paystack", name: "Pay with Paystack", icon: "/visa.svg" },
-  { id: "visa", name: "Pay with Visa", icon: "/visa.svg" },
-  { id: "mastercard", name: "Pay with Mastercard", icon: "/mastercard.svg" },
-  { id: "paypal", name: "Pay with Paypal", icon: "/paypal.svg" },
-  { id: "stripe", name: "Pay with Stripe", icon: "/stripe.svg" },
+  { id: "paystack", name: "Pay with Paystack", icon: "/paystack-2.svg" },
+  // { id: "visa", name: "Pay with Visa", icon: "/visa.svg" },
+  // { id: "mastercard", name: "Pay with Mastercard", icon: "/mastercard.svg" },
+  // { id: "paypal", name: "Pay with Paypal", icon: "/paypal.svg" },
+  // { id: "stripe", name: "Pay with Stripe", icon: "/stripe.svg" },
 ];
 
 interface PaymentModalProps {

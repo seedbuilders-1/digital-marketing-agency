@@ -24,14 +24,11 @@ export default function SelectPlanPage({ params }: any) {
   const { setSelectedPlan } = useServiceRequest();
 
   const { data: serviceData, isLoading } = useGetServiceByIdQuery(serviceId);
-  const service = serviceData?.data;
   const plans: any = serviceData?.data?.plans || [];
   console.log(serviceData);
 
-  const { groupedPlans, selectedCycles, handleCycleChange } = useGroupedPlans(
-    plans,
-    service?.title
-  );
+  const { groupedPlans, selectedCycles, handleCycleChange } =
+    useGroupedPlans(plans);
 
   const handleSelectPlan = (groupName: string) => {
     const selectedOptionId = selectedCycles[groupName];

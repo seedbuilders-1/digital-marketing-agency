@@ -104,8 +104,7 @@ export default function ServiceDetailPage({ params }: any) {
   const service: Service | undefined = serviceData?.data;
 
   const { groupedPlans, selectedCycles, handleCycleChange } = useGroupedPlans(
-    (service?.plans as any) || [],
-    service?.title
+    (service?.plans as any) || []
   );
 
   console.log("serviceData", serviceData);

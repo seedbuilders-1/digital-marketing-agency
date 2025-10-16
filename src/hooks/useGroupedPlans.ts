@@ -24,15 +24,14 @@ export interface GroupedPlan {
 }
 
 /**
- * A custom hook to transform a flat array of service plans into groups.
- * It correctly groups recurring plans (monthly, quarterly, yearly)
- * and treats one-off plans as individual groups.
+ * A custom hook to intelligently transform a flat array of service plans into groups.
+ * It groups plans based on their shared set of features, which is the true
+ * identifier of a "plan package".
  *
  * @param plans The raw array of plan objects from the API.
- * @param serviceTitle The title of the parent service.
- * @returns An object containing the grouped plans and tools to manage them.
+ * @returns An object containing the correctly grouped plans and tools to manage them.
  */
-export const useGroupedPlans = (plans: Plan[], serviceTitle?: string) => {
+export const useGroupedPlans = (plans: Plan[]) => {
   const [selectedCycles, setSelectedCycles] = useState<Record<string, string>>(
     {}
   );
@@ -42,50 +41,35 @@ export const useGroupedPlans = (plans: Plan[], serviceTitle?: string) => {
 
     const groups: Record<string, GroupedPlan> = {};
 
-    // --- THIS IS THE KEY FIX ---
-    // A special group for all recurring plans
-    const recurringGroupName = serviceTitle || "Subscription";
-    let recurringGroupInitialized = false;
-
     plans.forEach((plan) => {
-      // Check if the plan is a recurring subscription
-      if (plan.priceUnit.toLowerCase() !== "one-off") {
-        // If this is the first recurring plan we've seen, initialize the group
-        if (!recurringGroupInitialized) {
-          groups[recurringGroupName] = {
-            name: recurringGroupName,
-            audience: plan.audience, // Use the audience & features from the first recurring plan
-            features: plan.features,
-            options: [],
-          };
-          recurringGroupInitialized = true;
-        }
+      // --- THE DEFINITIVE FIX ---
+      // 1. Create a unique, consistent key for each group by sorting and joining its features.
+      //    This ensures that plans with the same features, even if the features are in a
+      //    different order in the database, will end up in the same group.
+      const featuresKey = [...plan.features].sort().join("|");
 
-        // Add the recurring plan's details to the group's options
-        groups[recurringGroupName].options.push({
-          id: plan.id,
-          price: plan.price,
-          priceUnit: plan.priceUnit,
-        });
-      } else {
-        // If it's a 'one-off' plan, treat it as its own unique group
-        groups[plan.name] = {
-          name: plan.name,
+      // 2. If this is the first time we've seen this set of features, initialize the group.
+      if (!groups[featuresKey]) {
+        groups[featuresKey] = {
+          // Use the name of the first plan found as the group's display name.
+          // This is more intuitive than using the service title.
+          name: plan.name.replace(/ - (Monthly|Quarterly|Yearly)/i, ""), // Clean up the name
           audience: plan.audience,
           features: plan.features,
-          options: [
-            {
-              id: plan.id,
-              price: plan.price,
-              priceUnit: plan.priceUnit,
-            },
-          ],
+          options: [],
         };
       }
+
+      // 3. Add the current plan's payment option to the group.
+      groups[featuresKey].options.push({
+        id: plan.id,
+        price: plan.price,
+        priceUnit: plan.priceUnit,
+      });
     });
 
     return Object.values(groups);
-  }, [plans, serviceTitle]);
+  }, [plans]);
 
   // Effect to set default selections (remains the same)
   useEffect(() => {

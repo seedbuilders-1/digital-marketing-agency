@@ -48,6 +48,11 @@ const DashboardHeader = () => {
       href: "/dashboard/payments",
       label: "Payments & Billings",
     },
+
+    {
+      href: "/dashboard/invoice",
+      label: "Invoices",
+    },
   ];
 
   return (

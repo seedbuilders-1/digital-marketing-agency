@@ -18,6 +18,14 @@ import { useGetServiceByIdQuery } from "@/api/servicesApi";
 import { useState } from "react";
 import DMALogo from "../../../../public/dma_svg.svg";
 import Footer from "@/components/layout/footer";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useGroupedPlans } from "@/hooks/useGroupedPlans";
 
 interface Plan {
   name: string;
@@ -97,6 +105,11 @@ export default function ServiceDetailPage({ params }: any) {
   const service: Service | undefined = serviceData?.data;
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const { groupedPlans, selectedCycles, handleCycleChange } = useGroupedPlans(
+    (service?.plans as any) || [],
+    service?.title
+  );
 
   console.log("serviceData", serviceData);
   console.log("error", error);
@@ -298,7 +311,7 @@ export default function ServiceDetailPage({ params }: any) {
           </section>
 
           {/* Pricing Plans */}
-          <section className="py-16">
+          <section className="py-16" id="plan">
             <div className="max-w-7xl mx-auto px-6">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
@@ -306,62 +319,97 @@ export default function ServiceDetailPage({ params }: any) {
                 </h2>
                 <p className="text-lg text-gray-600">
                   Whether you're just starting or scaling up, we have the right
-                  plan for you
+                  plan for you.
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {service.plans.map((plan, index) => {
-                  // Example: apply 50% off discount
-                  const discountedPrice = (plan.price as any) * 0.5;
+              <div
+                className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(
+                  groupedPlans.length,
+                  3
+                )} gap-8`}
+              >
+                {groupedPlans.map((group) => {
+                  const selectedOption = group.options.find(
+                    (opt) => opt.id === selectedCycles[group.name]
+                  );
+                  const price = selectedOption?.price || "0";
+                  const discountedPrice = Number(price) * 0.5;
+                  const selectedPlanId = selectedOption?.id;
 
                   return (
-                    <Card key={index} className="flex flex-col">
+                    <Card
+                      key={group.name}
+                      className="flex flex-col border-2 hover:border-purple-600 transition-all"
+                    >
                       <CardContent className="p-8 flex flex-col flex-grow">
                         <Badge
                           variant="outline"
                           className="mb-4 text-[#7642FE] border-[#7642FE] w-fit"
                         >
-                          {plan.name}
+                          {group.name}
                         </Badge>
 
-                        {/* PRICE SECTION */}
-                        <div className="mb-4 flex flex-col">
-                          {/* Original price with strikethrough */}
-                          <span className="text-gray-400 line-through text-lg">
-                            ₦{Number(plan.price).toLocaleString()}
-                          </span>
-
-                          {/* Discounted price */}
-                          <span className="text-4xl font-bold text-gray-900">
-                            ₦{Number(discountedPrice).toLocaleString()}
-                          </span>
-
-                          {/* Price unit + discount badge */}
-                          <div className="flex items-center gap-2">
-                            <span className="text-gray-600">
-                              {plan.priceUnit}
+                        {/* Pricing Section */}
+                        <div className="mb-4">
+                          <div className="flex flex-col">
+                            <span className="text-2xl text-gray-400 line-through">
+                              ₦{Number(price).toLocaleString()}
                             </span>
+                            <span className="text-4xl font-bold text-gray-900">
+                              ₦{discountedPrice.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {group.options.length > 1 ? (
+                              <Select
+                                value={selectedCycles[group.name]}
+                                onValueChange={(value) =>
+                                  handleCycleChange(group.name, value)
+                                }
+                              >
+                                <SelectTrigger className="w-auto border-none focus:ring-0 font-medium text-gray-600">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {group.options.map((opt) => (
+                                    <SelectItem key={opt.id} value={opt.id}>
+                                      {opt.priceUnit}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <span className="text-gray-600 font-medium">
+                                {group.options[0]?.priceUnit}
+                              </span>
+                            )}
                             <Badge className="bg-green-100 text-green-700 border-none text-xs font-semibold">
                               50% OFF
                             </Badge>
                           </div>
                         </div>
 
-                        <p className="text-gray-600 mb-6">{plan.audience}</p>
+                        <p className="text-gray-600 mb-6">{group.audience}</p>
 
                         <Button
                           asChild
                           className="w-full bg-[#7642FE] hover:bg-[#5f35cc] mb-6"
                         >
-                          <Link href={"/signup"}>Choose this plan</Link>
+                          {/* This link now passes the service and selected plan IDs to the next step */}
+                          <Link
+                            href={`/signup?serviceId=${service.id}&planId=${selectedPlanId}`}
+                          >
+                            Choose this plan
+                          </Link>
                         </Button>
 
+                        {/* Features Section */}
                         <div className="flex-grow">
                           <h4 className="font-semibold text-gray-900 mb-4">
                             Features:
                           </h4>
                           <ul className="space-y-3">
-                            {plan.features.map((feature, featureIndex) => (
+                            {group.features.map((feature, featureIndex) => (
                               <li
                                 key={featureIndex}
                                 className="flex items-start space-x-3"

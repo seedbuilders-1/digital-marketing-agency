@@ -15,6 +15,14 @@ import { Star, Check, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useGetServiceByIdQuery } from "@/api/servicesApi";
+import { useGroupedPlans } from "@/hooks/useGroupedPlans";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // ... (All your interface and skeleton component definitions remain the same) ...
 
@@ -94,6 +102,11 @@ export default function ServiceDetailPage({ params }: any) {
     error,
   } = useGetServiceByIdQuery(serviceId);
   const service: Service | undefined = serviceData?.data;
+
+  const { groupedPlans, selectedCycles, handleCycleChange } = useGroupedPlans(
+    (service?.plans as any) || [],
+    service?.title
+  );
 
   console.log("serviceData", serviceData);
   console.log("error", error);
@@ -189,44 +202,73 @@ export default function ServiceDetailPage({ params }: any) {
               for you
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {service.plans.map((plan, index) => {
-              const discountedPrice = (plan.price as any) * 0.5;
+          <div
+            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(
+              groupedPlans.length,
+              3
+            )} gap-8`}
+          >
+            {groupedPlans.map((group) => {
+              const selectedOption = group.options.find(
+                (opt) => opt.id === selectedCycles[group.name]
+              );
+              const price = selectedOption?.price || "0";
+              const discountedPrice = Number(price) * 0.5;
 
               return (
-                <Card key={index} className="flex flex-col">
+                <Card
+                  key={group.name}
+                  className="flex flex-col border-2 hover:border-purple-600 transition-all"
+                >
                   <CardContent className="p-8 flex flex-col flex-grow">
-                    {/* Plan Name */}
                     <Badge
                       variant="outline"
                       className="mb-4 text-[#7642FE] border-[#7642FE] w-fit"
                     >
-                      {plan.name}
+                      {group.name}
                     </Badge>
 
                     {/* Pricing Section */}
                     <div className="mb-4">
                       <div className="flex flex-col">
-                        {/* Original price (slashed) */}
-                        <span className="text-2xl text-gray-500 line-through">
-                          ₦{Number(plan.price).toLocaleString()}
+                        <span className="text-2xl text-gray-400 line-through">
+                          ₦{Number(price).toLocaleString()}
                         </span>
-
-                        {/* Discounted price (50% off) */}
                         <span className="text-4xl font-bold text-gray-900">
-                          ₦{Number(discountedPrice).toLocaleString()}
+                          ₦{discountedPrice.toLocaleString()}
                         </span>
                       </div>
-                      {/* Price unit + discount badge */}
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-600">{plan.priceUnit}</span>
+                        {group.options.length > 1 ? (
+                          <Select
+                            value={selectedCycles[group.name]}
+                            onValueChange={(value) =>
+                              handleCycleChange(group.name, value)
+                            }
+                          >
+                            <SelectTrigger className="w-auto border-none focus:ring-0 font-medium text-gray-600">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {group.options.map((opt) => (
+                                <SelectItem key={opt.id} value={opt.id}>
+                                  {opt.priceUnit}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <span className="text-gray-600 font-medium">
+                            {group.options[0]?.priceUnit}
+                          </span>
+                        )}
                         <Badge className="bg-green-100 text-green-700 border-none text-xs font-semibold">
                           50% OFF
                         </Badge>
                       </div>
                     </div>
 
-                    <p className="text-gray-600 mb-6">{plan.audience}</p>
+                    <p className="text-gray-600 mb-6">{group.audience}</p>
 
                     <Button
                       asChild
@@ -237,13 +279,13 @@ export default function ServiceDetailPage({ params }: any) {
                       </Link>
                     </Button>
 
-                    {/* Features */}
+                    {/* Features Section */}
                     <div className="flex-grow">
                       <h4 className="font-semibold text-gray-900 mb-4">
                         Features:
                       </h4>
                       <ul className="space-y-3">
-                        {plan.features.map((feature, featureIndex) => (
+                        {group.features.map((feature, featureIndex) => (
                           <li
                             key={featureIndex}
                             className="flex items-start space-x-3"

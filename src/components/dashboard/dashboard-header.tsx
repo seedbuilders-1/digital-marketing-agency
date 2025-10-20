@@ -14,7 +14,7 @@ import { selectCurrentUser } from "@/features/auth/selectors";
 import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 
-import DMALogo from "../../../public/dma_svg.svg";
+import DMALogo from "../../../public/dma_logo.svg";
 import Image from "next/image";
 
 const Logo = () => <Image src={DMALogo} alt="" width={60} />;

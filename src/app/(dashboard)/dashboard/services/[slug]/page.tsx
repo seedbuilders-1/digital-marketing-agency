@@ -23,6 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRouter } from "next/router";
+import { useServiceRequest } from "@/context/ServiceRequestContext";
 
 // ... (All your interface and skeleton component definitions remain the same) ...
 
@@ -103,12 +105,31 @@ export default function ServiceDetailPage({ params }: any) {
   } = useGetServiceByIdQuery(serviceId);
   const service: Service | undefined = serviceData?.data;
 
+  const { setSelectedPlan } = useServiceRequest();
+  const router = useRouter();
+
   const { groupedPlans, selectedCycles, handleCycleChange } = useGroupedPlans(
     (service?.plans as any) || []
   );
 
+  const plans: any = serviceData?.data?.plans || [];
   console.log("serviceData", serviceData);
   console.log("error", error);
+
+  const handleSelectPlan = (groupName: any) => {
+    const selectedOptionId = selectedCycles[groupName];
+    // Find the original full plan object that matches the selected option
+    const finalPlan = plans.find((p: any) => p.id === selectedOptionId);
+
+    if (finalPlan) {
+      setSelectedPlan(finalPlan);
+      // Navigate to the next step, which is the summary page
+      router.push(`/dashboard/services/${serviceId}/request`);
+    } else {
+      // This is a safeguard in case something goes wrong
+      console.error("Could not find the selected plan. Please try again.");
+    }
+  };
 
   // ... (loading, error, and not found states remain the same) ...
   if (isLoading) {
@@ -270,12 +291,10 @@ export default function ServiceDetailPage({ params }: any) {
                     <p className="text-gray-600 mb-6">{group.audience}</p>
 
                     <Button
-                      asChild
+                      onClick={() => handleSelectPlan(group.name)}
                       className="w-full bg-[#7642FE] hover:bg-[#5f35cc] mb-6"
                     >
-                      <Link href={`/dashboard/services/${service.id}/request`}>
-                        Choose this plan
-                      </Link>
+                      Choose this plan
                     </Button>
 
                     {/* Features Section */}

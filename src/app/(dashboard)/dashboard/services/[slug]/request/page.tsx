@@ -157,7 +157,7 @@ export default function ServiceRequestPage({ params }: any) {
   // The final onSubmit that dispatches data and navigates
   const onSubmit = (data: any) => {
     setFormData(data);
-    router.push(`/dashboard/services/${serviceId}/request/select-plan`);
+    router.push(`/dashboard/services/${serviceId}/request/summary`);
   };
 
   const handleNext = async () => {

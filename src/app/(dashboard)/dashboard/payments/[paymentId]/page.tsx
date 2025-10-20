@@ -141,8 +141,11 @@ export default function PaymentDetailPage() {
                         <div className="font-medium">
                           Digital Marketing Agency Inc.
                         </div>
-                        <div>Business address</div>
+                        <div>6A Embu Street, Wuse 2</div>
                         <div>Abuja, FCT</div>
+                        <div>Nigeria</div>
+                        <div>44 Ogunlana Drive</div>
+                        <div>Surulere, Lagos</div>
                         <div>Nigeria</div>
                       </div>
                     </div>

@@ -245,10 +245,10 @@ export default function LandingPage() {
                 </strong>
                 , all through one seamless platform.
               </p>
-              <div className="mt-12 flex items-center justify-center gap-x-6">
+              <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-x-6 text-center">
                 <Link
                   href="/signup"
-                  className="group relative inline-flex items-center justify-center rounded-full bg-[#7642FE] px-8 py-3.5 text-lg font-semibold text-white shadow-2xl shadow-[#7642FE]/20 transition-transform duration-300 ease-in-out hover:scale-105"
+                  className="group relative inline-flex items-center justify-center rounded-full bg-[#7642FE] px-6 sm:px-8 py-3 sm:py-3.5 text-base sm:text-lg font-semibold text-white shadow-2xl shadow-[#7642FE]/20 transition-transform duration-300 ease-in-out hover:scale-105 w-full sm:w-auto"
                 >
                   Request Your First Service
                   <svg
@@ -266,9 +266,10 @@ export default function LandingPage() {
                     ></path>
                   </svg>
                 </Link>
+
                 <Link
                   href="#about-us"
-                  className="group text-lg font-semibold leading-6 text-slate-200 transition-colors duration-300 hover:text-white"
+                  className="group text-base sm:text-lg font-semibold leading-6 text-slate-200 transition-colors duration-300 hover:text-white"
                 >
                   Discover More{" "}
                   <span
@@ -492,111 +493,138 @@ export default function LandingPage() {
         </section>
 
         {/* CTA Section 1: A powerful prompt to action */}
-        <section className="container mx-auto px-6 my-20">
-          <div className="bg-[#7642FE] text-white rounded-3xl p-12 md:p-16 text-center relative overflow-hidden shadow-2xl">
-            {/* Swirling background elements for visual flair */}
-            <div className="absolute -left-1/4 -bottom-1/4 w-96 h-96 bg-white/10 rounded-full mix-blend-overlay animate-pulse-slow"></div>
-            <div className="absolute -right-1/4 -top-1/4 w-80 h-80 bg-white/10 rounded-full mix-blend-overlay animate-pulse-slow delay-500"></div>
+        <section className="container mx-auto px-4 sm:px-6 my-16 sm:my-20">
+          <div className="relative bg-[#7642FE] text-white rounded-2xl sm:rounded-3xl p-8 sm:p-12 md:p-16 text-center overflow-hidden shadow-2xl">
+            {/* Background visual accents */}
+            <div className="absolute -left-1/3 -bottom-1/3 w-72 sm:w-96 h-72 sm:h-96 bg-white/10 rounded-full mix-blend-overlay animate-pulse-slow"></div>
+            <div className="absolute -right-1/3 -top-1/3 w-64 sm:w-80 h-64 sm:h-80 bg-white/10 rounded-full mix-blend-overlay animate-pulse-slow delay-500"></div>
 
-            <div className="relative z-10 max-w-4xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-extrabold mb-8 leading-snug">
+            {/* Content */}
+            <div className="relative z-10 max-w-3xl sm:max-w-4xl mx-auto">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-6 sm:mb-8 leading-snug">
                 Your Business Deserves Marketing That Moves as Fast as You Do.
               </h2>
-              <p className="text-lg md:text-xl mb-10 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl mb-8 sm:mb-10 leading-relaxed px-2">
                 With Digital Marketing Agency Nigeria, digital marketing is no
                 longer complex or slow. It’s seamless, fast, and always at your
                 fingertips.
               </p>
+
               <Button
                 size="lg"
-                className="bg-white text-[#7642FE] font-bold py-3 px-10 text-xl rounded-full hover:bg-gray-100 shadow-xl hover:shadow-2xl transition-all duration-300"
+                className="bg-white text-[#7642FE] font-bold py-3.5 sm:py-3 px-6 sm:px-10 
+             text-base sm:text-lg md:text-xl rounded-full 
+             hover:bg-gray-100 shadow-xl hover:shadow-2xl 
+             transition-all duration-300 whitespace-normal break-words leading-tight"
               >
-                <Link href={"/signup"}>👉 Request Your First Service Now!</Link>
+                <Link href="/signup" className="block text-center">
+                  👉 Request Your First Service Now!
+                </Link>
               </Button>
             </div>
           </div>
         </section>
 
         {/* Get In Touch Section: Building connections */}
-        <section className="py-24 bg-white" id="contact">
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className="text-5xl font-extrabold text-gray-900">
+        <section className="py-20 sm:py-24 bg-white" id="contact">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Heading */}
+            <div className="text-center mb-12 sm:mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
                 Let's Make <span className="text-[#7642FE]">Magic</span> Happen!
               </h2>
-              <p className="max-w-2xl mx-auto text-xl text-gray-700 mt-6 leading-relaxed">
+              <p className="max-w-2xl mx-auto text-base sm:text-lg lg:text-xl text-gray-700 mt-4 sm:mt-6 leading-relaxed px-2">
                 Have burning questions or ready to ignite your digital presence?
                 Our dedicated team is eager to connect and craft the perfect
                 strategy for your business.
               </p>
             </div>
-            <div className="grid lg:grid-cols-5 gap-16">
-              <div className="lg:col-span-2 bg-[#7642FE] text-white p-10 rounded-2xl shadow-xl flex flex-col justify-between">
+
+            {/* Contact Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 sm:gap-12 lg:gap-16">
+              {/* Contact Info */}
+              <div className="lg:col-span-2 bg-[#7642FE] text-white p-8 sm:p-10 rounded-2xl shadow-xl flex flex-col justify-between">
                 <div>
-                  <h3 className="text-3xl font-bold mb-8">Reach Out Today!</h3>
-                  <div className="space-y-8">
+                  <h3 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
+                    Reach Out Today!
+                  </h3>
+                  <div className="space-y-6 sm:space-y-8">
                     <div className="flex items-start">
-                      <MapPin className="mr-4 mt-1 flex-shrink-0 h-7 w-7" />
+                      <MapPin className="mr-4 mt-1 flex-shrink-0 h-6 w-6 sm:h-7 sm:w-7" />
                       <div>
-                        <h4 className="font-bold text-xl mb-1">Our Hub</h4>
-                        <p className="text-lg">
+                        <h4 className="font-bold text-lg sm:text-xl mb-1">
+                          Our Hub
+                        </h4>
+                        <p className="text-base sm:text-lg">
                           6A Embu Street, Wuse 2, Abuja. Nigeria
                         </p>
                       </div>
                     </div>
                     <div className="flex items-start">
-                      <Phone className="mr-4 mt-1 flex-shrink-0 h-7 w-7" />
+                      <Phone className="mr-4 mt-1 flex-shrink-0 h-6 w-6 sm:h-7 sm:w-7" />
                       <div>
-                        <h4 className="font-bold text-xl mb-1">Direct Line</h4>
-                        <p className="text-lg">+234 909 000 8888</p>
+                        <h4 className="font-bold text-lg sm:text-xl mb-1">
+                          Direct Line
+                        </h4>
+                        <p className="text-base sm:text-lg">
+                          +234 909 000 8888
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-start">
-                      <Mail className="mr-4 mt-1 flex-shrink-0 h-7 w-7" />
+                      <Mail className="mr-4 mt-1 flex-shrink-0 h-6 w-6 sm:h-7 sm:w-7" />
                       <div>
-                        <h4 className="font-bold text-xl mb-1">Email Us</h4>
-                        <p className="text-lg">
+                        <h4 className="font-bold text-lg sm:text-xl mb-1">
+                          Email Us
+                        </h4>
+                        <p className="text-base sm:text-lg break-all">
                           support@digitalmarketingagency.ng
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div className="mt-10 text-center">
-                  <p className="text-lg font-semibold italic">
+
+                <div className="mt-8 sm:mt-10 text-center">
+                  <p className="text-base sm:text-lg font-semibold italic">
                     We're here to help you shine!
                   </p>
                 </div>
               </div>
-              <div className="lg:col-span-3 bg-white p-10 rounded-2xl shadow-xl border border-gray-100">
-                <h3 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+
+              {/* Contact Form */}
+              <div className="lg:col-span-3 bg-white p-6 sm:p-10 rounded-2xl shadow-xl border border-gray-100">
+                <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">
                   Send Us a Message
                 </h3>
+
                 <form className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Input
                       placeholder="Your First Name"
-                      className="p-3 text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
+                      className="p-3 text-base sm:text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
                     />
                     <Input
                       placeholder="Your Last Name"
-                      className="p-3 text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
+                      className="p-3 text-base sm:text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
                     />
                   </div>
-                  <div className="grid md:grid-cols-2 gap-6">
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Input
                       type="email"
                       placeholder="Your Best Email"
-                      className="p-3 text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
+                      className="p-3 text-base sm:text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
                     />
                     <Input
                       type="tel"
                       placeholder="Your Phone Number (Optional)"
-                      className="p-3 text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
+                      className="p-3 text-base sm:text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
                     />
                   </div>
+
                   <div>
-                    <select className="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-700 text-lg focus:border-[#7642FE] focus:ring-[#7642FE]">
+                    <select className="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-700 text-base sm:text-lg focus:border-[#7642FE] focus:ring-[#7642FE]">
                       <option className="text-gray-500">
                         What service are you interested in?
                       </option>
@@ -612,24 +640,27 @@ export default function LandingPage() {
                       <option>Other</option>
                     </select>
                   </div>
+
                   <Textarea
                     placeholder="Tell us about your project or question..."
                     rows={6}
-                    className="p-3 text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
+                    className="p-3 text-base sm:text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
                   />
+
                   <Button
                     type="submit"
                     size="lg"
-                    className="bg-[#7642FE] hover:bg-purple-700 w-full text-white font-bold py-4 text-xl rounded-lg shadow-md hover:shadow-xl transition-all"
+                    className="bg-[#7642FE] hover:bg-purple-700 w-full text-white font-bold py-3 sm:py-4 text-lg sm:text-xl rounded-lg shadow-md hover:shadow-xl transition-all flex items-center justify-center"
                   >
-                    Get a Free Consultation{" "}
-                    <ArrowRight className="ml-3 w-6 h-6" />
+                    Get a Free Consultation
+                    <ArrowRight className="ml-3 w-5 h-5 sm:w-6 sm:h-6" />
                   </Button>
                 </form>
               </div>
             </div>
           </div>
         </section>
+
         <Footer />
       </main>
     </div>

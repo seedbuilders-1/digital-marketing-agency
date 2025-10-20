@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useServiceRequest } from "@/context/ServiceRequestContext";
 
 // ... (All your interface and skeleton component definitions remain the same) ...

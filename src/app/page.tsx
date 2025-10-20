@@ -27,7 +27,7 @@ import Footer from "@/components/layout/footer";
 import Image from "next/image";
 import Landing1 from "../../public/dma-banner.jpg";
 import Link from "next/link";
-import DMALogo from "../../public/dma_svg.svg";
+import DMALogo from "../../public/dma_logo.svg";
 import { useGetAllPublicServicesQuery } from "@/api/servicesApi";
 import { Service } from "@/lib/types/services";
 

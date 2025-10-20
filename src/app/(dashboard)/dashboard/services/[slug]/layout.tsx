@@ -1,6 +1,6 @@
 import { ServiceRequestProvider } from "@/context/ServiceRequestContext";
 
-export default function RequestLayout({
+export default function ServiceLayout({
   children,
 }: {
   children: React.ReactNode;

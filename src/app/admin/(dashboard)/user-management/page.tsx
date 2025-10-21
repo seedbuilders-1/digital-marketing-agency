@@ -46,10 +46,14 @@ export default function UserManagementPage() {
     data: usersData,
     isLoading,
     isError,
+    error,
     refetch,
   } = useGetAllUsersQuery(undefined);
 
   const allUsers = usersData?.data || [];
+
+  console.log("usersData", usersData);
+  console.log("error", error);
 
   // --- Live Search Filtering ---
   const filteredUsers = useMemo(() => {

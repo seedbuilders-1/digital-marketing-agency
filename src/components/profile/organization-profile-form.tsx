@@ -164,10 +164,6 @@ export default function OrganizationProfileForm() {
     }
   };
 
-  // const handleSkip = () => {
-  //   router.push("/contact-person-profile");
-  // };
-
   return (
     <div className="w-full max-w-[500px] font-['Sora']">
       <div className="mb-8">
@@ -449,14 +445,6 @@ export default function OrganizationProfileForm() {
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Submit & Continue
           </Button>
-
-          {/* <button
-            type="button"
-            onClick={handleSkip}
-            className="bg-none border-none text-[#7642FE] ..."
-          >
-            Skip for now
-          </button> */}
         </form>
       </Form>
     </div>

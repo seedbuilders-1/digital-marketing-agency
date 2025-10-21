@@ -142,10 +142,6 @@ const CompleteProfileForm = () => {
     }
   };
 
-  const handleSkip = () => {
-    router.push("/organization-profile");
-  };
-
   return (
     <div className="w-full max-w-[500px] font-['Sora']">
       <div className="mb-8">
@@ -371,14 +367,6 @@ const CompleteProfileForm = () => {
 
           {/* --- Form Buttons --- */}
           <div className="flex gap-4 mt-8">
-            <Button
-              type="button"
-              onClick={handleSkip}
-              variant="outline"
-              className="..."
-            >
-              Skip
-            </Button>
             <Button
               type="submit"
               disabled={isLoading}

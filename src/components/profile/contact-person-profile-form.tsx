@@ -128,10 +128,6 @@ const ContactPersonProfileForm = () => {
     }
   };
 
-  // const handleSkip = () => {
-  //   router.push("/dashboard/dashboard");
-  // };
-
   return (
     <div className="w-full max-w-[500px] font-['Sora']">
       <div className="mb-8">
@@ -255,13 +251,6 @@ const ContactPersonProfileForm = () => {
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Finish Setup
             </Button>
-            {/* <button
-              type="button"
-              onClick={handleSkip}
-              className="bg-none border-none ... text-[#7642FE]"
-            >
-              Skip for now
-            </button> */}
           </div>
         </form>
       </Form>

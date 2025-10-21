@@ -81,7 +81,7 @@ export function UploadArea({ onFileSelect, className }: UploadAreaProps) {
         Drag and drop files here or click to browse
       </p>
       <p className="text-[#9CA3AF] font-['Sora'] text-xs">
-        Supports: JPG, PNG, PDF, GIF (Max 5MB)
+        Supports: JPG, PNG, PDF, GIF (Max 10MB)
       </p>
       <input
         ref={fileInputRef}

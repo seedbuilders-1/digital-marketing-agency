@@ -21,6 +21,7 @@ export const APIS = {
       `${api}/users/profile/${userId}`,
     GET_USER: (id: any) => `${api}/users/${id}`,
     GET_LOGGED_IN_USER: `${api}/users/me`,
+    GET_ALL_USERS: `${api}/users`,
   },
   SERVICES: {
     CREATE_SERVICE: `${api}/services`,

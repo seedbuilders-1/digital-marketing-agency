@@ -165,7 +165,7 @@ const CompleteProfileForm = () => {
             render={({ field }) => (
               <FormItem className="mb-6">
                 <h2 className="text-xl font-semibold text-[#333333] mb-3 font-['Sora']">
-                  Upload Your Profile Picture
+                  Upload Your Profile Picture (PDF/Images)
                 </h2>
                 {profilePicturePreview ? (
                   <div className="relative w-[120px] h-[120px] rounded-full overflow-hidden mb-4">

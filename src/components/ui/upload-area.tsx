@@ -3,7 +3,6 @@
 import * as React from "react";
 import { Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner"; // It's good practice to add user feedback
 
 interface UploadAreaProps {
   // This prop is changed to emit the raw File object, not a URL.
@@ -20,15 +19,15 @@ export function UploadArea({ onFileSelect, className }: UploadAreaProps) {
       // Loop through all selected files
       Array.from(files).forEach((file) => {
         // Basic validation for file type and size
-        if (!file.type.startsWith("image/")) {
-          toast.error(`"${file.name}" is not an image file.`);
-          return; // Skip this file
-        }
-        if (file.size > 5 * 1024 * 1024) {
-          // 5MB limit
-          toast.error(`"${file.name}" is larger than 5MB.`);
-          return; // Skip this file
-        }
+        // if (!file.type.startsWith("image/")) {
+        //   toast.error(`"${file.name}" is not an image file.`);
+        //   return; // Skip this file
+        // }
+        // if (file.size > 5 * 1024 * 1024) {
+        //   // 5MB limit
+        //   toast.error(`"${file.name}" is larger than 5MB.`);
+        //   return; // Skip this file
+        // }
         // If the file is valid, pass the File object to the parent component.
         onFileSelect(file);
       });
@@ -82,12 +81,11 @@ export function UploadArea({ onFileSelect, className }: UploadAreaProps) {
         Drag and drop files here or click to browse
       </p>
       <p className="text-[#9CA3AF] font-['Sora'] text-xs">
-        Supports: JPG, PNG, GIF (Max 5MB)
+        Supports: JPG, PNG, PDF, GIF (Max 5MB)
       </p>
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
         multiple
         onChange={handleFileInputChange}
         className="hidden"

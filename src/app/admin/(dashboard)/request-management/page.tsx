@@ -241,8 +241,8 @@ export default function RequestManagementPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredRequests.length > 0 ? (
-                  filteredRequests.map((request: any) => {
+                {filteredRequests?.length > 0 ? (
+                  filteredRequests?.map((request: any) => {
                     const statusInfo = getRequestStatus(request);
                     const paymentInfo: any = getPaymentStatus(request);
                     return (
@@ -260,13 +260,13 @@ export default function RequestManagementPage() {
                           {formatDate(request.end_date)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <Badge className={statusInfo.color}>
+                          <Badge className={statusInfo?.color}>
                             {statusInfo.text}
                           </Badge>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <Badge className={paymentInfo.color}>
-                            {paymentInfo.text}
+                          <Badge className={paymentInfo?.color}>
+                            {paymentInfo?.text}
                           </Badge>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -300,7 +300,8 @@ export default function RequestManagementPage() {
           {/* Pagination (This remains static for now, as in the user-facing page) */}
           <div className="px-6 py-4 flex items-center justify-between border-t">
             <div className="text-sm text-gray-500">
-              Showing {filteredRequests.length} of {allRequests.length} entries
+              Showing {filteredRequests?.length} of {allRequests?.length}{" "}
+              entries
             </div>
           </div>
         </CardContent>

@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Send } from "lucide-react";
 import { useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
+import TextareaAutosize from "react-textarea-autosize";
 
 // Hooks & API
 import { useSocket } from "@/context/SocketProvider";
@@ -15,7 +16,8 @@ import { selectCurrentUser } from "@/features/auth/selectors";
 
 // UI Components & Types
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// The single-line Input is no longer used in the chat footer.
+// import { Input } from "@/components/ui/input";
 import { Message } from "@/lib/types/messages";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -104,35 +106,47 @@ const MessageList = ({
   </main>
 );
 
+// ==================================================================
+// START: REFACTORED MESSAGE INPUT COMPONENT
+// ==================================================================
 const MessageInput = ({
   newMessageText,
   setNewMessageText,
   handleSendMessage,
+  handleKeyDown,
 }: {
   newMessageText: string;
   setNewMessageText: (text: string) => void;
   handleSendMessage: (e: React.FormEvent) => void;
+  handleKeyDown: (e: React.KeyboardEvent) => void;
 }) => (
   <footer className="p-4 border-t bg-white dark:bg-gray-900">
-    <form onSubmit={handleSendMessage} className="flex items-center gap-4">
-      <Input
+    <form onSubmit={handleSendMessage} className="flex items-end gap-3">
+      <TextareaAutosize
         value={newMessageText}
         onChange={(e) => setNewMessageText(e.target.value)}
+        onKeyDown={handleKeyDown}
         placeholder="Type a message..."
         autoComplete="off"
-        className="bg-gray-100 border-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-gray-800 dark:text-white"
+        minRows={1}
+        maxRows={5} // Prevents the input from growing excessively large
+        className="flex-1 resize-none bg-gray-100 border-transparent rounded-2xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
       />
       <Button
         type="submit"
         size="icon"
         disabled={!newMessageText.trim()}
-        className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 rounded-full flex-shrink-0"
+        aria-label="Send message" // Accessibility improvement
+        className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 rounded-full flex-shrink-0 w-10 h-10"
       >
         <Send className="h-5 w-5" />
       </Button>
     </form>
   </footer>
 );
+// ==================================================================
+// END: REFACTORED MESSAGE INPUT COMPONENT
+// ==================================================================
 
 // --- Main Chat Page Component ---
 
@@ -154,8 +168,6 @@ export default function MessageDetailPage() {
     useGetServiceRequestByIdQuery(serviceRequestId);
   const { data: initialMessages = [], isLoading: isLoadingMessages } =
     useGetMessagesByRequestIdQuery(serviceRequestId);
-
-  console.log("initialMessages", initialMessages);
 
   useEffect(() => {
     if (initialMessages.length > 0) {
@@ -210,12 +222,19 @@ export default function MessageDetailPage() {
     }
   };
 
+  // ADD THIS FUNCTION: Handles keyboard events for the textarea
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage(e as any); // Trigger form submission
+    }
+  };
+
   if (isLoadingRequest || isLoadingMessages) {
     return <ChatPageSkeleton />;
   }
 
   const projectTitle = requestData.data?.service?.title || "Conversation";
-  console.log("requestData", requestData);
 
   return (
     <Suspense fallback={<ChatPageSkeleton />}>
@@ -233,6 +252,7 @@ export default function MessageDetailPage() {
           newMessageText={newMessageText}
           setNewMessageText={setNewMessageText}
           handleSendMessage={handleSendMessage}
+          handleKeyDown={handleKeyDown} // Pass the new handler down
         />
       </div>
     </Suspense>

@@ -59,9 +59,12 @@ export default function MessagesPage() {
     data: adminConversations = [],
     isLoading: isLoadingAdmin,
     isError: isErrorAdmin,
+    error: errorAdmin,
   } = useGetAdminConversationsQuery(undefined, {
     skip: !isAdmin,
   });
+
+  console.log("errorAdmin", errorAdmin);
 
   // --- END FIX ---
 

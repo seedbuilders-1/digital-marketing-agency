@@ -13,12 +13,9 @@ import {
   Mail,
   ArrowRight,
   Star,
-  Heart,
   Lightbulb,
   Code,
   LayoutDashboard, // For the all-in-one platform
-  Rocket,
-  X,
   Menu,
   Zap,
   Wallet, // For focus on core areas
@@ -425,14 +422,14 @@ export default function LandingPage() {
         {/* How It Works Section: Simplicity in action */}
         <section className="py-24 bg-gradient-to-tl from-purple-50 to-indigo-50 container mx-auto px-6 text-center rounded-3xl shadow-inner my-16">
           <h2 className="text-5xl font-extrabold mb-6 text-gray-900">
-            How It <span className="text-[#7642FE]">Works</span>
+            The Easy <span className="text-[#7642FE]">Process</span>
           </h2>
           <p className="max-w-3xl mx-auto text-xl text-gray-700 mb-16 leading-relaxed">
             Getting started with us is effortlessly simple. In just a few steps,
             you'll be on your way to elevated digital marketing, connecting with
             trusted experts and managing everything from one intuitive platform.
           </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-12">
+          <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-12">
             <div className="flex flex-col items-center transform hover:scale-105 transition-transform duration-300">
               <div className="bg-[#7642FE] text-white p-5 rounded-full mb-5 shadow-lg">
                 <Lightbulb className="h-8 w-8" />
@@ -465,28 +462,6 @@ export default function LandingPage() {
               <p className="text-gray-600 leading-relaxed">
                 View progress and retrieve your completed work from your
                 dashboard.
-              </p>
-            </div>
-            <div className="flex flex-col items-center transform hover:scale-105 transition-transform duration-300">
-              <div className="bg-[#7642FE] text-white p-5 rounded-full mb-5 shadow-lg">
-                <Rocket className="h-8 w-8" />
-              </div>
-              <h3 className="font-extrabold text-xl text-gray-900 mb-2">
-                Focus on Your Core
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                You run your business; we handle your marketing and visibility.
-              </p>
-            </div>
-            <div className="flex flex-col items-center transform hover:scale-105 transition-transform duration-300">
-              <div className="bg-[#7642FE] text-white p-5 rounded-full mb-5 shadow-lg">
-                <Heart className="h-8 w-8" />
-              </div>
-              <h3 className="font-extrabold text-xl text-gray-900 mb-2">
-                Experience Growth
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                Watch your brand flourish with expert digital strategies.
               </p>
             </div>
           </div>

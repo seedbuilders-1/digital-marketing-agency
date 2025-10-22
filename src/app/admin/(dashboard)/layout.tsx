@@ -34,8 +34,12 @@ const sidebarItems = [
     label: "Service Management",
     href: "/admin/service-management",
   },
-  { icon: Users, label: "User Management", href: "/admin/users" },
-  { icon: CreditCard, label: "Payment & Invoice", href: "/admin/payments" },
+  { icon: Users, label: "User Management", href: "/admin/user-management" },
+  {
+    icon: CreditCard,
+    label: "Payment & Invoice",
+    href: "/admin/payment-invoice",
+  },
 ];
 
 export default function AdminDashboardLayout({

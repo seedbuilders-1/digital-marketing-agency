@@ -50,6 +50,7 @@ export default function MessagesPage() {
     data: userConversations = [],
     isLoading: isLoadingUser,
     isError: isErrorUser,
+    error: errorUser,
   } = useGetUserConversationsQuery(undefined, {
     skip: isAdmin || !user,
   });
@@ -65,6 +66,7 @@ export default function MessagesPage() {
   });
 
   console.log("errorAdmin", errorAdmin);
+  console.log("errorUser", errorUser);
 
   // --- END FIX ---
 

@@ -13,7 +13,8 @@ import { useUpdateServiceRequestStatusMutation } from "@/api/servicesApi"; // As
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { formatDate, getStatusDetails } from "@/lib/utils";
-import { Loader2, PlusCircle, Trash2 } from "lucide-react";
+import { Loader2, MessageCircle, PlusCircle, Trash2 } from "lucide-react";
+import Link from "next/link";
 
 interface PendingRequestViewProps {
   request: any;
@@ -130,6 +131,12 @@ export const PendingRequestView = ({
                 </div>
               ))}
             </div>
+            <Link href={`/admin/messages/${request.id}`}>
+              <Button variant="outline" className="mt-4">
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Open Conversation
+              </Button>
+            </Link>
           </CardContent>
         </Card>
         {/* --- User Details Card --- */}

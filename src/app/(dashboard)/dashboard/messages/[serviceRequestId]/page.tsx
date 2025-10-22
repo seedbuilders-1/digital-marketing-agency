@@ -155,6 +155,8 @@ export default function MessageDetailPage() {
   const { data: initialMessages = [], isLoading: isLoadingMessages } =
     useGetMessagesByRequestIdQuery(serviceRequestId);
 
+  console.log("initialMessages", initialMessages);
+
   useEffect(() => {
     if (initialMessages.length > 0) {
       setMessages(initialMessages);

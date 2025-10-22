@@ -18,7 +18,8 @@ import {
   LayoutDashboard, // For the all-in-one platform
   Menu,
   Zap,
-  Wallet, // For focus on core areas
+  Wallet,
+  X, // For focus on core areas
 } from "lucide-react"; // A stellar icon set, as always!
 import Footer from "@/components/layout/footer";
 import Image from "next/image";

@@ -70,6 +70,8 @@ export default function RequestManagementPage() {
   } = useGetAllServicesRequestQuery(undefined);
   const allRequests = requestsData?.data || [];
 
+  console.log("allRequests", allRequests);
+
   // Calculate stats for the cards
   const stats = useMemo(() => {
     return {

@@ -245,6 +245,7 @@ export default function RequestManagementPage() {
                   filteredRequests?.map((request: any) => {
                     const statusInfo = getRequestStatus(request);
                     const paymentInfo: any = getPaymentStatus(request);
+                    console.log("paymentInfo", paymentInfo);
                     return (
                       <tr key={request.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 font-mono">{`...${request.id.slice(

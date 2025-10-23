@@ -57,6 +57,8 @@ const getPaymentStatus = (request: any) => {
   } else if (request.invoice?.status === "Paid") {
     return { text: "Paid", color: "bg-green-100 text-green-800" };
   }
+  // Add a fallback for when there's no invoice
+  return { text: "N/A", color: "bg-gray-100 text-gray-800" };
 };
 
 export default function RequestManagementPage() {

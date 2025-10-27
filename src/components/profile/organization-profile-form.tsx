@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { FileText, Loader2, UploadCloud, X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
+import imageCompression from "browser-image-compression";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ORGANIZATION_OPTIONS } from "@/lib/constants/organization"; // Your constants for select options
+import { ORGANIZATION_OPTIONS } from "@/lib/constants/organization";
 
 // API & State
 import { useCreateOrganizationMutation } from "@/api/orgApi";
@@ -42,6 +43,51 @@ import {
 import { useAppDispatch } from "@/hooks/rtk";
 import { updateUser, updateUserOrganization } from "@/features/auth/authSlice";
 import { useGetAuthenticateduserQuery } from "@/api/userApi";
+
+// --- NEW HELPER FUNCTION ---
+/**
+ * Handles the direct-to-Cloudinary upload process for a single file.
+ * @param file - The file to upload.
+ * @returns The secure URL of the uploaded file.
+ */
+const uploadFileToCloudinary = async (file: File): Promise<string> => {
+  // 1. Get a signature from your backend for secure uploading
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  // Construct the full, absolute URL to your backend endpoint
+  const signatureUrl = `${apiBaseUrl}/api/media/generate-signature`;
+
+  const response = await fetch(signatureUrl);
+  if (!response.ok) {
+    throw new Error("Failed to get an upload signature from the server.");
+  }
+  const { signature, timestamp } = await response.json();
+
+  // 2. Prepare the FormData for Cloudinary's API
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("api_key", process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY!);
+  formData.append("signature", signature);
+  formData.append("timestamp", timestamp);
+  formData.append("folder", "organization_documents"); // Optional: Organize uploads
+
+  // 3. Make the upload request directly to Cloudinary
+  const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env
+    .NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!}/auto/upload`;
+
+  const uploadResponse = await fetch(cloudinaryUrl, {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await uploadResponse.json();
+
+  if (!uploadResponse.ok) {
+    throw new Error(data.error?.message || "Cloudinary upload failed.");
+  }
+
+  return data.secure_url;
+};
 
 // A reusable sub-component for a clean, single file upload field
 const FileUploadField = ({
@@ -109,58 +155,94 @@ export default function OrganizationProfileForm() {
 
   const form = useForm<OrganizationProfileFormData>({
     resolver: zodResolver(organizationProfileSchema),
-    mode: "onBlur", // Validate fields when the user moves away from them
+    mode: "onBlur",
   });
 
+  // --- REFACTORED onSubmit FUNCTION ---
   const onSubmit = async (data: OrganizationProfileFormData) => {
     if (!user?.id) {
       return toast.error("Your session has expired. Please log in again.");
     }
 
-    const toastId = toast.loading("Saving your organization profile...");
-
-    // 1. Create FormData object for multipart submission
-    const formData = new FormData();
-
-    // 2. Append all fields with the exact names the backend expects
-    formData.append("logo", data.logo);
-    formData.append(
-      "certificateOfIncorporation",
-      data.certificateOfIncorporation
-    );
-    formData.append("memorandumOfAssociation", data.memorandumOfAssociation);
-    formData.append("proofOfAddress", data.proofOfAddress);
-    formData.append("statusReport", data.statusReport);
-    formData.append("name", data.name);
-    formData.append("email", data.email);
-    formData.append("address", data.address);
-    formData.append("country", data.country);
-    formData.append("industry", data.industry);
-    formData.append("rc_number", data.rc_number);
-    formData.append("staff_size", data.staff_size);
-    formData.append("type", data.type);
+    const toastId = toast.loading("Preparing your documents...");
 
     try {
-      // 3. Call the RTK Query mutation
+      // 1. Define all files that need to be uploaded
+      const filesToProcess = [
+        { key: "logo", file: data.logo },
+        {
+          key: "certificateOfIncorporation",
+          file: data.certificateOfIncorporation,
+        },
+        { key: "memorandumOfAssociation", file: data.memorandumOfAssociation },
+        { key: "proofOfAddress", file: data.proofOfAddress },
+        { key: "statusReport", file: data.statusReport },
+      ];
+
+      // 2. Compress the logo on the client-side before uploading
+      const compressedLogo = await imageCompression(data.logo, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1024,
+        useWebWorker: true,
+      });
+
+      toast.loading("Uploading documents. This will be quick...", {
+        id: toastId,
+      });
+
+      // 3. Upload all files directly to Cloudinary in parallel for max speed
+      const uploadPromises = filesToProcess.map(async (fileObj) => {
+        const fileToUpload =
+          fileObj.key === "logo" ? compressedLogo : fileObj.file;
+        const url = await uploadFileToCloudinary(fileToUpload);
+        return { [fileObj.key]: url };
+      });
+
+      const uploadedUrlsArray = await Promise.all(uploadPromises);
+      const uploadedUrls = Object.assign({}, ...uploadedUrlsArray);
+
+      // 4. Prepare the final JSON payload for your server
+      toast.loading("Finalizing your organization profile...", { id: toastId });
+      const finalPayload = {
+        name: data.name,
+        email: data.email,
+        address: data.address,
+        country: data.country,
+        industry: data.industry,
+        rc_number: data.rc_number,
+        staff_size: data.staff_size,
+        type: data.type,
+        logo_url: uploadedUrls.logo,
+        cert_of_inc_url: uploadedUrls.certificateOfIncorporation,
+        mem_of_assoc_url: uploadedUrls.memorandumOfAssociation,
+        proof_of_address_url: uploadedUrls.proofOfAddress,
+        company_status_report_url: uploadedUrls.statusReport,
+      };
+
+      // 5. Call the RTK Query mutation with the JSON data
       const res = await createOrganization({
         userId: user.id,
-        formData,
+        formData: finalPayload, // The backend now receives JSON, not FormData
       }).unwrap();
-      console.log("res", res);
+
       dispatch(updateUserOrganization(res));
       toast.success("Organization profile created successfully!", {
         id: toastId,
       });
+
       const refetchUserDetails = await refetchUser();
       const newUser = refetchUserDetails?.data?.data;
       dispatch(updateUser(newUser));
 
-      // 4. Navigate to the next step on success
       router.push("/contact-person-profile");
     } catch (err: any) {
-      toast.error(err?.data?.message || "An unexpected error occurred.", {
-        id: toastId,
-      });
+      // Catch errors from signature fetching, Cloudinary upload, or your API
+      toast.error(
+        err?.data?.message || err.message || "An unexpected error occurred.",
+        {
+          id: toastId,
+        }
+      );
     }
   };
 
@@ -180,7 +262,7 @@ export default function OrganizationProfileForm() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-5"
         >
-          {/* Text and Select Fields */}
+          {/* Text and Select Fields (No changes needed here) */}
           <FormField
             name="name"
             control={form.control}
@@ -190,7 +272,7 @@ export default function OrganizationProfileForm() {
                   Organization Name
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} className="w-full p-3 border..." />
+                  <Input {...field} className="w-full p-3" />
                 </FormControl>
                 <FormMessage className="text-[#dc3545] text-xs" />
               </FormItem>
@@ -205,11 +287,7 @@ export default function OrganizationProfileForm() {
                   Organization Email
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    type="email"
-                    {...field}
-                    className="w-full p-3 border..."
-                  />
+                  <Input type="email" {...field} className="w-full p-3" />
                 </FormControl>
                 <FormMessage className="text-[#dc3545] text-xs" />
               </FormItem>
@@ -224,7 +302,7 @@ export default function OrganizationProfileForm() {
                   Organization Address
                 </FormLabel>
                 <FormControl>
-                  <Textarea {...field} className="w-full p-3 border..." />
+                  <Textarea {...field} className="w-full p-3" />
                 </FormControl>
                 <FormMessage className="text-[#dc3545] text-xs" />
               </FormItem>
@@ -317,7 +395,7 @@ export default function OrganizationProfileForm() {
                   RC Number
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} className="w-full p-3 border..." />
+                  <Input {...field} className="w-full p-3" />
                 </FormControl>
                 <FormMessage className="text-[#dc3545] text-xs" />
               </FormItem>
@@ -350,7 +428,7 @@ export default function OrganizationProfileForm() {
             )}
           />
 
-          {/* Document Upload Section */}
+          {/* Document Upload Section (No changes needed here) */}
           <div className="space-y-4 pt-4 border-t mt-4">
             <h3 className="text-lg font-semibold text-[#1F2937]">
               Required Documents
@@ -440,7 +518,7 @@ export default function OrganizationProfileForm() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-[#7642fe] text-white py-3 ... disabled:bg-gray-400"
+            className="w-full bg-[#7642fe] text-white py-3 disabled:bg-gray-400"
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Submit & Continue

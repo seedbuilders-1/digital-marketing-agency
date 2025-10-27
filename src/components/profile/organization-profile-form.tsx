@@ -33,7 +33,10 @@ import { ORGANIZATION_OPTIONS } from "@/lib/constants/organization";
 
 // API & State
 import { useCreateOrganizationMutation } from "@/api/orgApi";
-import { selectCurrentUser } from "@/features/auth/selectors";
+import {
+  selectAccessToken,
+  selectCurrentUser,
+} from "@/features/auth/selectors";
 
 // Types and Schemas
 import {
@@ -50,42 +53,57 @@ import { useGetAuthenticateduserQuery } from "@/api/userApi";
  * @param file - The file to upload.
  * @returns The secure URL of the uploaded file.
  */
-const uploadFileToCloudinary = async (file: File): Promise<string> => {
-  // 1. Get a signature from your backend for secure uploading
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+const uploadFileToCloudinary = async (
+  file: File,
+  token: string | null
+): Promise<string> => {
+  if (!token) {
+    throw new Error("Authentication token not found. Cannot upload file.");
+  }
 
-  // Construct the full, absolute URL to your backend endpoint
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
   const signatureUrl = `${apiBaseUrl}/api/media/generate-signature`;
 
-  const response = await fetch(signatureUrl);
+  // --- THE FIX IS HERE ---
+  // We add a `headers` object to the fetch options.
+  const response = await fetch(signatureUrl, {
+    method: "GET", // Explicitly setting the method
+    headers: {
+      // This is the standard way to send a JWT token
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
   if (!response.ok) {
-    throw new Error("Failed to get an upload signature from the server.");
+    const errorData = await response.json();
+    // Provide a more specific error message from the backend if available
+    throw new Error(
+      errorData.message || "Failed to get an upload signature from the server."
+    );
   }
+
   const { signature, timestamp } = await response.json();
 
-  // 2. Prepare the FormData for Cloudinary's API
+  // The rest of the function remains the same...
   const formData = new FormData();
   formData.append("file", file);
   formData.append("api_key", process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY!);
   formData.append("signature", signature);
   formData.append("timestamp", timestamp);
-  formData.append("folder", "organization_documents"); // Optional: Organize uploads
+  formData.append("folder", "organization_documents");
 
-  // 3. Make the upload request directly to Cloudinary
   const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env
     .NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!}/auto/upload`;
-
   const uploadResponse = await fetch(cloudinaryUrl, {
     method: "POST",
     body: formData,
   });
 
   const data = await uploadResponse.json();
-
   if (!uploadResponse.ok) {
     throw new Error(data.error?.message || "Cloudinary upload failed.");
   }
-
   return data.secure_url;
 };
 
@@ -158,6 +176,8 @@ export default function OrganizationProfileForm() {
     mode: "onBlur",
   });
 
+  const authToken = useSelector(selectAccessToken);
+
   // --- REFACTORED onSubmit FUNCTION ---
   const onSubmit = async (data: OrganizationProfileFormData) => {
     if (!user?.id) {
@@ -194,7 +214,7 @@ export default function OrganizationProfileForm() {
       const uploadPromises = filesToProcess.map(async (fileObj) => {
         const fileToUpload =
           fileObj.key === "logo" ? compressedLogo : fileObj.file;
-        const url = await uploadFileToCloudinary(fileToUpload);
+        const url = await uploadFileToCloudinary(fileToUpload, authToken);
         return { [fileObj.key]: url };
       });
 

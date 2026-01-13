@@ -202,7 +202,11 @@ const LoginForm = () => {
       <p className="text-center mt-6 text-sm font-normal text-[#666666] font-['Poppins']">
         {FORM_MESSAGES.NO_ACCOUNT}{" "}
         <Link
-          href={`${AUTH_ROUTES.SIGNUP}?${searchParams.toString()}`}
+          href={
+            searchParams.toString()
+              ? `${AUTH_ROUTES.SIGNUP}?${searchParams.toString()}`
+              : AUTH_ROUTES.SIGNUP
+          }
           className="text-[#7642fe] font-medium cursor-pointer no-underline hover:underline"
         >
           {FORM_MESSAGES.SIGN_UP}

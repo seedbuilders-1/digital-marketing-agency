@@ -43,13 +43,19 @@ export const useAuthRedirect = (user: any): string => {
     typeof window !== "undefined"
       ? sessionStorage.getItem("pendingServiceId")
       : null;
-  // const pendingPlanId =
-  //   typeof window !== "undefined"
-  //     ? sessionStorage.getItem("pendingPlanId")
-  //     : null;
+  const pendingPlanId =
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("pendingPlanId")
+      : null;
 
   if (pendingServiceId) {
-    return `/dashboard/services/${pendingServiceId}/request`;
+    if (pendingPlanId) {
+      // If both service and plan are selected, go to the request form
+      return `/dashboard/services/${pendingServiceId}/request`;
+    } else {
+      // If only service is selected (no plan), go to the select plan page
+      return `/dashboard/services/${pendingServiceId}/request/select-plan`;
+    }
   }
 
   return "/dashboard/dashboard";

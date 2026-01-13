@@ -271,7 +271,9 @@ export default function ServiceDetailPage({ params }: any) {
                   asChild
                   className="bg-[#7642FE] hover:bg-[#5f35cc] text-white px-8 py-3 text-lg"
                 >
-                  <Link href={"/signup"}>Request service</Link>
+                  <Link href={`/signup?serviceId=${service.id}`}>
+                    Request service
+                  </Link>
                 </Button>
               </div>
               <div className="relative aspect-video">
@@ -554,7 +556,9 @@ export default function ServiceDetailPage({ params }: any) {
                 asChild
                 className="bg-white text-[#4A1A5C] hover:bg-gray-100 px-8 py-3 text-lg"
               >
-                <Link href={"/signup"}>Request Service</Link>
+                <Link href={`/signup?serviceId=${service.id}`}>
+                  Request Service
+                </Link>
               </Button>
             </div>
           </section>

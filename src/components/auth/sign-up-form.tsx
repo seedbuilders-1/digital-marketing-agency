@@ -345,11 +345,12 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
       <p className="mt-6 text-center text-sm text-muted-foreground">
         {FORM_MESSAGES.HAVE_ACCOUNT}{" "}
         <Link
-          href={
-            searchParams.toString()
-              ? `${AUTH_ROUTES.LOGIN}?${searchParams.toString()}`
-              : AUTH_ROUTES.LOGIN
-          }
+          href={`${AUTH_ROUTES.LOGIN}${
+            serviceId || planId ? "?" : ""
+          }${new URLSearchParams({
+            ...(serviceId && { serviceId }),
+            ...(planId && { planId }),
+          }).toString()}`}
           className="text-[#7642fe] underline"
         >
           {FORM_MESSAGES.SIGN_IN}

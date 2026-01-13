@@ -30,30 +30,33 @@ export default function DashboardGuard({
   const contactProfileUrl = "/contact-person-profile";
   const individualProfileUrl = "/complete-profile";
 
+  // --- BYPASSING STRICT PROFILE CHECKS AS PER NEW REQUIREMENTS ---
+  // Users should be able to access the dashboard and request services without full profile completion.
+
   // Check for Organization users
-  if (user.category === "organisation") {
-    if (!user.organisation) {
-      if (pathname !== orgProfileUrl) {
-        return redirect(orgProfileUrl);
-      }
-    } else if (
-      !user.organisation.contacts ||
-      user.organisation.contacts.length === 0
-    ) {
-      if (pathname !== contactProfileUrl) {
-        return redirect(contactProfileUrl);
-      }
-    }
-  }
+  // if (user.category === "organisation") {
+  //   if (!user.organisation) {
+  //     if (pathname !== orgProfileUrl) {
+  //       return redirect(orgProfileUrl);
+  //     }
+  //   } else if (
+  //     !user.organisation.contacts ||
+  //     user.organisation.contacts.length === 0
+  //   ) {
+  //     if (pathname !== contactProfileUrl) {
+  //       return redirect(contactProfileUrl);
+  //     }
+  //   }
+  // }
 
   // Check for Individual users
-  if (user.category === "individual") {
-    if (!user.pfp_url) {
-      if (pathname !== individualProfileUrl) {
-        return redirect(individualProfileUrl);
-      }
-    }
-  }
+  // if (user.category === "individual") {
+  //   if (!user.pfp_url) {
+  //     if (pathname !== individualProfileUrl) {
+  //       return redirect(individualProfileUrl);
+  //     }
+  //   }
+  // }
 
   // All checks passed, render the dashboard page
   return <>{children}</>;

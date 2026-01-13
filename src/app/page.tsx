@@ -554,7 +554,7 @@ export default function LandingPage() {
                           Email Us
                         </h4>
                         <p className="text-base sm:text-lg break-all">
-                          support@digitalmarketingagency.ng
+                          helpdesk@digitalmarketingagency.ng
                         </p>
                       </div>
                     </div>

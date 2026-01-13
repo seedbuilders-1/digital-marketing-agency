@@ -389,7 +389,7 @@ export default function PaymentDetailsPage({}) {
             <div className="mt-8 bg-purple-50 p-4 rounded flex justify-between text-sm text-gray-600">
               <span>www.digitalmarketingagency.ng</span>
               <span>+234 909 000 8888</span>
-              <span>support@digitalmarketingagency.ng</span>
+              <span>helpdesk@digitalmarketingagency.ng</span>
             </div>
           </div>
         </CardContent>

@@ -164,7 +164,7 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
         <footer className="text-center mt-10 pt-6 border-t flex flex-col sm:flex-row justify-between text-xs text-gray-500 space-y-2 sm:space-y-0">
           <span>www.digitalmarketingagency.ng</span>
           <span>+234 909 000 8888</span>
-          <span>support@digitalmarketingagency.ng</span>
+          <span>helpdesk@digitalmarketingagency.ng</span>
         </footer>
       </CardContent>
     </Card>

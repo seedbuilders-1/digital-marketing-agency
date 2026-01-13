@@ -41,7 +41,7 @@ export const FORM_MESSAGES = {
 } as const;
 
 export const CONTACT_INFO = {
-  EMAIL: "support@digitalmarketingagency.ng",
+  EMAIL: "helpdesk@digitalmarketingagency.ng",
   PHONE: "+234 909 000 8888",
   LOGO_ALT: "Digital Marketing Agency Logo",
 } as const;

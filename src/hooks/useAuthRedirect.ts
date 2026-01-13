@@ -43,10 +43,10 @@ export const useAuthRedirect = (user: any): string => {
     typeof window !== "undefined"
       ? sessionStorage.getItem("pendingServiceId")
       : null;
-  const pendingPlanId =
-    typeof window !== "undefined"
-      ? sessionStorage.getItem("pendingPlanId")
-      : null;
+  // const pendingPlanId =
+  //   typeof window !== "undefined"
+  //     ? sessionStorage.getItem("pendingPlanId")
+  //     : null;
 
   if (pendingServiceId) {
     return `/dashboard/services/${pendingServiceId}/request`;

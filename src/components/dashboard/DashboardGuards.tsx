@@ -1,6 +1,6 @@
 "use client";
 
-import { redirect, usePathname } from "next/navigation";
+// import {  usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/features/auth/selectors";
 import { Loader2 } from "lucide-react";
@@ -17,7 +17,7 @@ export default function DashboardGuard({
   children: React.ReactNode;
 }) {
   const user = useSelector(selectCurrentUser);
-  const pathname = usePathname();
+  // const pathname = usePathname();
 
   if (!user) {
     return <LoadingScreen />;
@@ -26,9 +26,9 @@ export default function DashboardGuard({
   // --- Profile Completion & Redirection Logic ---
 
   // CORRECTED: URLs now point to the root paths as defined in your (setup) group
-  const orgProfileUrl = "/organization-profile";
-  const contactProfileUrl = "/contact-person-profile";
-  const individualProfileUrl = "/complete-profile";
+  // const orgProfileUrl = "/organization-profile";
+  // const contactProfileUrl = "/contact-person-profile";
+  // const individualProfileUrl = "/complete-profile";
 
   // --- BYPASSING STRICT PROFILE CHECKS AS PER NEW REQUIREMENTS ---
   // Users should be able to access the dashboard and request services without full profile completion.

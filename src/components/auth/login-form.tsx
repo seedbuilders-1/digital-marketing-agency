@@ -3,11 +3,11 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Toaster, toast } from "sonner";
 
 // UI Components
@@ -46,6 +46,21 @@ const LoginForm = () => {
 
   // Destructure isLoading from the mutation hook for UI feedback
   const [login, { isLoading }] = useLoginMutation();
+
+  // --- 1. CAPTURE QUERY PARAMS ---
+  // If the user was redirected here from a service page, capture their intent.
+  const searchParams = useSearchParams();
+  const serviceId = searchParams.get("serviceId");
+  const planId = searchParams.get("planId");
+
+  useEffect(() => {
+    if (serviceId) {
+      sessionStorage.setItem("pendingServiceId", serviceId);
+    }
+    if (planId) {
+      sessionStorage.setItem("pendingPlanId", planId);
+    }
+  }, [serviceId, planId]);
 
   const onSubmit = async (data: LoginFormData) => {
     const toastId = toast.loading("Signing in...");
@@ -187,7 +202,7 @@ const LoginForm = () => {
       <p className="text-center mt-6 text-sm font-normal text-[#666666] font-['Poppins']">
         {FORM_MESSAGES.NO_ACCOUNT}{" "}
         <Link
-          href={AUTH_ROUTES.SIGNUP}
+          href={`${AUTH_ROUTES.SIGNUP}?${searchParams.toString()}`}
           className="text-[#7642fe] font-medium cursor-pointer no-underline hover:underline"
         >
           {FORM_MESSAGES.SIGN_UP}

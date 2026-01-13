@@ -227,7 +227,7 @@ export default function ServiceRequestPage({ params }: any) {
                   return (
                     <Textarea
                       {...register(field.name, { required: field.required })}
-                      disabled={field.fromUser}
+                      // disabled={field.fromUser} // Allow editing even if from user
                     />
                   );
 
@@ -236,7 +236,7 @@ export default function ServiceRequestPage({ params }: any) {
                     <Input
                       type="date"
                       {...register(field.name, { required: field.required })}
-                      disabled={field.fromUser}
+                      // disabled={field.fromUser} // Allow editing even if from user
                     />
                   );
 
@@ -245,7 +245,7 @@ export default function ServiceRequestPage({ params }: any) {
                     <Input
                       type="file"
                       {...register(field.name, { required: field.required })}
-                      disabled={field.fromUser}
+                      // disabled={field.fromUser} // Allow editing even if from user
                     />
                   );
 
@@ -259,7 +259,7 @@ export default function ServiceRequestPage({ params }: any) {
                         <Select
                           onValueChange={onChange}
                           value={value}
-                          disabled={field.fromUser}
+                          // disabled={field.fromUser} // Allow editing even if from user
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select an option..." />
@@ -280,7 +280,7 @@ export default function ServiceRequestPage({ params }: any) {
                   return (
                     <Input
                       {...register(field.name, { required: field.required })}
-                      disabled={field.fromUser}
+                      // disabled={field.fromUser} // Allow editing even if from user
                     />
                   );
               }

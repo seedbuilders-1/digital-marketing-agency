@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner"; // --- 1. IMPORT TOASTER AND TOAST ---
 
 // Reusable and custom components
@@ -48,6 +48,21 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
 
   // We no longer need the 'error' prop from the hook, as we'll handle it in the catch block.
   const [register, { isLoading }] = useRegisterMutation();
+
+  // --- 1. CAPTURE QUERY PARAMS ---
+  // If the user was redirected here from a service page, capture their intent.
+  const searchParams = useSearchParams();
+  const serviceId = searchParams.get("serviceId");
+  const planId = searchParams.get("planId");
+
+  useEffect(() => {
+    if (serviceId) {
+      sessionStorage.setItem("pendingServiceId", serviceId);
+    }
+    if (planId) {
+      sessionStorage.setItem("pendingPlanId", planId);
+    }
+  }, [serviceId, planId]);
 
   const dispatch = useAppDispatch();
 
@@ -329,7 +344,10 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
         {FORM_MESSAGES.HAVE_ACCOUNT}{" "}
-        <Link href={AUTH_ROUTES.LOGIN} className="text-[#7642fe] underline">
+        <Link
+          href={`${AUTH_ROUTES.LOGIN}?${searchParams.toString()}`}
+          className="text-[#7642fe] underline"
+        >
           {FORM_MESSAGES.SIGN_IN}
         </Link>
       </p>

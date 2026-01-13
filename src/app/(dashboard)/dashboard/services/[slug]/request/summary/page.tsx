@@ -229,7 +229,7 @@ export default function OrderSummaryPage({ params }: any) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6 text-sm">
             {Object.entries(editableFormData).map(([key, value]) => {
               const fieldDef = formFields.find((f: any) => f.name === key);
-              const isReadOnly = fieldDef?.fromUser; // Fields from user profile are not editable here
+              const isReadOnly = false; // fieldDef?.fromUser; // Allow editing all fields
 
               return (
                 <div key={key}>

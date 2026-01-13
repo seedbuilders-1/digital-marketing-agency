@@ -20,39 +20,37 @@ export const useAuthRedirect = (user: any): string => {
     return "/verify-otp";
   }
 
-  // --- Rule 2: Individual User Onboarding ---
-  if (user.category === "individual") {
-    // If they are an individual and haven't completed their profile (pfp_url is a good marker),
-    // send them to the individual profile completion page.
-    if (!user.pfp_url) {
-      return "/complete-profile";
-    }
-    // Otherwise, they are a complete individual user, send to dashboard.
-    return "/dashboard/dashboard";
+  // --- BYPASS KYC FOR NOW ---
+  // The client requested to skip the mandatory profile completion steps.
+  // Once verified, users should go straight to the dashboard to place orders.
+  // --- BYPASS KYC FOR NOW ---
+  // The client requested to skip the mandatory profile completion steps.
+  // Once verified, users should go straight to the dashboard to place orders.
+
+  // Check if there is a pending service request in session storage or query params
+  // NOTE: In a real app, you might want to read this from a robust source.
+  // We will assume the caller of this function might want to handle this logic,
+  // OR we can check localStorage here if that's where you store the "intended destination".
+  // However, for a simple flow, we can just return the dashboard URL and let the component handle redirection
+  // if you want to support deep linking.
+
+  // BETTER APPROACH:
+  // The components (LoginForm / VerifyOTPForm) should check for `returnUrl` or similar query params.
+  // But since we are hardcoding the return path here, we can add a check for the localStorage item
+  // that we (will) set when a user clicks "Choose Plan".
+
+  const pendingServiceId =
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("pendingServiceId")
+      : null;
+  const pendingPlanId =
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("pendingPlanId")
+      : null;
+
+  if (pendingServiceId) {
+    return `/dashboard/services/${pendingServiceId}/request`;
   }
 
-  // --- Rule 3: Organization User Onboarding ---
-  if (user.category === "organisation") {
-    // If the user is an organization type but the `organisation` object is null or missing,
-    // they need to fill out the organization form first.
-    if (!user.organisation) {
-      return "/organization-profile";
-    }
-
-    // If the organization exists, but the `contacts` array is empty,
-    // they need to add the primary contact person.
-    if (
-      !user.organisation.contacts ||
-      user.organisation.contacts.length === 0
-    ) {
-      return "/contact-person-profile";
-    }
-
-    // Otherwise, they are a complete organization user, send to dashboard.
-    return "/dashboard/dashboard";
-  }
-
-  // --- Fallback ---
-  // If the category is unknown or doesn't match, default to the dashboard.
   return "/dashboard/dashboard";
 };

@@ -17,7 +17,6 @@ export default function UserDetailsPage() {
     data: userData,
     isLoading,
     isError,
-    error,
     refetch,
   } = useGetUserByIdQuery(userId);
 
@@ -64,7 +63,7 @@ export default function UserDetailsPage() {
   }
 
   // Extract organisation data if available
-  const organisation = user.organisation;
+  const organisation = user?.organisation;
 
   return (
     <div className="p-6 space-y-6">

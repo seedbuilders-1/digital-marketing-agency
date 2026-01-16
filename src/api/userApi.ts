@@ -34,6 +34,12 @@ export const userApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    getUserById: builder.query({
+      query: (userId) => ({
+        url: APIS.USER.GET_USER(userId),
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -41,4 +47,5 @@ export const {
   useCompleteUserProfileMutation,
   useGetAuthenticateduserQuery,
   useGetAllUsersQuery,
+  useGetUserByIdQuery,
 } = userApi;

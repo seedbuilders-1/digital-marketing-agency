@@ -3,6 +3,7 @@ import "./globals.css";
 import { ReduxProvider } from "@/components/ReduxProvider";
 import { Toaster } from "sonner";
 import { SocketProvider } from "@/context/SocketProvider";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 export const metadata: Metadata = {
   title: "Digital Marketing Agency",
@@ -21,6 +22,7 @@ export default function RootLayout({
           <SocketProvider>{children}</SocketProvider>
         </ReduxProvider>
         <Toaster position="top-center" richColors />
+        <WhatsAppButton />
       </body>
     </html>
   );

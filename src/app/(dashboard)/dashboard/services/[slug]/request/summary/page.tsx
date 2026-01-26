@@ -63,10 +63,11 @@ export default function OrderSummaryPage({ params }: any) {
   // --- MEMOIZED VALUES ---
   const originalPrice = useMemo(
     () => Number(selectedPlan?.price || 0),
-    [selectedPlan]
+    [selectedPlan],
   );
   const discountedPrice = useMemo(() => originalPrice * 0.5, [originalPrice]);
   const finalPrice = discountApplied ? discountedPrice : originalPrice;
+  const isFree = finalPrice === 0;
 
   // --- EVENT HANDLERS ---
 
@@ -95,7 +96,7 @@ export default function OrderSummaryPage({ params }: any) {
     setEditableFormData((prev) => ({ ...prev, [key]: value }));
   const handleFileChange = (
     key: string,
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     if (event.target.files) handleFieldChange(key, event.target.files);
   };
@@ -148,11 +149,26 @@ export default function OrderSummaryPage({ params }: any) {
       const invoiceId = result?.data?.invoice.id;
       if (!invoiceId) throw new Error("Invoice ID not found in response.");
 
-      toast.success("Invoice created successfully! Redirecting...", {
-        id: toastId,
-      });
-      resetRequest();
-      router.push(`/dashboard/invoice/${invoiceId}`);
+      // For free plans, redirect to projects page directly
+      if (isFree) {
+        toast.success(
+          "Request submitted successfully! Your project is being processed.",
+          {
+            id: toastId,
+          },
+        );
+        resetRequest();
+        router.push(`/dashboard/projects`);
+      } else {
+        toast.success(
+          "Invoice created successfully! Redirecting to payment...",
+          {
+            id: toastId,
+          },
+        );
+        resetRequest();
+        router.push(`/dashboard/invoice/${invoiceId}`);
+      }
     } catch (err: any) {
       console.error("Failed to create invoice:", err);
       toast.error(err?.data?.message || "Failed to create invoice.", {
@@ -315,50 +331,53 @@ export default function OrderSummaryPage({ params }: any) {
         </div>
 
         {/* --- Referral Section --- */}
-        <Card className="bg-purple-50 border-purple-200">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-lg text-purple-800">
-              Refer a Friend & Get 50% Off!
-            </h3>
-            <p className="text-sm text-purple-700 mt-1 mb-4">
-              Enter a friend's email to apply an instant 50% discount to this
-              order.
-            </p>
-            <form
-              onSubmit={handleApplyReferral}
-              className="flex flex-col sm:flex-row items-center gap-2"
-            >
-              <Label htmlFor="referral-email" className="sr-only">
-                Referral Email
-              </Label>
-              <Input
-                id="referral-email"
-                type="email"
-                placeholder="friend@example.com"
-                value={referralEmail}
-                onChange={(e) => setReferralEmail(e.target.value)}
-                disabled={discountApplied || isValidating}
-                className="flex-grow bg-white"
-              />
-              <Button
-                type="submit"
-                disabled={discountApplied || isValidating}
-                className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700"
+        {/* Only show referral section for paid plans */}
+        {!isFree && (
+          <Card className="bg-purple-50 border-purple-200">
+            <CardContent className="p-6">
+              <h3 className="font-semibold text-lg text-purple-800">
+                Refer a Friend & Get 50% Off!
+              </h3>
+              <p className="text-sm text-purple-700 mt-1 mb-4">
+                Enter a friend's email to apply an instant 50% discount to this
+                order.
+              </p>
+              <form
+                onSubmit={handleApplyReferral}
+                className="flex flex-col sm:flex-row items-center gap-2"
               >
-                {isValidating ? (
-                  <>
-                    <Loader2 className="animate-spin mr-2 h-4 w-4" />{" "}
-                    Validating...
-                  </>
-                ) : discountApplied ? (
-                  "Discount Applied!"
-                ) : (
-                  "Apply Discount"
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                <Label htmlFor="referral-email" className="sr-only">
+                  Referral Email
+                </Label>
+                <Input
+                  id="referral-email"
+                  type="email"
+                  placeholder="friend@example.com"
+                  value={referralEmail}
+                  onChange={(e) => setReferralEmail(e.target.value)}
+                  disabled={discountApplied || isValidating}
+                  className="flex-grow bg-white"
+                />
+                <Button
+                  type="submit"
+                  disabled={discountApplied || isValidating}
+                  className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700"
+                >
+                  {isValidating ? (
+                    <>
+                      <Loader2 className="animate-spin mr-2 h-4 w-4" />{" "}
+                      Validating...
+                    </>
+                  ) : discountApplied ? (
+                    "Discount Applied!"
+                  ) : (
+                    "Apply Discount"
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
 
         {/* --- Payment Summary --- */}
         <div>
@@ -382,7 +401,14 @@ export default function OrderSummaryPage({ params }: any) {
             )}
             <div className="flex justify-between font-bold text-lg border-t pt-3 mt-3">
               <p>Total</p>
-              <p>₦{finalPrice.toLocaleString()}</p>
+              <div className="flex items-center gap-2">
+                <p>₦{finalPrice.toLocaleString()}</p>
+                {isFree && (
+                  <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded">
+                    FREE
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -401,8 +427,10 @@ export default function OrderSummaryPage({ params }: any) {
             <>
               <Loader2 className="animate-spin mr-2" /> Processing...
             </>
-          ) : (
+          ) : isFree ? (
             "Submit Request"
+          ) : (
+            "Proceed to Payment"
           )}
         </Button>
       </div>

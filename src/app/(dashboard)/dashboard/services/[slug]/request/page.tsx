@@ -38,8 +38,8 @@ const Stepper = ({
               currentStep > index + 1
                 ? "bg-green-500 text-white"
                 : currentStep === index + 1
-                ? "bg-purple-600 text-white"
-                : "bg-gray-200 text-gray-500"
+                  ? "bg-purple-600 text-white"
+                  : "bg-gray-200 text-gray-500"
             }`}
           >
             {currentStep > index + 1 ? "✓" : index + 1}
@@ -333,7 +333,7 @@ export default function ServiceRequestPage({ params }: any) {
         )}
 
         <Button type="button" onClick={handleNext} className="bg-purple-600">
-          {currentStep < totalSteps ? "Next" : "Continue to Select Plan"}
+          {currentStep < totalSteps ? "Next" : "Generate Invoice"}
         </Button>
       </div>
     </div>

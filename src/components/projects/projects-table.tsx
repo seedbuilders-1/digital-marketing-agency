@@ -38,6 +38,27 @@ const getProjectStatus = (project: any): { text: string; color: string } => {
   }
 };
 
+// Helper function to get payment status badge styling
+const getPaymentStatus = (invoice: any): { text: string; color: string } => {
+  if (!invoice) {
+    return { text: "No Invoice", color: "bg-gray-100 text-gray-800" };
+  }
+
+  const status = invoice.status?.toLowerCase();
+
+  switch (status) {
+    case "paid":
+      return { text: "Paid", color: "bg-green-100 text-green-800" };
+    case "unpaid":
+      return { text: "Unpaid", color: "bg-orange-100 text-orange-800" };
+    default:
+      return {
+        text: invoice.status || "Unknown",
+        color: "bg-gray-100 text-gray-800",
+      };
+  }
+};
+
 const ProjectsTable = ({ projects }: ProjectsTableProps) => {
   const router = useRouter();
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
@@ -46,7 +67,7 @@ const ProjectsTable = ({ projects }: ProjectsTableProps) => {
     setSelectedProjects((prev) =>
       prev.includes(projectId)
         ? prev.filter((id) => id !== projectId)
-        : [...prev, projectId]
+        : [...prev, projectId],
     );
   };
 
@@ -71,7 +92,7 @@ const ProjectsTable = ({ projects }: ProjectsTableProps) => {
                   }
                   onCheckedChange={(checked) => {
                     setSelectedProjects(
-                      checked ? projects.map((p: any) => p.id) : []
+                      checked ? projects.map((p: any) => p.id) : [],
                     );
                   }}
                 />
@@ -92,6 +113,9 @@ const ProjectsTable = ({ projects }: ProjectsTableProps) => {
                 Status
               </th>
               <th className="py-3 px-6 font-medium text-gray-600 text-left">
+                Payment Status
+              </th>
+              <th className="py-3 px-6 font-medium text-gray-600 text-left">
                 Action
               </th>
             </tr>
@@ -100,6 +124,8 @@ const ProjectsTable = ({ projects }: ProjectsTableProps) => {
             {projects.map((project: any) => {
               const { text: statusText, color: statusColor } =
                 getProjectStatus(project);
+              const { text: paymentText, color: paymentColor } =
+                getPaymentStatus(project.invoice);
               return (
                 <tr key={project.id} className="border-b hover:bg-gray-50">
                   <td className="py-4 px-6">
@@ -109,7 +135,7 @@ const ProjectsTable = ({ projects }: ProjectsTableProps) => {
                     />
                   </td>
                   <td className="py-4 px-6 text-gray-500 font-mono text-xs">{`...${project.id.slice(
-                    -8
+                    -8,
                   )}`}</td>
                   <td className="py-4 px-6 text-gray-900 font-semibold">
                     {project.service.title}
@@ -122,6 +148,9 @@ const ProjectsTable = ({ projects }: ProjectsTableProps) => {
                   </td>
                   <td className="py-4 px-6">
                     <Badge className={statusColor}>{statusText}</Badge>
+                  </td>
+                  <td className="py-4 px-6">
+                    <Badge className={paymentColor}>{paymentText}</Badge>
                   </td>
                   <td className="py-4 px-6">
                     <Button
@@ -139,8 +168,72 @@ const ProjectsTable = ({ projects }: ProjectsTableProps) => {
         </table>
       </div>
 
-      {/* Mobile Cards (Implementation would follow a similar mapping logic) */}
-      <div className="md:hidden space-y-4 p-4">{/* ... */}</div>
+      {/* Mobile Cards */}
+      <div className="md:hidden space-y-4 p-4">
+        {projects.map((project: any) => {
+          const { text: statusText, color: statusColor } =
+            getProjectStatus(project);
+          const { text: paymentText, color: paymentColor } = getPaymentStatus(
+            project.invoice,
+          );
+
+          return (
+            <div
+              key={project.id}
+              className="bg-white border rounded-lg p-4 space-y-3"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-xs text-gray-500 font-mono mb-1">
+                    ...{project.id.slice(-8)}
+                  </p>
+                  <h3 className="font-semibold text-gray-900">
+                    {project.service.title}
+                  </h3>
+                </div>
+                <Checkbox
+                  checked={selectedProjects.includes(project.id)}
+                  onCheckedChange={() => handleSelectProject(project.id)}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <p className="text-gray-500">Start Date</p>
+                  <p className="text-gray-900">
+                    {formatDate(project.start_date)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-500">End Date</p>
+                  <p className="text-gray-900">
+                    {formatDate(project.end_date)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Status</p>
+                  <Badge className={statusColor}>{statusText}</Badge>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Payment</p>
+                  <Badge className={paymentColor}>{paymentText}</Badge>
+                </div>
+              </div>
+
+              <Button
+                variant="link"
+                onClick={() => handleViewDetails(project.id)}
+                className="text-[#7642FE] p-0 w-full justify-start"
+              >
+                View Details →
+              </Button>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

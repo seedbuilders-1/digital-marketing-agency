@@ -489,38 +489,62 @@ export default function ServiceDetailPage({ params }: any) {
                 <p className="text-gray-600">What Our Clients Say</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {service.testimonials.map((testimonial, index) => (
-                  <Card key={index} className="bg-[#7642FE] text-white">
-                    <CardContent className="p-8">
-                      <div className="flex items-center mb-4">
-                        {[...Array(testimonial.stars)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className="w-5 h-5 fill-yellow-400 text-yellow-400"
-                          />
-                        ))}
-                      </div>
-                      <p className="mb-6 text-white/90">{testimonial.quote}</p>
-                      <div className="flex items-center space-x-4">
-                        <Image
-                          src={testimonial.authorImageUrl || "/placeholder.svg"}
-                          alt={testimonial.authorName}
-                          width={48}
-                          height={48}
-                          className="rounded-full"
-                        />
-                        <div>
-                          <p className="font-semibold">
-                            {testimonial.authorName}
-                          </p>
-                          <p className="text-sm text-white/70">
-                            {testimonial.authorTitle}
-                          </p>
+                {service.testimonials.map((testimonial, index) => {
+                  const TestimonialCard = (
+                    <Card
+                      className={`bg-[#7642FE] text-white h-full ${
+                        testimonial.link ? "cursor-pointer" : ""
+                      }`}
+                    >
+                      <CardContent className="p-8">
+                        <div className="flex items-center mb-4">
+                          {[...Array(testimonial.stars)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className="w-5 h-5 fill-yellow-400 text-yellow-400"
+                            />
+                          ))}
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                        <p className="mb-6 text-white/90">
+                          {testimonial.quote}
+                        </p>
+                        <div className="flex items-center space-x-4">
+                          <Image
+                            src={
+                              testimonial.authorImageUrl || "/placeholder.svg"
+                            }
+                            alt={testimonial.authorName}
+                            width={48}
+                            height={48}
+                            className="rounded-full"
+                          />
+                          <div>
+                            <p className="font-semibold">
+                              {testimonial.authorName}
+                            </p>
+                            <p className="text-sm text-white/70">
+                              {testimonial.authorTitle}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+
+                  return testimonial.link ? (
+                    <Link
+                      key={index}
+                      href={testimonial.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block hover:scale-[1.02] transition-transform"
+                    >
+                      {TestimonialCard}
+                    </Link>
+                  ) : (
+                    <div key={index}>{TestimonialCard}</div>
+                  );
+                })}
               </div>
             </div>
           </section>

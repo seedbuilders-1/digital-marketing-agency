@@ -78,6 +78,7 @@ interface Testimonial {
   stars: number;
   authorImageFile: File | null;
   authorImageUrl?: string | null;
+  link?: string; // Optional link
 }
 interface Faq {
   id: string;
@@ -988,6 +989,19 @@ export default function EditServicePage() {
                     }
                     previewUrl={ts.authorImageUrl}
                   />
+                  <Label>Link (Optional)</Label>
+                  <Input
+                    placeholder="https://..."
+                    value={ts.link || ""}
+                    onChange={(e) =>
+                      handleArrayItemChange(
+                        "testimonials",
+                        index,
+                        "link",
+                        e.target.value,
+                      )
+                    }
+                  />
                 </div>
               ))}
               <Button
@@ -999,7 +1013,10 @@ export default function EditServicePage() {
                     authorName: "",
                     authorTitle: "",
                     stars: 5,
+                    authorTitle: "",
+                    stars: 5,
                     authorImageFile: null,
+                    link: "",
                   })
                 }
               >

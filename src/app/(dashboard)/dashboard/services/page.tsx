@@ -104,7 +104,7 @@ export default function ServicesPage() {
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
               {service.title}
             </h3>
-            <p className="text-gray-600 mb-4 flex-grow">
+            <p className="text-gray-600 mb-4 flex-grow whitespace-pre-line">
               {service.heroParagraph}
             </p>
             <div className="flex items-center justify-between mt-auto pt-4 border-t">

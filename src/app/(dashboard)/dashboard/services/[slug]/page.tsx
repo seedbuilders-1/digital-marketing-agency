@@ -109,7 +109,7 @@ export default function ServiceDetailPage({ params }: any) {
   const router = useRouter();
 
   const { groupedPlans, selectedCycles, handleCycleChange } = useGroupedPlans(
-    (service?.plans as any) || []
+    (service?.plans as any) || [],
   );
 
   const plans: any = serviceData?.data?.plans || [];
@@ -164,7 +164,7 @@ export default function ServiceDetailPage({ params }: any) {
             <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
               {service.heroHeadline}
             </h1>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg text-gray-600 mb-8 whitespace-pre-line">
               {service.heroParagraph}
             </p>
             {/* --- FIX #1: Added Link to Request Service Button --- */}
@@ -203,7 +203,9 @@ export default function ServiceDetailPage({ params }: any) {
                 {service.blueprintHeadline}
               </h2>
               <div className="space-y-4 text-gray-600">
-                <p>{service.blueprintParagraph}</p>
+                <p className="whitespace-pre-line">
+                  {service.blueprintParagraph}
+                </p>
               </div>
             </div>
           </div>
@@ -225,12 +227,12 @@ export default function ServiceDetailPage({ params }: any) {
           <div
             className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(
               groupedPlans.length,
-              3
+              3,
             )} gap-8`}
           >
             {groupedPlans.map((group) => {
               const selectedOption = group.options.find(
-                (opt) => opt.id === selectedCycles[group.name]
+                (opt) => opt.id === selectedCycles[group.name],
               );
               const price = selectedOption?.price || "0";
               const discountedPrice = Number(price) * 0.5;

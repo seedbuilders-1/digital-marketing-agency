@@ -51,6 +51,7 @@ interface Plan {
   price: string;
   priceUnit: string;
   audience: string;
+  discountPercentage: number; // 0-100, percentage off
   features: Feature[];
 }
 interface CaseStudy {
@@ -135,7 +136,7 @@ const SortablePlan = memo(
                   "plans",
                   planIndex,
                   "name",
-                  e.target.value
+                  e.target.value,
                 )
               }
             />
@@ -149,13 +150,13 @@ const SortablePlan = memo(
                   "plans",
                   planIndex,
                   "audience",
-                  e.target.value
+                  e.target.value,
                 )
               }
             />
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <Label>Price</Label>
             <Input
@@ -166,7 +167,7 @@ const SortablePlan = memo(
                   "plans",
                   planIndex,
                   "price",
-                  e.target.value
+                  e.target.value,
                 )
               }
             />
@@ -180,9 +181,27 @@ const SortablePlan = memo(
                   "plans",
                   planIndex,
                   "priceUnit",
-                  e.target.value
+                  e.target.value,
                 )
               }
+            />
+          </div>
+          <div>
+            <Label>Discount %</Label>
+            <Input
+              type="number"
+              min="0"
+              max="100"
+              value={plan.discountPercentage}
+              onChange={(e) =>
+                handleArrayItemChange(
+                  "plans",
+                  planIndex,
+                  "discountPercentage",
+                  parseInt(e.target.value) || 0,
+                )
+              }
+              placeholder="50"
             />
           </div>
         </div>
@@ -197,7 +216,7 @@ const SortablePlan = memo(
                     handleNestedArrayChange(
                       planIndex,
                       featureIndex,
-                      e.target.value
+                      e.target.value,
                     )
                   }
                 />
@@ -225,7 +244,7 @@ const SortablePlan = memo(
         </div>
       </div>
     );
-  }
+  },
 );
 SortablePlan.displayName = "SortablePlan";
 
@@ -319,7 +338,9 @@ export default function EditServicePage() {
 
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -338,7 +359,7 @@ export default function EditServicePage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   const handleFileChange = (
     section: "heroSection" | "blueprintSection",
-    file: File | null
+    file: File | null,
   ) =>
     setFormData((prev) => ({
       ...prev,
@@ -347,7 +368,7 @@ export default function EditServicePage() {
   const handleSectionChange = (
     section: "heroSection" | "blueprintSection",
     field: string,
-    value: string
+    value: string,
   ) =>
     setFormData((prev) => ({
       ...prev,
@@ -356,7 +377,7 @@ export default function EditServicePage() {
 
   const addArrayItem = <T extends { id: string }>(
     field: keyof typeof formData,
-    newItem: Omit<T, "id">
+    newItem: Omit<T, "id">,
   ) => {
     const itemWithId = { ...newItem, id: `new_${Date.now()}` } as T;
     setFormData((prev) => ({
@@ -375,12 +396,12 @@ export default function EditServicePage() {
     field: keyof typeof formData,
     index: number,
     itemField: keyof T,
-    value: any
+    value: any,
   ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: (prev[field] as T[]).map((item, i) =>
-        i === index ? { ...item, [itemField]: value } : item
+        i === index ? { ...item, [itemField]: value } : item,
       ),
     }));
   };
@@ -388,7 +409,7 @@ export default function EditServicePage() {
   const handleNestedArrayChange = (
     planIndex: number,
     featureIndex: number,
-    value: string
+    value: string,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -397,7 +418,7 @@ export default function EditServicePage() {
           return {
             ...plan,
             features: plan.features.map((feature, fIndex) =>
-              fIndex === featureIndex ? { ...feature, text: value } : feature
+              fIndex === featureIndex ? { ...feature, text: value } : feature,
             ),
           };
         }
@@ -432,7 +453,7 @@ export default function EditServicePage() {
           return {
             ...plan,
             features: plan.features.filter(
-              (_, fIndex) => fIndex !== featureIndex
+              (_, fIndex) => fIndex !== featureIndex,
             ),
           };
         }
@@ -453,11 +474,11 @@ export default function EditServicePage() {
     submissionData.append("heroParagraph", formData.heroSection.paragraph);
     submissionData.append(
       "blueprintHeadline",
-      formData.blueprintSection.headline
+      formData.blueprintSection.headline,
     );
     submissionData.append(
       "blueprintParagraph",
-      formData.blueprintSection.paragraph
+      formData.blueprintSection.paragraph,
     );
     submissionData.append(
       "plans",
@@ -465,8 +486,8 @@ export default function EditServicePage() {
         formData.plans.map((p) => ({
           ...p,
           features: p.features.map((f) => f.text),
-        }))
-      )
+        })),
+      ),
     );
     submissionData.append("faqs", JSON.stringify(formData.faqs));
     submissionData.append(
@@ -479,15 +500,15 @@ export default function EditServicePage() {
             solutionImageFile,
             resultImageFile,
             ...rest
-          }) => rest
-        )
-      )
+          }) => rest,
+        ),
+      ),
     );
     submissionData.append(
       "testimonials",
       JSON.stringify(
-        formData.testimonials.map(({ authorImageFile, ...rest }) => rest)
-      )
+        formData.testimonials.map(({ authorImageFile, ...rest }) => rest),
+      ),
     );
 
     if (formData.heroSection.imageFile)
@@ -495,35 +516,35 @@ export default function EditServicePage() {
     if (formData.blueprintSection.imageFile)
       submissionData.append(
         "blueprintImage",
-        formData.blueprintSection.imageFile
+        formData.blueprintSection.imageFile,
       );
     formData.caseStudies.forEach((cs, index) => {
       if (cs.bannerImageFile)
         submissionData.append(
           `caseStudy_${index}_bannerImage`,
-          cs.bannerImageFile
+          cs.bannerImageFile,
         );
       if (cs.challengeImageFile)
         submissionData.append(
           `caseStudy_${index}_challengeImage`,
-          cs.challengeImageFile
+          cs.challengeImageFile,
         );
       if (cs.solutionImageFile)
         submissionData.append(
           `caseStudy_${index}_solutionImage`,
-          cs.solutionImageFile
+          cs.solutionImageFile,
         );
       if (cs.resultImageFile)
         submissionData.append(
           `caseStudy_${index}_resultImage`,
-          cs.resultImageFile
+          cs.resultImageFile,
         );
     });
     formData.testimonials.forEach((ts, index) => {
       if (ts.authorImageFile)
         submissionData.append(
           `testimonial_${index}_authorImage`,
-          ts.authorImageFile
+          ts.authorImageFile,
         );
     });
 
@@ -612,7 +633,7 @@ export default function EditServicePage() {
                   handleSectionChange(
                     "heroSection",
                     "paragraph",
-                    e.target.value
+                    e.target.value,
                   )
                 }
               />
@@ -637,7 +658,7 @@ export default function EditServicePage() {
                   handleSectionChange(
                     "blueprintSection",
                     "headline",
-                    e.target.value
+                    e.target.value,
                   )
                 }
               />
@@ -648,7 +669,7 @@ export default function EditServicePage() {
                   handleSectionChange(
                     "blueprintSection",
                     "paragraph",
-                    e.target.value
+                    e.target.value,
                   )
                 }
               />
@@ -717,6 +738,7 @@ export default function EditServicePage() {
                     price: "",
                     priceUnit: "/month",
                     audience: "",
+                    discountPercentage: 50, // Default 50% off
                     features: [],
                   })
                 }
@@ -754,7 +776,7 @@ export default function EditServicePage() {
                         "caseStudies",
                         index,
                         "title",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -766,7 +788,7 @@ export default function EditServicePage() {
                         "caseStudies",
                         index,
                         "subtitle",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -778,7 +800,7 @@ export default function EditServicePage() {
                         "caseStudies",
                         index,
                         "bannerImageFile",
-                        file
+                        file,
                       )
                     }
                     previewUrl={cs.bannerImageUrl}
@@ -791,7 +813,7 @@ export default function EditServicePage() {
                         "caseStudies",
                         index,
                         "challenge",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -803,7 +825,7 @@ export default function EditServicePage() {
                         "caseStudies",
                         index,
                         "challengeImageFile",
-                        file
+                        file,
                       )
                     }
                     previewUrl={cs.challengeImageUrl}
@@ -816,7 +838,7 @@ export default function EditServicePage() {
                         "caseStudies",
                         index,
                         "solution",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -828,7 +850,7 @@ export default function EditServicePage() {
                         "caseStudies",
                         index,
                         "solutionImageFile",
-                        file
+                        file,
                       )
                     }
                     previewUrl={cs.solutionImageUrl}
@@ -841,7 +863,7 @@ export default function EditServicePage() {
                         "caseStudies",
                         index,
                         "result",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -853,7 +875,7 @@ export default function EditServicePage() {
                         "caseStudies",
                         index,
                         "resultImageFile",
-                        file
+                        file,
                       )
                     }
                     previewUrl={cs.resultImageUrl}
@@ -910,7 +932,7 @@ export default function EditServicePage() {
                         "testimonials",
                         index,
                         "quote",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -922,7 +944,7 @@ export default function EditServicePage() {
                         "testimonials",
                         index,
                         "authorName",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -934,7 +956,7 @@ export default function EditServicePage() {
                         "testimonials",
                         index,
                         "authorTitle",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -949,7 +971,7 @@ export default function EditServicePage() {
                         "testimonials",
                         index,
                         "stars",
-                        Number(e.target.value)
+                        Number(e.target.value),
                       )
                     }
                   />
@@ -961,7 +983,7 @@ export default function EditServicePage() {
                         "testimonials",
                         index,
                         "authorImageFile",
-                        file
+                        file,
                       )
                     }
                     previewUrl={ts.authorImageUrl}
@@ -1014,7 +1036,7 @@ export default function EditServicePage() {
                         "faqs",
                         index,
                         "question",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -1026,7 +1048,7 @@ export default function EditServicePage() {
                         "faqs",
                         index,
                         "answer",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />

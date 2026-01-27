@@ -65,7 +65,11 @@ export default function OrderSummaryPage({ params }: any) {
     () => Number(selectedPlan?.price || 0),
     [selectedPlan],
   );
-  const discountedPrice = useMemo(() => originalPrice * 0.5, [originalPrice]);
+  const discountPercentage = selectedPlan?.discountPercentage || 0;
+  const discountedPrice = useMemo(
+    () => originalPrice * (1 - discountPercentage / 100),
+    [originalPrice, discountPercentage],
+  );
   const finalPrice = discountApplied ? discountedPrice : originalPrice;
   const isFree = finalPrice === 0;
 
@@ -81,7 +85,9 @@ export default function OrderSummaryPage({ params }: any) {
     const toastId = toast.loading("Validating referral...");
     try {
       await validateReferral({ referralEmail }).unwrap();
-      toast.success("50% referral discount applied!", { id: toastId });
+      toast.success(`${discountPercentage}% referral discount applied!`, {
+        id: toastId,
+      });
       setDiscountApplied(true);
     } catch (err: any) {
       console.log(err);
@@ -336,11 +342,11 @@ export default function OrderSummaryPage({ params }: any) {
           <Card className="bg-purple-50 border-purple-200">
             <CardContent className="p-6">
               <h3 className="font-semibold text-lg text-purple-800">
-                Refer a Friend & Get 50% Off!
+                Refer a Friend & Get {discountPercentage}% Off!
               </h3>
               <p className="text-sm text-purple-700 mt-1 mb-4">
-                Enter a friend's email to apply an instant 50% discount to this
-                order.
+                Enter a friend's email to apply an instant {discountPercentage}%
+                discount to this order.
               </p>
               <form
                 onSubmit={handleApplyReferral}
@@ -395,7 +401,7 @@ export default function OrderSummaryPage({ params }: any) {
             </div>
             {discountApplied && (
               <div className="flex justify-between text-green-600 font-medium">
-                <p>Referral Discount (50%)</p>
+                <p>Referral Discount ({discountPercentage}%)</p>
                 <p>- ₦{(originalPrice - discountedPrice).toLocaleString()}</p>
               </div>
             )}

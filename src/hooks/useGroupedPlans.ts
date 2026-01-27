@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 
 // --- Type Definitions ---
+// --- Type Definitions ---
 interface Plan {
   id: string;
   name: string;
@@ -10,6 +11,7 @@ interface Plan {
   priceUnit: string;
   audience: string;
   features: string[];
+  discountPercentage?: number; // Added field
 }
 
 export interface GroupedPlan {
@@ -20,6 +22,7 @@ export interface GroupedPlan {
     id: string;
     price: string;
     priceUnit: string;
+    discountPercentage?: number; // Added field
   }[];
 }
 
@@ -33,7 +36,7 @@ export interface GroupedPlan {
  */
 export const useGroupedPlans = (plans: Plan[]) => {
   const [selectedCycles, setSelectedCycles] = useState<Record<string, string>>(
-    {}
+    {},
   );
 
   const groupedPlans = useMemo(() => {
@@ -65,6 +68,7 @@ export const useGroupedPlans = (plans: Plan[]) => {
         id: plan.id,
         price: plan.price,
         priceUnit: plan.priceUnit,
+        discountPercentage: plan.discountPercentage,
       });
     });
 

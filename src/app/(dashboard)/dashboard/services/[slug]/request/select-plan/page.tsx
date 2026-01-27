@@ -64,16 +64,18 @@ export default function SelectPlanPage({ params }: any) {
       <div
         className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(
           groupedPlans.length,
-          3
+          3,
         )} gap-8`}
       >
         {groupedPlans.map((group) => {
           // Find the currently selected option to display its price
           const selectedOption = group.options.find(
-            (opt) => opt.id === selectedCycles[group.name]
+            (opt) => opt.id === selectedCycles[group.name],
           );
           const price = selectedOption?.price || "0";
-          const discountedPrice = Number(price) * 0.5;
+          const discountPercentage = selectedOption?.discountPercentage || 0;
+          const discountedPrice =
+            Number(price) * (1 - discountPercentage / 100);
 
           return (
             <Card
@@ -91,9 +93,11 @@ export default function SelectPlanPage({ params }: any) {
                 {/* --- Pricing Section --- */}
                 <div className="mb-4">
                   <div className="flex flex-col">
-                    <span className="text-2xl text-gray-400 line-through">
-                      ₦{Number(price).toLocaleString()}
-                    </span>
+                    {discountPercentage > 0 && (
+                      <span className="text-2xl text-gray-400 line-through">
+                        ₦{Number(price).toLocaleString()}
+                      </span>
+                    )}
                     <span className="text-4xl font-bold text-gray-900">
                       ₦{discountedPrice.toLocaleString()}
                     </span>
@@ -122,9 +126,11 @@ export default function SelectPlanPage({ params }: any) {
                         {group.options[0]?.priceUnit}
                       </span>
                     )}
-                    <Badge className="bg-green-100 text-green-700 border-none text-xs font-semibold">
-                      50% OFF
-                    </Badge>
+                    {discountPercentage > 0 && (
+                      <Badge className="bg-green-100 text-green-700 border-none text-xs font-semibold">
+                        {discountPercentage}% OFF
+                      </Badge>
+                    )}
                   </div>
                 </div>
 

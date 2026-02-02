@@ -1,18 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { initPostHog, getPostHog, EVENTS } from "@/lib/posthog";
 import { ExitTracker } from "./ExitTracker";
 
-export function PostHogProvider({ children }: { children: React.ReactNode }) {
+function PostHogPageViewTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  // Initialize PostHog on mount
-  useEffect(() => {
-    initPostHog();
-  }, []);
 
   // Track page views on route change
   useEffect(() => {
@@ -30,9 +25,21 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     }
   }, [pathname, searchParams]);
 
+  return null;
+}
+
+export function PostHogProvider({ children }: { children: React.ReactNode }) {
+  // Initialize PostHog on mount
+  useEffect(() => {
+    initPostHog();
+  }, []);
+
   return (
     <>
       <ExitTracker />
+      <Suspense fallback={null}>
+        <PostHogPageViewTracker />
+      </Suspense>
       {children}
     </>
   );

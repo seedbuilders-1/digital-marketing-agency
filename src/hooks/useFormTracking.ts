@@ -102,7 +102,7 @@ export function useFormTracking<T extends FieldValues>({
         formState.current.fieldFocusTimes.set(fieldName, Date.now());
 
         if (shouldTrackField(fieldName)) {
-          captureEvent(`${formName}_field_focused`, {
+          captureEvent(`${fieldName}_${formName}_field_focused`, {
             form_name: formName,
             form_id: formId,
             field_name: fieldName,
@@ -138,7 +138,7 @@ export function useFormTracking<T extends FieldValues>({
       const timeSpent = focusTime ? Date.now() - focusTime : 0;
 
       if (shouldTrackField(fieldName)) {
-        captureEvent(`${formName}_field_blurred`, {
+        captureEvent(`${fieldName}_${formName}_field_blurred`, {
           form_name: formName,
           form_id: formId,
           field_name: fieldName,
@@ -157,7 +157,7 @@ export function useFormTracking<T extends FieldValues>({
   const trackFieldChange = useCallback(
     (fieldName: string, value: any) => {
       if (shouldTrackField(fieldName)) {
-        captureEvent(`${formName}_field_changed`, {
+        captureEvent(`${fieldName}_${formName}_field_changed`, {
           form_name: formName,
           form_id: formId,
           field_name: fieldName,

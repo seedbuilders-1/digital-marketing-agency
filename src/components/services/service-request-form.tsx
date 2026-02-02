@@ -31,6 +31,7 @@ import {
 } from "@/lib/schemas/service-request";
 import { getServiceRequestDefaultValues } from "@/lib/utils/service-request";
 import { SERVICES_DATA } from "@/lib/constants/services";
+import { TrackedForm } from "@/components/TrackedForm";
 
 interface ServiceRequestFormProps {
   serviceId: string;
@@ -116,8 +117,11 @@ const ServiceRequestForm = ({ serviceId }: ServiceRequestFormProps) => {
       </div>
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
+        <TrackedForm
+          formName="service_request_form"
+          formId={`service-request-${serviceId}`}
+          form={form}
+          onSubmit={onSubmit}
           className="max-w-2xl mx-auto"
         >
           {/* Step 1: Organization Details */}
@@ -452,7 +456,7 @@ const ServiceRequestForm = ({ serviceId }: ServiceRequestFormProps) => {
               </Button>
             )}
           </div>
-        </form>
+        </TrackedForm>
       </Form>
     </div>
   );

@@ -32,6 +32,9 @@ import { useLoginMutation } from "@/api/authApi";
 import { useAppDispatch } from "@/hooks/rtk";
 import { setCredentials } from "@/features/auth/authSlice";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { TrackedForm } from "@/components/TrackedForm";
+import { identifyUser } from "@/lib/posthog";
+import { trackAuth } from "@/utils/analytics";
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -73,8 +76,21 @@ const LoginForm = () => {
         setCredentials({
           token: res?.data?.accessToken,
           user: res?.data?.user,
-        })
+        }),
       );
+
+      // Identify user in PostHog
+      identifyUser(res?.data?.user?.id, {
+        email: data.email,
+        name: res?.data?.user?.name,
+        category: res?.data?.user?.category,
+        login_date: new Date().toISOString(),
+      });
+
+      // Track login event
+      trackAuth("login", res?.data?.user?.id, {
+        email: data.email,
+      });
 
       const redirectPath = getRedirectPath(res?.data?.user);
       toast.success("Login successful! Redirecting...", { id: toastId });
@@ -110,8 +126,11 @@ const LoginForm = () => {
       </div>
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
+        <TrackedForm
+          formName="login_form"
+          formId="user-login-form"
+          form={form}
+          onSubmit={onSubmit}
           className="flex flex-col gap-4"
         >
           {/* Email and Password Fields remain the same */}
@@ -180,7 +199,7 @@ const LoginForm = () => {
           >
             {isLoading ? "Signing In..." : FORM_MESSAGES.LOGIN_BUTTON}
           </Button>
-        </form>
+        </TrackedForm>
       </Form>
 
       {/* Social Login and Signup links remain the same */}

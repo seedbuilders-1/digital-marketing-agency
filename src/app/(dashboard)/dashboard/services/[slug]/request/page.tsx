@@ -20,7 +20,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useServiceRequest } from "@/context/ServiceRequestContext";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/features/auth/selectors";
-// NOTE: Replace this with your actual authentication hook
+import { TrackedForm } from "@/components/TrackedForm";
+import { captureEvent } from "@/lib/posthog";
 
 const Stepper = ({
   currentStep,
@@ -117,6 +118,11 @@ export default function ServiceRequestPage({ params }: any) {
     return prefilledData;
   }, [user, formFields]);
 
+  const methods = useForm({
+    // Pass the calculated default values to useForm
+    defaultValues,
+  });
+
   const {
     register,
     handleSubmit,
@@ -124,10 +130,7 @@ export default function ServiceRequestPage({ params }: any) {
     control,
     formState: { errors },
     reset,
-  } = useForm({
-    // Pass the calculated default values to useForm
-    defaultValues,
-  });
+  } = methods;
 
   useEffect(() => {
     // Check if there are actual values to set.
@@ -154,9 +157,15 @@ export default function ServiceRequestPage({ params }: any) {
 
   const totalSteps = Object.keys(fieldsByStep).length;
 
-  // The final onSubmit that dispatches data and navigates
   const onSubmit = (data: any) => {
     setFormData(data);
+
+    // Manually track submission since we're bypassing TrackedForm's submit handler
+    captureEvent("service_request_form_submitted", {
+      form_name: service?.title || "service_request_form",
+      service_id: serviceId,
+    });
+
     router.push(`/dashboard/services/${serviceId}/request/summary`);
   };
 
@@ -209,9 +218,11 @@ export default function ServiceRequestPage({ params }: any) {
 
       <Stepper currentStep={currentStep} steps={stepNames} />
 
-      <form
-        id="service-request-form"
-        onSubmit={handleSubmit(onSubmit)}
+      <TrackedForm
+        formName={`${service?.title}`}
+        formId={`service-request-${serviceId}`}
+        form={methods}
+        onSubmit={onSubmit}
         className="space-y-6"
       >
         {fieldsByStep[currentStep]?.map((field) => (
@@ -321,7 +332,7 @@ export default function ServiceRequestPage({ params }: any) {
             </div>
           </>
         )}
-      </form>
+      </TrackedForm>
 
       <div className="flex justify-between mt-8">
         {currentStep > 1 ? (

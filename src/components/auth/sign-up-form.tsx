@@ -37,6 +37,9 @@ import { CountrySelector } from "./CountryCodeSelector";
 import { PhoneCodeSelector } from "./PhoneCodeSelector";
 import { setCredentials } from "@/features/auth/authSlice";
 import { useAppDispatch } from "@/hooks/rtk";
+import { TrackedForm } from "@/components/TrackedForm";
+import { identifyUser } from "@/lib/posthog";
+import { trackAuth } from "@/utils/analytics";
 
 interface SignUpFormProps {
   countries: Country[];
@@ -90,8 +93,25 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
           setCredentials({
             token: res?.data?.tokens.accessToken,
             user: res?.data?.user,
-          })
+          }),
         );
+        // Identify user in PostHog
+        identifyUser(res?.data?.user?.id, {
+          email: data.email,
+          name: data.name,
+          category: data.category,
+          country: data.country,
+          city: data.city,
+          signup_date: new Date().toISOString(),
+        });
+
+        // Track signup event
+        trackAuth("signup", res?.data?.user?.id, {
+          email: data.email,
+          category: data.category,
+          has_service_intent: !!serviceId,
+        });
+
         toast.success("Registration successful! Please verify your email.", {
           id: toastId,
         });
@@ -106,7 +126,7 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
         toast.error(errorMessage, { id: toastId });
       }
     },
-    [register, selectedCountryCode, router]
+    [register, selectedCountryCode, router],
   );
 
   const handleGoogleRegistration = useCallback(() => {
@@ -123,7 +143,13 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <TrackedForm
+          formName="signup_form"
+          formId="user-signup-form"
+          form={form}
+          onSubmit={onSubmit}
+          className="space-y-5"
+        >
           {/* ... all your FormField components remain exactly the same ... */}
           <FormField
             control={form.control}
@@ -319,7 +345,7 @@ export const SignUpForm = ({ countries }: SignUpFormProps) => {
             </p>
           )} 
           */}
-        </form>
+        </TrackedForm>
       </Form>
 
       {/* ... the rest of your JSX remains the same ... */}

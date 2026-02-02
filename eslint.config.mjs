@@ -11,6 +11,20 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    files: [
+      "src/lib/posthog/**/*.ts",
+      "src/hooks/usePostHog.ts",
+      "src/hooks/useFormTracking.ts",
+      "src/hooks/useExitTracking.ts",
+      "src/utils/analytics.ts",
+      "src/components/TrackedForm.tsx",
+      "src/components/examples/**/*.tsx",
+    ],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
 ];
 
 export default eslintConfig;

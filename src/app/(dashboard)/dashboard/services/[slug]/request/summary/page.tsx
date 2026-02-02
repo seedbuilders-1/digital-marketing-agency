@@ -26,6 +26,7 @@ import {
   Save,
   X,
 } from "lucide-react";
+import { captureEvent } from "@/lib/posthog";
 
 // Context
 import { useServiceRequest } from "@/context/ServiceRequestContext";
@@ -89,10 +90,20 @@ export default function OrderSummaryPage({ params }: any) {
         id: toastId,
       });
       setDiscountApplied(true);
+      captureEvent("referral_validation_success", {
+        service_id: serviceId,
+        referral_email: referralEmail,
+        discount_percentage: discountPercentage,
+      });
     } catch (err: any) {
       console.log(err);
       toast.error(err?.data?.message || "This referral email is not valid.", {
         id: toastId,
+      });
+      captureEvent("referral_validation_error", {
+        service_id: serviceId,
+        referral_email: referralEmail,
+        error: err?.data?.message,
       });
     }
   };
@@ -152,6 +163,14 @@ export default function OrderSummaryPage({ params }: any) {
         result = await initializeRequest(submissionData).unwrap();
       }
 
+      captureEvent("service_request_finalized", {
+        service_id: serviceId,
+        plan_name: selectedPlan.name,
+        price: finalPrice,
+        is_referral: discountApplied,
+        invoice_id: result?.data?.invoice.id,
+      });
+
       const invoiceId = result?.data?.invoice.id;
       if (!invoiceId) throw new Error("Invoice ID not found in response.");
 
@@ -179,6 +198,10 @@ export default function OrderSummaryPage({ params }: any) {
       console.error("Failed to create invoice:", err);
       toast.error(err?.data?.message || "Failed to create invoice.", {
         id: toastId,
+      });
+      captureEvent("service_request_failed", {
+        service_id: serviceId,
+        error: err?.data?.message,
       });
     }
   };

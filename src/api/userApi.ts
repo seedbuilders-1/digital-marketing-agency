@@ -40,6 +40,14 @@ export const userApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    deleteUser: builder.mutation({
+      query: (userId) => ({
+        url: APIS.USER.DELETE_USER(userId),
+        method: "DELETE",
+      }),
+      // Invalidate the users list cache after successful deletion
+      invalidatesTags: ["Users"],
+    }),
   }),
 });
 
@@ -48,4 +56,5 @@ export const {
   useGetAuthenticateduserQuery,
   useGetAllUsersQuery,
   useGetUserByIdQuery,
+  useDeleteUserMutation,
 } = userApi;

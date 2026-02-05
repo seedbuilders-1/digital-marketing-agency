@@ -20,8 +20,9 @@ import {
   ChevronLeft,
   ChevronRight,
   AlertCircle,
+  Trash2,
 } from "lucide-react";
-import { useGetAllUsersQuery } from "@/api/userApi";
+import { useGetAllUsersQuery, useDeleteUserMutation } from "@/api/userApi";
 
 // API & State
 
@@ -40,6 +41,8 @@ const formatDate = (dateString: string) => {
 export default function UserManagementPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<any>(null);
 
   // --- Data Fetching ---
   const {
@@ -49,6 +52,9 @@ export default function UserManagementPage() {
     error,
     refetch,
   } = useGetAllUsersQuery(undefined);
+
+  // --- Delete Mutation ---
+  const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
   const allUsers = usersData?.data || [];
 
@@ -61,9 +67,34 @@ export default function UserManagementPage() {
     return allUsers.filter(
       (user: any) =>
         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [allUsers, searchTerm]);
+
+  // --- Delete Handlers ---
+  const handleDeleteClick = (user: any) => {
+    setUserToDelete(user);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+
+    try {
+      await deleteUser(userToDelete.id).unwrap();
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+      refetch(); // Refresh the user list
+    } catch (error: any) {
+      console.error("Failed to delete user:", error);
+      alert(error?.data?.message || "Failed to delete user. Please try again.");
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setUserToDelete(null);
+  };
 
   if (isLoading) {
     return (
@@ -130,30 +161,57 @@ export default function UserManagementPage() {
               <TableBody>
                 {filteredUsers.length > 0 ? (
                   filteredUsers.map((user: any) => (
-                    <TableRow key={user.id}>
+                    <TableRow
+                      key={user.id}
+                      className={user.deleted_at ? "bg-red-50 opacity-60" : ""}
+                    >
                       <TableCell className="font-mono text-xs">
                         #{user.id.substring(0, 8)}...
                       </TableCell>
-                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {user.name}
+                        {user.deleted_at && (
+                          <span className="ml-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">
+                            Soft Deleted
+                          </span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-gray-600">
                         {user.email}
                       </TableCell>
                       <TableCell className="text-gray-600 capitalize">
-                        {user.status}
+                        {user.deleted_at ? (
+                          <span className="text-red-600 font-medium">
+                            Deleted
+                          </span>
+                        ) : (
+                          user.status
+                        )}
                       </TableCell>
                       <TableCell className="text-gray-500">
                         {formatDate(user.created_at)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="link"
-                          className="text-purple-600 hover:text-purple-700 p-0"
-                          onClick={() =>
-                            router.push(`/admin/user-management/${user.id}`)
-                          }
-                        >
-                          View Details
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="link"
+                            className="text-purple-600 hover:text-purple-700 p-0"
+                            onClick={() =>
+                              router.push(`/admin/user-management/${user.id}`)
+                            }
+                          >
+                            View Details
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleDeleteClick(user)}
+                            disabled={!!user.deleted_at}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -194,6 +252,52 @@ export default function UserManagementPage() {
           </Button>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {deleteDialogOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-100 rounded-full">
+                <AlertCircle className="h-6 w-6 text-red-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Delete User
+              </h2>
+            </div>
+
+            <p className="text-gray-600 mb-4">
+              Are you sure you want to delete this user? This action cannot be
+              undone.
+            </p>
+
+            {userToDelete && (
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <p className="text-sm text-gray-500">User Details:</p>
+                <p className="font-medium text-gray-900">{userToDelete.name}</p>
+                <p className="text-sm text-gray-600">{userToDelete.email}</p>
+              </div>
+            )}
+
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={handleCancelDelete}
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete User"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

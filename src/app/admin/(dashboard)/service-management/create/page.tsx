@@ -33,6 +33,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { ArrowLeft, Save, Plus, X, Loader2, GripVertical } from "lucide-react";
 import { ImageUpload } from "@/components/ImageUpload";
+import { VideoUpload } from "@/components/VideoUpload";
 
 // API Hooks
 import { useCreateServiceMutation } from "@/api/servicesApi";
@@ -127,7 +128,7 @@ const SortablePlan = memo(
                   "plans",
                   planIndex,
                   "name",
-                  e.target.value
+                  e.target.value,
                 )
               }
             />
@@ -141,7 +142,7 @@ const SortablePlan = memo(
                   "plans",
                   planIndex,
                   "audience",
-                  e.target.value
+                  e.target.value,
                 )
               }
             />
@@ -158,7 +159,7 @@ const SortablePlan = memo(
                   "plans",
                   planIndex,
                   "price",
-                  e.target.value
+                  e.target.value,
                 )
               }
             />
@@ -172,7 +173,7 @@ const SortablePlan = memo(
                   "plans",
                   planIndex,
                   "priceUnit",
-                  e.target.value
+                  e.target.value,
                 )
               }
             />
@@ -189,7 +190,7 @@ const SortablePlan = memo(
                     handleNestedArrayChange(
                       planIndex,
                       featureIndex,
-                      e.target.value
+                      e.target.value,
                     )
                   }
                 />
@@ -217,7 +218,7 @@ const SortablePlan = memo(
         </div>
       </div>
     );
-  }
+  },
 );
 SortablePlan.displayName = "SortablePlan";
 
@@ -244,11 +245,14 @@ export default function CreateServicePage() {
     caseStudies: [] as CaseStudy[],
     testimonials: [] as Testimonial[],
     faqs: [] as Faq[],
+    onboardingVideoFile: null as File | null,
   });
 
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -267,7 +271,7 @@ export default function CreateServicePage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   const handleFileChange = (
     section: "heroSection" | "blueprintSection",
-    file: File | null
+    file: File | null,
   ) =>
     setFormData((prev) => ({
       ...prev,
@@ -276,16 +280,19 @@ export default function CreateServicePage() {
   const handleSectionChange = (
     section: "heroSection" | "blueprintSection",
     field: string,
-    value: string
+    value: string,
   ) =>
     setFormData((prev) => ({
       ...prev,
       [section]: { ...prev[section], [field]: value },
     }));
 
+  const handleVideoChange = (file: File | null) =>
+    setFormData((prev) => ({ ...prev, onboardingVideoFile: file }));
+
   const addArrayItem = <T extends { id: string }>(
     field: keyof typeof formData,
-    newItem: Omit<T, "id">
+    newItem: Omit<T, "id">,
   ) => {
     const itemWithId = { ...newItem, id: `new_${Date.now()}` } as T;
     setFormData((prev) => ({
@@ -304,12 +311,12 @@ export default function CreateServicePage() {
     field: keyof typeof formData,
     index: number,
     itemField: keyof T,
-    value: any
+    value: any,
   ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: (prev[field] as T[]).map((item, i) =>
-        i === index ? { ...item, [itemField]: value } : item
+        i === index ? { ...item, [itemField]: value } : item,
       ),
     }));
   };
@@ -317,7 +324,7 @@ export default function CreateServicePage() {
   const handleNestedArrayChange = (
     planIndex: number,
     featureIndex: number,
-    value: string
+    value: string,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -326,7 +333,7 @@ export default function CreateServicePage() {
           return {
             ...plan,
             features: plan.features.map((feature, fIndex) =>
-              fIndex === featureIndex ? { ...feature, text: value } : feature
+              fIndex === featureIndex ? { ...feature, text: value } : feature,
             ),
           };
         }
@@ -361,7 +368,7 @@ export default function CreateServicePage() {
           return {
             ...plan,
             features: plan.features.filter(
-              (_, fIndex) => fIndex !== featureIndex
+              (_, fIndex) => fIndex !== featureIndex,
             ),
           };
         }
@@ -382,11 +389,11 @@ export default function CreateServicePage() {
     submissionData.append("heroParagraph", formData.heroSection.paragraph);
     submissionData.append(
       "blueprintHeadline",
-      formData.blueprintSection.headline
+      formData.blueprintSection.headline,
     );
     submissionData.append(
       "blueprintParagraph",
-      formData.blueprintSection.paragraph
+      formData.blueprintSection.paragraph,
     );
     submissionData.append(
       "plans",
@@ -394,8 +401,8 @@ export default function CreateServicePage() {
         formData.plans.map((p) => ({
           ...p,
           features: p.features.map((f) => f.text),
-        }))
-      )
+        })),
+      ),
     );
     submissionData.append("faqs", JSON.stringify(formData.faqs));
     submissionData.append(
@@ -408,15 +415,15 @@ export default function CreateServicePage() {
             solutionImageFile,
             resultImageFile,
             ...rest
-          }) => rest
-        )
-      )
+          }) => rest,
+        ),
+      ),
     );
     submissionData.append(
       "testimonials",
       JSON.stringify(
-        formData.testimonials.map(({ authorImageFile, ...rest }) => rest)
-      )
+        formData.testimonials.map(({ authorImageFile, ...rest }) => rest),
+      ),
     );
 
     if (formData.heroSection.imageFile)
@@ -424,29 +431,29 @@ export default function CreateServicePage() {
     if (formData.blueprintSection.imageFile)
       submissionData.append(
         "blueprintImage",
-        formData.blueprintSection.imageFile
+        formData.blueprintSection.imageFile,
       );
 
     formData.caseStudies.forEach((cs, index) => {
       if (cs.bannerImageFile)
         submissionData.append(
           `caseStudy_${index}_bannerImage`,
-          cs.bannerImageFile
+          cs.bannerImageFile,
         );
       if (cs.challengeImageFile)
         submissionData.append(
           `caseStudy_${index}_challengeImage`,
-          cs.challengeImageFile
+          cs.challengeImageFile,
         );
       if (cs.solutionImageFile)
         submissionData.append(
           `caseStudy_${index}_solutionImage`,
-          cs.solutionImageFile
+          cs.solutionImageFile,
         );
       if (cs.resultImageFile)
         submissionData.append(
           `caseStudy_${index}_resultImage`,
-          cs.resultImageFile
+          cs.resultImageFile,
         );
     });
 
@@ -454,9 +461,13 @@ export default function CreateServicePage() {
       if (ts.authorImageFile)
         submissionData.append(
           `testimonial_${index}_authorImage`,
-          ts.authorImageFile
+          ts.authorImageFile,
         );
     });
+
+    if (formData.onboardingVideoFile) {
+      submissionData.append("onboardingVideo", formData.onboardingVideoFile);
+    }
 
     try {
       const res = await createService(submissionData).unwrap();
@@ -533,7 +544,7 @@ export default function CreateServicePage() {
                   handleSectionChange(
                     "heroSection",
                     "paragraph",
-                    e.target.value
+                    e.target.value,
                   )
                 }
               />
@@ -557,7 +568,7 @@ export default function CreateServicePage() {
                   handleSectionChange(
                     "blueprintSection",
                     "headline",
-                    e.target.value
+                    e.target.value,
                   )
                 }
               />
@@ -568,7 +579,7 @@ export default function CreateServicePage() {
                   handleSectionChange(
                     "blueprintSection",
                     "paragraph",
-                    e.target.value
+                    e.target.value,
                   )
                 }
               />
@@ -578,6 +589,18 @@ export default function CreateServicePage() {
                 onFileChange={(file) =>
                   handleFileChange("blueprintSection", file)
                 }
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Onboarding Video (Optional)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <VideoUpload
+                file={formData.onboardingVideoFile}
+                onFileChange={handleVideoChange}
               />
             </CardContent>
           </Card>
@@ -673,7 +696,7 @@ export default function CreateServicePage() {
                         "caseStudies",
                         index,
                         "title",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -685,7 +708,7 @@ export default function CreateServicePage() {
                         "caseStudies",
                         index,
                         "subtitle",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -697,7 +720,7 @@ export default function CreateServicePage() {
                         "caseStudies",
                         index,
                         "bannerImageFile",
-                        file
+                        file,
                       )
                     }
                   />
@@ -709,7 +732,7 @@ export default function CreateServicePage() {
                         "caseStudies",
                         index,
                         "challenge",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -721,7 +744,7 @@ export default function CreateServicePage() {
                         "caseStudies",
                         index,
                         "challengeImageFile",
-                        file
+                        file,
                       )
                     }
                   />
@@ -733,7 +756,7 @@ export default function CreateServicePage() {
                         "caseStudies",
                         index,
                         "solution",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -745,7 +768,7 @@ export default function CreateServicePage() {
                         "caseStudies",
                         index,
                         "solutionImageFile",
-                        file
+                        file,
                       )
                     }
                   />
@@ -757,7 +780,7 @@ export default function CreateServicePage() {
                         "caseStudies",
                         index,
                         "result",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -769,7 +792,7 @@ export default function CreateServicePage() {
                         "caseStudies",
                         index,
                         "resultImageFile",
-                        file
+                        file,
                       )
                     }
                   />
@@ -825,7 +848,7 @@ export default function CreateServicePage() {
                         "testimonials",
                         index,
                         "quote",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -837,7 +860,7 @@ export default function CreateServicePage() {
                         "testimonials",
                         index,
                         "authorName",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -849,7 +872,7 @@ export default function CreateServicePage() {
                         "testimonials",
                         index,
                         "authorTitle",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -864,7 +887,7 @@ export default function CreateServicePage() {
                         "testimonials",
                         index,
                         "stars",
-                        Number(e.target.value)
+                        Number(e.target.value),
                       )
                     }
                   />
@@ -876,7 +899,7 @@ export default function CreateServicePage() {
                         "testimonials",
                         index,
                         "authorImageFile",
-                        file
+                        file,
                       )
                     }
                   />
@@ -928,7 +951,7 @@ export default function CreateServicePage() {
                         "faqs",
                         index,
                         "question",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />
@@ -940,7 +963,7 @@ export default function CreateServicePage() {
                         "faqs",
                         index,
                         "answer",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                   />

@@ -33,6 +33,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { ArrowLeft, Save, Plus, X, Loader2, GripVertical } from "lucide-react";
 import { ImageUpload } from "@/components/ImageUpload";
+import { VideoUpload } from "@/components/VideoUpload";
 
 // API Hooks
 import {
@@ -282,6 +283,8 @@ export default function EditServicePage() {
     caseStudies: [] as CaseStudy[],
     testimonials: [] as Testimonial[],
     faqs: [] as Faq[],
+    onboardingVideoFile: null as File | null,
+    onboardingVideoUrl: null as string | null,
   });
 
   const initialFormData = useMemo(() => {
@@ -302,6 +305,8 @@ export default function EditServicePage() {
         imageFile: null,
         imageUrl: service.blueprintImageUrl || null,
       },
+      onboardingVideoFile: null,
+      onboardingVideoUrl: service.onboardingVideoUrl || null,
       bannerText: service.bannerText || "",
       plans:
         service.plans?.map((p: any, planIndex: number) => ({
@@ -375,6 +380,9 @@ export default function EditServicePage() {
       ...prev,
       [section]: { ...prev[section], [field]: value },
     }));
+
+  const handleVideoChange = (file: File | null) =>
+    setFormData((prev) => ({ ...prev, onboardingVideoFile: file }));
 
   const addArrayItem = <T extends { id: string }>(
     field: keyof typeof formData,
@@ -519,6 +527,9 @@ export default function EditServicePage() {
         "blueprintImage",
         formData.blueprintSection.imageFile,
       );
+    if (formData.onboardingVideoFile) {
+      submissionData.append("onboardingVideo", formData.onboardingVideoFile);
+    }
     formData.caseStudies.forEach((cs, index) => {
       if (cs.bannerImageFile)
         submissionData.append(
@@ -681,6 +692,19 @@ export default function EditServicePage() {
                   handleFileChange("blueprintSection", file)
                 }
                 previewUrl={formData.blueprintSection.imageUrl}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Onboarding Video (Optional)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <VideoUpload
+                file={formData.onboardingVideoFile}
+                onFileChange={handleVideoChange}
+                previewUrl={formData.onboardingVideoUrl}
               />
             </CardContent>
           </Card>

@@ -65,6 +65,8 @@ interface Service {
   blueprintHeadline: string;
   blueprintParagraph: string;
   blueprintImageUrl: string;
+
+  onboardingVideoUrl?: string; // Added optional video URL
   bannerText: string; // Added bannerText to the type
   plans: Plan[];
   caseStudies: CaseStudy[];
@@ -212,7 +214,6 @@ export default function ServiceDetailPage({ params }: any) {
         </div>
       </section>
 
-      {/* Pricing Plans */}
       <section className="py-16" id="plan">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
@@ -332,6 +333,24 @@ export default function ServiceDetailPage({ params }: any) {
           </div>
         </div>
       </section>
+
+      {/* Onboarding Video Section */}
+      {service.onboardingVideoUrl && (
+        <section className="bg-white py-16">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">
+              How to Onboard
+            </h2>
+            <div className="relative aspect-video rounded-xl overflow-hidden shadow-xl">
+              <video
+                src={service.onboardingVideoUrl}
+                controls
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* --- (Case Studies, Testimonials, and FAQs are fine) --- */}
       <section className="bg-gray-50 py-16">

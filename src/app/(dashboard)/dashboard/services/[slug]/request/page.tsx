@@ -62,7 +62,7 @@ const Stepper = ({
 export default function ServiceRequestPage({ params }: any) {
   const router = useRouter();
   const serviceId = params.slug;
-  const { setFormData } = useServiceRequest();
+  const { setFormData, setSelectedPlan, selectedPlan } = useServiceRequest();
 
   // Get the user object from your auth context/hook
   const user = useSelector(selectCurrentUser);
@@ -76,6 +76,25 @@ export default function ServiceRequestPage({ params }: any) {
   const service: Service | undefined = serviceData?.data;
   const formFields: any[] = service?.form?.formFields || [];
   console.log("formFields", formFields);
+
+  // Hydrate selected plan from session storage if coming from signup flow
+  useEffect(() => {
+    if (service && (service as any).plans) {
+      const pendingPlanId = sessionStorage.getItem("pendingPlanId");
+      const pendingServiceId = sessionStorage.getItem("pendingServiceId");
+
+      if (pendingPlanId && pendingServiceId === serviceId && !selectedPlan) {
+        const foundPlan = (service as any).plans.find(
+          (p: any) => p.id === pendingPlanId,
+        );
+        if (foundPlan) {
+          setSelectedPlan(foundPlan);
+          sessionStorage.removeItem("pendingPlanId");
+          sessionStorage.removeItem("pendingServiceId");
+        }
+      }
+    }
+  }, [service, serviceId, selectedPlan, setSelectedPlan]);
 
   // Prepare default values for the form based on the user object
   const defaultValues = useMemo(() => {

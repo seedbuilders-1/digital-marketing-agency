@@ -28,6 +28,7 @@
     "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.35.0",
     "lucide-react": "^0.517.0",
     "next": "15.3.8",
     "posthog-js": "^1.336.4",

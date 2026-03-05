@@ -1,11 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
-"use client"; // Absolutely crucial for our interactive components in Next.js!
-import { useState } from "react"; // For that slick mobile menu toggle
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useInView,
+  AnimatePresence,
+  useSpring,
+} from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-
 import {
   ChevronDown,
   MapPin,
@@ -15,19 +23,29 @@ import {
   Star,
   Lightbulb,
   Code,
-  LayoutDashboard, // For the all-in-one platform
+  LayoutDashboard,
   Menu,
   Zap,
   Wallet,
-  X, // For focus on core areas
-} from "lucide-react"; // A stellar icon set, as always!
+  X,
+  Clock,
+  CheckCircle2,
+  TrendingUp,
+  Shield,
+  Sparkles,
+  Play,
+  Users,
+  Award,
+  BarChart3,
+  Rocket,
+  MousePointer2,
+} from "lucide-react";
 import Footer from "@/components/layout/footer";
 import Image from "next/image";
-import Landing1 from "../../public/dma-banner.jpg";
 import Link from "next/link";
-import DMALogo from "../../public/dma_logo.svg";
 import { useGetAllPublicServicesQuery } from "@/api/servicesApi";
 import { Service } from "@/lib/types/services";
+import DMALogo from "../../public/dma_logo.svg";
 
 // A simple, elegant Logo component – because branding is everything!
 export const Logo = () => (
@@ -39,600 +57,1312 @@ export const Logo = () => (
   />
 );
 
-// Our robust array of services, now with a punchier feel.
+// --- Animation Variants ---
+const fadeInUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+  },
+};
 
-// A visually rich ServiceCard component – because every service deserves to shine!
-const ServiceCard = ({ id, title, description, heroImageUrl }: any) => (
-  <Link href={`/service/${id}`}>
-    <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden w-full group">
-      <div className="relative h-40">
-        <img
-          src={heroImageUrl}
-          alt={title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        {/* <div className="absolute top-4 left-4 bg-white rounded-full p-3 shadow-md group-hover:rotate-6 transition-transform duration-300">
-        {icon}
-      </div> */}
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15, delayChildren: 0.2 },
+  },
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
+};
+
+const slideInLeft = {
+  hidden: { opacity: 0, x: -60 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+const slideInRight = {
+  hidden: { opacity: 0, x: 60 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+// --- Components ---
+
+const AnimatedCounter = ({
+  value,
+  suffix = "",
+}: {
+  value: number;
+  suffix?: string;
+}) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (isInView) {
+      const duration = 2000;
+      const steps = 60;
+      const increment = value / steps;
+      let current = 0;
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= value) {
+          setCount(value);
+          clearInterval(timer);
+        } else {
+          setCount(Math.floor(current));
+        }
+      }, duration / steps);
+      return () => clearInterval(timer);
+    }
+  }, [isInView, value]);
+
+  return (
+    <span ref={ref}>
+      {count}
+      {suffix}
+    </span>
+  );
+};
+
+const ScrollProgress = () => {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#7642FE] via-purple-400 to-[#7642FE] origin-left z-[60]"
+      style={{ scaleX }}
+    />
+  );
+};
+
+const FloatingElement = ({
+  children,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) => (
+  <motion.div
+    animate={{ y: [0, -10, 0] }}
+    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay }}
+  >
+    {children}
+  </motion.div>
+);
+
+const MagneticButton = ({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  const ref = useRef<HTMLButtonElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!ref.current) return;
+    const { clientX, clientY } = e;
+    const { left, top, width, height } = ref.current.getBoundingClientRect();
+    const x = (clientX - left - width / 2) * 0.2;
+    const y = (clientY - top - height / 2) * 0.2;
+    setPosition({ x, y });
+  };
+
+  const handleMouseLeave = () => setPosition({ x: 0, y: 0 });
+
+  return (
+    <motion.button
+      ref={ref}
+      className={className}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      animate={{ x: position.x, y: position.y }}
+      transition={{ type: "spring", stiffness: 350, damping: 15 }}
+    >
+      {children}
+    </motion.button>
+  );
+};
+
+const ServiceCard = ({
+  service,
+  index,
+}: {
+  service: Service;
+  index: number;
+}) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+      transition={{
+        duration: 0.6,
+        delay: index * 0.1,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+    >
+      <Link href={`/service/${service.id}`}>
+        <div className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 h-full">
+          <div className="relative h-52 overflow-hidden">
+            <motion.img
+              src={service.heroImageUrl}
+              alt={service.title}
+              className="w-full h-full object-cover"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.6 }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <motion.div className="absolute bottom-4 left-4 right-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+              <span className="inline-flex items-center gap-2 text-white text-sm font-semibold bg-[#7642FE] px-4 py-2 rounded-full">
+                View Details <ArrowRight className="w-4 h-4" />
+              </span>
+            </motion.div>
+          </div>
+          <div className="p-6">
+            <h3 className="font-bold text-xl text-gray-900 mb-2 group-hover:text-[#7642FE] transition-colors duration-300">
+              {service.title}
+            </h3>
+            <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
+              {service.description}
+            </p>
+          </div>
+          <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <Sparkles className="w-5 h-5 text-[#7642FE]" />
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+};
+
+const PainPoint = ({ text, index }: { text: string; index: number }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: -30 }}
+      animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className="flex items-center gap-4 p-4 rounded-xl bg-red-50/50 border border-red-100"
+    >
+      <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+        <X className="w-4 h-4 text-red-500" />
       </div>
-      <div className="p-6">
-        <h3 className="font-extrabold text-xl text-gray-900 leading-tight group-hover:text-[#7642FE] transition-colors duration-300">
-          {title}
-        </h3>
-        <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-          {description}
+      <span className="text-gray-700 font-medium">{text}</span>
+    </motion.div>
+  );
+};
+
+const SolutionPoint = ({ text, index }: { text: string; index: number }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: 30 }}
+      animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className="flex items-center gap-4 p-4 rounded-xl bg-green-50/50 border border-green-100"
+    >
+      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+        <CheckCircle2 className="w-4 h-4 text-green-600" />
+      </div>
+      <span className="text-gray-700 font-medium">{text}</span>
+    </motion.div>
+  );
+};
+
+const ProcessStep = ({
+  number,
+  title,
+  description,
+  icon: Icon,
+  index,
+}: any) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+      transition={{ duration: 0.6, delay: index * 0.2 }}
+      className="relative"
+    >
+      {index < 3 && (
+        <motion.div
+          className="hidden lg:block absolute top-12 left-1/2 w-full h-0.5 bg-gradient-to-r from-[#7642FE] to-purple-300 -z-10"
+          initial={{ scaleX: 0 }}
+          animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          style={{ originX: 0 }}
+        />
+      )}
+      <div className="flex flex-col items-center text-center">
+        <motion.div
+          className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-[#7642FE] to-purple-600 flex items-center justify-center text-white shadow-xl mb-6"
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <Icon className="w-10 h-10" />
+          <div className="absolute -top-3 -right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center text-[#7642FE] font-bold shadow-lg border-2 border-[#7642FE]">
+            {number}
+          </div>
+        </motion.div>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
+        <p className="text-gray-600 max-w-xs">{description}</p>
+      </div>
+    </motion.div>
+  );
+};
+
+const TestimonialCard = ({ quote, author, role, company }: any) => (
+  <motion.div
+    className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100 relative"
+    whileHover={{ y: -5 }}
+    transition={{ duration: 0.3 }}
+  >
+    <div className="absolute -top-4 left-8">
+      <div className="bg-[#7642FE] text-white p-2 rounded-lg">
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+        </svg>
+      </div>
+    </div>
+    <p className="text-gray-700 text-lg leading-relaxed mb-6 mt-2">{quote}</p>
+    <div className="flex items-center gap-4">
+      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#7642FE] to-purple-400 flex items-center justify-center text-white font-bold text-lg">
+        {author[0]}
+      </div>
+      <div>
+        <p className="font-bold text-gray-900">{author}</p>
+        <p className="text-sm text-gray-500">
+          {role}, {company}
         </p>
       </div>
     </div>
-  </Link>
+  </motion.div>
 );
 
-// The main event: our stunning LandingPage!
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { data: servicesData } = useGetAllPublicServicesQuery(undefined);
-
-  // The actual services array is inside the response data
   const services: Service[] = servicesData?.data || [];
-  console.log("srrvices", services);
+
+  const heroRef = useRef(null);
+  const { scrollY } = useScroll();
+  const heroY = useTransform(scrollY, [0, 900], [0, 150]);
+  const heroOpacity = useTransform(scrollY, [0, 300], [1, 0]);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const painPoints = [
+    "Waiting 7-14 days for simple designs?",
+    "Chasing freelancers for updates?",
+    "Paying monthly retainers for small tasks?",
+    "Missing sales because creatives weren't ready?",
+  ];
+
+  const solutionPoints = [
+    "Designs delivered in 3 hours",
+    "Real-time dashboard tracking",
+    "Pay per project, no retainers",
+    "Never miss a campaign deadline",
+  ];
 
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-purple-50 text-gray-800 font-sans antialiased">
-      {/* Smooth scrolling is a must for a polished experience! */}
-      <style jsx global>{`
-        html {
-          scroll-behavior: smooth;
-        }
-      `}</style>
+    <div className="bg-white text-gray-900 font-sans antialiased overflow-x-hidden">
+      <ScrollProgress />
 
-      {/* Header: The command center for navigation */}
-      <header className="bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-        <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <Logo />
-          {/* Desktop Navigation: Clear, concise, and captivating */}
-          <div className="hidden lg:flex items-center space-x-8">
-            <Link
-              href="#"
-              className="text-[#7642FE] font-bold transition-colors hover:text-purple-700"
-            >
-              Home
-            </Link>
-            <Link
-              href="#about-us"
-              className="text-gray-700 font-medium hover:text-[#7642FE] transition-colors"
-            >
-              About Us
-            </Link>
-            <Link
-              href="#services"
-              className="text-gray-700 font-medium hover:text-[#7642FE] transition-colors flex items-center group"
-            >
-              Services{" "}
-              <ChevronDown className="w-4 h-4 ml-1 transition-transform group-hover:rotate-180" />
-            </Link>
-            <Link
-              href="#contact"
-              className="text-gray-700 font-medium hover:text-[#7642FE] transition-colors"
-            >
-              Contact Us
-            </Link>
+      {/* Navigation */}
+      <motion.header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? "bg-white/90 backdrop-blur-md shadow-lg py-3"
+            : "bg-transparent py-6"
+        }`}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <nav className="container mx-auto px-6 flex justify-between items-center">
+          <motion.div
+            className="flex items-center gap-2"
+            whileHover={{ scale: 1.05 }}
+          >
+            <Logo />
+          </motion.div>
+
+          <div className="hidden lg:flex items-center gap-8">
+            {["Services", "How It Works", "About", "Contact"].map((item, i) => (
+              <motion.a
+                key={item}
+                href={`#${item.toLowerCase().replace(" ", "-")}`}
+                className={`font-medium hover:text-[#7642FE] transition-colors ${
+                  scrolled ? "text-gray-700" : "text-white/90"
+                }`}
+                whileHover={{ y: -2 }}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                {item}
+              </motion.a>
+            ))}
           </div>
-          <div className="hidden lg:flex items-center space-x-4">
+
+          <div className="hidden lg:flex items-center gap-4">
             <Button
               variant="ghost"
-              className="text-gray-700 hover:text-[#7642FE] hover:bg-purple-50"
+              className={`${scrolled ? "text-gray-700" : "text-white"} hover:text-[#7642FE] hover:bg-white/10`}
             >
-              <Link href={"/login"}>Sign In</Link>
+              <Link href="/login">Sign In</Link>
             </Button>
-            <Button className="bg-[#7642FE] hover:bg-purple-700 text-white font-semibold shadow-md hover:shadow-lg transition-all">
-              <Link href={"/signup"}>Sign Up</Link>
-            </Button>
+            <MagneticButton className="bg-[#7642FE] hover:bg-purple-700 text-white font-semibold px-6 py-2.5 rounded-full shadow-lg hover:shadow-xl transition-all">
+              <Link href="/signup">Get Started</Link>
+            </MagneticButton>
           </div>
-          {/* Mobile Menu Button: Responsive and intuitive */}
-          <div className="lg:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
-              className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-            >
-              {isMenuOpen ? (
-                <X className="h-7 w-7 text-gray-700" />
-              ) : (
-                <Menu className="h-7 w-7 text-gray-700" />
-              )}
-            </button>
-          </div>
+
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="lg:hidden p-2 rounded-lg hover:bg-white/10"
+          >
+            {isMenuOpen ? (
+              <X
+                className={`w-6 h-6 ${scrolled ? "text-gray-900" : "text-white"}`}
+              />
+            ) : (
+              <Menu
+                className={`w-6 h-6 ${scrolled ? "text-gray-900" : "text-white"}`}
+              />
+            )}
+          </button>
         </nav>
-        {/* Mobile Menu: A clean, accessible overlay */}
-        {isMenuOpen && (
-          <div className="lg:hidden bg-white/95 backdrop-blur-md absolute w-full shadow-lg border-t border-gray-100">
-            <div className="flex flex-col items-start space-y-5 p-6">
-              <Link
-                href="#"
-                onClick={() => setIsMenuOpen(false)}
-                className="text-[#7642FE] font-bold text-lg"
-              >
-                Home
-              </Link>
-              <Link
-                href="#about-us"
-                onClick={() => setIsMenuOpen(false)}
-                className="text-gray-700 hover:text-[#7642FE] text-lg"
-              >
-                About Us
-              </Link>
-              <Link
-                href="#services"
-                onClick={() => setIsMenuOpen(false)}
-                className="text-gray-700 hover:text-[#7642FE] text-lg"
-              >
-                Services
-              </Link>
-              <Link
-                href="#contact"
-                onClick={() => setIsMenuOpen(false)}
-                className="text-gray-700 hover:text-[#7642FE] text-lg"
-              >
-                Contact Us
-              </Link>
-              <div className="w-full flex flex-col space-y-3 pt-6 border-t border-gray-100">
-                <Button
-                  asChild
-                  variant="ghost"
-                  className="w-full justify-center text-lg text-gray-700 hover:text-[#7642FE] hover:bg-purple-50"
-                >
-                  <Link href={"/login"}>Sign In</Link>
-                </Button>
-                <Button
-                  asChild
-                  className="bg-[#7642FE] hover:bg-purple-700 w-full text-lg font-semibold shadow-md"
-                >
-                  <Link href={"/signup"}>Sign Up</Link>
-                </Button>
+
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="lg:hidden bg-white border-t"
+            >
+              <div className="container mx-auto px-6 py-6 flex flex-col gap-4">
+                {["Services", "How It Works", "About", "Contact"].map(
+                  (item) => (
+                    <a
+                      key={item}
+                      href={`#${item.toLowerCase().replace(" ", "-")}`}
+                      className="text-lg font-medium text-gray-700 hover:text-[#7642FE]"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item}
+                    </a>
+                  ),
+                )}
+                <div className="flex flex-col gap-3 mt-4 pt-4 border-t">
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link href="/login">Sign In</Link>
+                  </Button>
+                  <Button className="w-full bg-[#7642FE]" asChild>
+                    <Link href="/signup">Get Started</Link>
+                  </Button>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
-      </header>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.header>
 
       <main>
-        {/* Hero Section: The grand entrance, clear and compelling */}
-        <section className="relative isolate overflow-hidden bg-slate-900">
-          {/* Background Gradients and Grid */}
-          <div
-            className="absolute inset-0 -z-10 transform-gpu overflow-hidden blur-3xl"
-            aria-hidden="true"
-          >
-            <div
-              className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#8F75FF] to-[#7642FE] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
-              style={{
-                clipPath:
-                  "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
+        {/* Hero Section */}
+        <section
+          ref={heroRef}
+          className="relative min-h-screen flex items-center justify-center overflow-hidden bg-slate-900"
+        >
+          {/* Animated Background */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900" />
+            <motion.div
+              className="absolute top-0 left-1/4 w-96 h-96 bg-[#7642FE]/30 rounded-full blur-3xl"
+              animate={{
+                scale: [1, 1.2, 1],
+                x: [0, 50, 0],
+                y: [0, 30, 0],
               }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
             />
+            <motion.div
+              className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"
+              animate={{
+                scale: [1.2, 1, 1.2],
+                x: [0, -30, 0],
+                y: [0, -50, 0],
+              }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            />
+            {/* Grid Pattern */}
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%237642FE\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20" />
           </div>
-          <div className="absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-slate-900/50 to-transparent -z-10"></div>
 
-          {/* Content */}
-          <div className="container mx-auto px-6 py-24 text-center sm:py-32 relative z-10">
-            <div className="max-w-5xl mx-auto">
-              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl">
-                Your Digital Marketing, Done in
-                <span className="mt-2 block text-5xl sm:text-7xl lg:text-8xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-[#7642FE] to-indigo-400">
-                  Hours — Not Weeks
-                </span>
-              </h1>
-              <p className="mt-8 max-w-3xl mx-auto text-lg leading-8 text-slate-300">
-                Why hire staff or chase agencies when you can get{" "}
-                <strong className="font-semibold text-white">
-                  professional digital marketing services instantly?
-                </strong>{" "}
-                With{" "}
-                <strong className="font-semibold text-white">
-                  Digital Marketing Agency Nigeria
-                </strong>
-                , individuals and businesses request exactly what they need —
-                from{" "}
-                <strong className="font-semibold text-white">
-                  social media marketing to SEO, content creation, graphic
-                  design, ads, and more
-                </strong>{" "}
-                — and receive it in{" "}
-                <strong className="font-semibold text-white">
-                  under 3 hours
-                </strong>
-                , all through one seamless platform.
-              </p>
-              <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-x-6 text-center">
-                <Link
-                  href="/signup"
-                  className="group relative inline-flex items-center justify-center rounded-full bg-[#7642FE] px-6 sm:px-8 py-3 sm:py-3.5 text-base sm:text-lg font-semibold text-white shadow-2xl shadow-[#7642FE]/20 transition-transform duration-300 ease-in-out hover:scale-105 w-full sm:w-auto"
-                >
-                  Request Your First Service
-                  <svg
-                    className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M17 8l4 4m0 0l-4 4m4-4H3"
-                    ></path>
-                  </svg>
-                </Link>
-
-                <Link
-                  href="#about-us"
-                  className="group text-base sm:text-lg font-semibold leading-6 text-slate-200 transition-colors duration-300 hover:text-white"
-                >
-                  Discover More{" "}
-                  <span
-                    className="transition-transform duration-300 group-hover:translate-x-1"
-                    aria-hidden="true"
-                  >
-                    →
-                  </span>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="container mx-auto px-6 -mt-16 relative z-20 flex justify-center">
-          <Image
-            src={Landing1}
-            width={1000}
-            alt="Digital Marketing Team collaborating"
-            className="rounded-3xl shadow-2xl border-4 border-white transform hover:scale-101 transition-transform duration-500"
-          />
-        </section>
-
-        <section className="py-20 bg-white" id="about-us">
-          <div className="container mx-auto px-6 text-center max-w-4xl">
-            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
-              Digital Marketing Agency Nigeria: <br />
-              <span className="text-[#7642FE]">
-                The Future of Digital Growth.
-              </span>
-            </h2>
-            <p className="text-lg text-gray-700 leading-relaxed mb-8">
-              Digital Marketing Agency Nigeria is Nigeria’s first-ever seamless,
-              one-stop digital platform that connects individuals and businesses
-              with premium digital marketing services at their fingertips, thus
-              saving time and expenses.
-            </p>
-            <p className="text-lg text-gray-700 leading-relaxed mb-8">
-              It is a platform that allows a client (individual or business) to
-              request a service and get it done seamlessly at the proposed time
-              of collection. Users retrieve their solutions and requests from
-              their dashboards without stress or excessive communication,
-              allowing them to focus on their work.
-            </p>
-            <Button
-              size="lg"
-              className="bg-[#7642FE] hover:bg-purple-700 text-white font-bold py-3 px-8 text-lg rounded-full shadow-lg hover:shadow-xl transition-all"
+          <motion.div
+            className="container mx-auto px-6 relative z-10 text-center"
+            style={{ y: heroY, opacity: heroOpacity }}
+          >
+            {/* <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 mb-8"
             >
-              <Link href={"/signup"}>Start Your Journey</Link>
-            </Button>
-          </div>
+              <span className="flex h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-sm font-medium">
+                Now serving 500+ businesses in Nigeria
+              </span>
+            </motion.div> */}
+
+            <motion.h1
+              className="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-tight mb-6"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              Marketing Delivered
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-[#7642FE] to-pink-400">
+                in 3 Hours
+              </span>
+            </motion.h1>
+
+            <motion.p
+              className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              Designs, ads, SEO, content — requested and delivered through one
+              seamless dashboard.{" "}
+              <span className="text-white font-semibold">
+                No agencies. No waiting. No stress.
+              </span>
+            </motion.p>
+
+            <motion.div
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+            >
+              <motion.button
+                className="group relative inline-flex items-center gap-2 bg-[#7642FE] hover:bg-purple-700 text-white text-lg font-semibold px-8 py-4 rounded-full shadow-2xl shadow-purple-500/25 overflow-hidden"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Get Started in 60 Seconds
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </span>
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-purple-600 to-[#7642FE]"
+                  initial={{ x: "100%" }}
+                  whileHover={{ x: 0 }}
+                  transition={{ duration: 0.3 }}
+                />
+              </motion.button>
+
+              <motion.button
+                className="inline-flex items-center gap-2 text-white/90 hover:text-white text-lg font-medium px-6 py-4 rounded-full border border-white/20 hover:bg-white/10 transition-all"
+                whileHover={{ scale: 1.05 }}
+                onClick={() => {
+                  document
+                    .getElementById("how-it-works")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }}
+              >
+                <Play className="w-5 h-5" />
+                Watch How It Works
+              </motion.button>
+            </motion.div>
+
+            {/* Trust Badges */}
+            <motion.div
+              className="flex flex-wrap items-center justify-center gap-8 text-white/60 text-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+            >
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-400" />
+                <span>No credit card required</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-400" />
+                <span>Cancel anytime</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-400" />
+                <span>24/7 Support</span>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Scroll Indicator */}
+          <motion.div
+            className="absolute bottom-8 left-1/2 -translate-x-1/2"
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center pt-2">
+              <motion.div
+                className="w-1.5 h-1.5 bg-white rounded-full"
+                animate={{ y: [0, 12, 0], opacity: [1, 0, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+            </div>
+          </motion.div>
         </section>
 
-        {/* Why Businesses Are Switching to Us Section */}
-        <section className="py-20 bg-gradient-to-r from-purple-50 to-blue-50">
-          <div className="container mx-auto px-6 text-center">
-            <h2 className="text-4xl font-bold text-gray-900 mb-12">
-              Why Businesses Are{" "}
-              <span className="text-[#7642FE]">Switching to Us</span>
-            </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
-              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300 border-b-4 border-[#7642FE]">
-                <div className="bg-purple-100 p-4 rounded-full mb-4">
-                  <Zap className="text-[#7642FE] h-8 w-8" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  Speed That Matters
-                </h3>
-                <p className="text-gray-600 text-center">
-                  Get your marketing request delivered in under 3 hours —
-                  because your business can’t wait.
-                </p>
-              </div>
-              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300 border-b-4 border-[#7642FE]">
-                <div className="bg-purple-100 p-4 rounded-full mb-4">
-                  <Wallet className="text-[#7642FE] h-8 w-8" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  Cost-Effective
-                </h3>
-                <p className="text-gray-600 text-center">
-                  Only pay for the services you need. No overhead, no staff
-                  salaries. Pure efficiency.
-                </p>
-              </div>
-              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300 border-b-4 border-[#7642FE]">
-                <div className="bg-purple-100 p-4 rounded-full mb-4">
-                  <LayoutDashboard className="text-[#7642FE] h-8 w-8" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  All-in-One Platform
-                </h3>
-                <p className="text-gray-600 text-center">
-                  From SEO to social media campaigns, graphics, ads, and so on —
-                  everything lives in your dashboard.
-                </p>
-              </div>
-              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300 border-b-4 border-[#7642FE]">
-                <div className="bg-purple-100 p-4 rounded-full mb-4">
-                  <Star className="text-[#7642FE] h-8 w-8" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  Superb Process
-                </h3>
-                <p className="text-gray-600 text-center">
-                  No endless phone calls or emails. Your work arrives, ready for
-                  use, right where you need it.
-                </p>
-              </div>
-            </div>
-            <div className="mt-12">
-              <p className="text-xl font-semibold text-gray-800">
-                Seamless Dashboard: Track, review, and collect all deliverables
-                in one place.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Popular Services Section: Where expertise meets opportunity */}
-        <div className="bg-white font-sans py-24" id="services">
-          <div className="container mx-auto px-6 lg:px-20">
-            <div className="text-center max-w-3xl mx-auto">
-              <h2 className="text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
-                Our Core <span className="text-[#7642FE]">Services.</span>
+        {/* Pain Points vs Solution Section */}
+        <section className="py-24 bg-gray-50">
+          <div className="container mx-auto px-6">
+            <motion.div
+              className="text-center max-w-3xl mx-auto mb-16"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                Tired of Slow Marketing?
               </h2>
-              <p className="mt-6 text-xl text-gray-700 leading-relaxed">
-                Unlock unparalleled growth with our comprehensive suite of
-                digital marketing solutions. Each service is meticulously
-                crafted to deliver measurable results and propel your brand
-                forward.
+              <p className="text-xl text-gray-600">
+                Business owners don't have time for agency drama.
               </p>
+            </motion.div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="space-y-4">
+                <h3 className="text-2xl font-bold text-red-600 mb-6 flex items-center gap-2">
+                  <X className="w-6 h-6" /> The Old Way
+                </h3>
+                {painPoints.map((point, i) => (
+                  <PainPoint key={i} text={point} index={i} />
+                ))}
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-2xl font-bold text-green-600 mb-6 flex items-center gap-2">
+                  <CheckCircle2 className="w-6 h-6" /> The DMA Way
+                </h3>
+                {solutionPoints.map((point, i) => (
+                  <SolutionPoint key={i} text={point} index={i} />
+                ))}
+              </div>
             </div>
 
-            <div className="mt-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-              {services.map((service) => (
-                <ServiceCard key={service.title} {...service} />
+            <motion.div
+              className="mt-16 text-center"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <p className="text-2xl font-bold text-gray-900 mb-8">
+                That's why <span className="text-[#7642FE]">DMA</span> exists.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+                {[
+                  { value: 3, suffix: "hrs", label: "Average Delivery" },
+                  { value: 500, suffix: "+", label: "Businesses Served" },
+                  { value: 98, suffix: "%", label: "Satisfaction Rate" },
+                  { value: 24, suffix: "/7", label: "Available" },
+                ].map((stat, i) => (
+                  <motion.div
+                    key={i}
+                    className="text-center"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <div className="text-4xl md:text-5xl font-bold text-[#7642FE] mb-2">
+                      <AnimatedCounter
+                        value={stat.value}
+                        suffix={stat.suffix}
+                      />
+                    </div>
+                    <div className="text-gray-600 font-medium">
+                      {stat.label}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Services Section */}
+        <section id="services" className="py-24 bg-white">
+          <div className="container mx-auto px-6">
+            <motion.div
+              className="text-center max-w-3xl mx-auto mb-16"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <span className="inline-block px-4 py-1.5 rounded-full bg-purple-100 text-[#7642FE] font-semibold text-sm mb-4">
+                Our Services
+              </span>
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                Get Results, Not Just Deliverables
+              </h2>
+              <p className="text-xl text-gray-600">
+                Outcome-based marketing services designed to drive revenue
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {services.length > 0
+                ? services.map((service, i) => (
+                    <ServiceCard key={service.id} service={service} index={i} />
+                  ))
+                : // Fallback services if API fails
+                  [
+                    {
+                      title: "Graphics Design",
+                      desc: "Sales flyers, Instagram creatives, ad banners delivered fast",
+                      icon: LayoutDashboard,
+                    },
+                    {
+                      title: "Sponsored Ads (PPC)",
+                      desc: "Launch revenue-driven campaigns without long setup delays",
+                      icon: TrendingUp,
+                    },
+                    {
+                      title: "Social Media Marketing",
+                      desc: "Stay consistent. Stay visible. Stay selling.",
+                      icon: Users,
+                    },
+                    {
+                      title: "SEO",
+                      desc: "Get found by customers already searching for you",
+                      icon: BarChart3,
+                    },
+                    {
+                      title: "Digital Strategy",
+                      desc: "Stop guessing. Start executing with clarity.",
+                      icon: Lightbulb,
+                    },
+                    {
+                      title: "Content Creation",
+                      desc: "Compelling copy that converts browsers into buyers",
+                      icon: Sparkles,
+                    },
+                  ].map((service, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      className="group p-8 rounded-3xl bg-gray-50 hover:bg-[#7642FE] transition-all duration-500 cursor-pointer"
+                    >
+                      <div className="w-14 h-14 rounded-2xl bg-white group-hover:bg-white/20 flex items-center justify-center mb-6 transition-colors">
+                        <service.icon className="w-7 h-7 text-[#7642FE] group-hover:text-white transition-colors" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 group-hover:text-white mb-3 transition-colors">
+                        {service.title}
+                      </h3>
+                      <p className="text-gray-600 group-hover:text-white/90 transition-colors">
+                        {service.desc}
+                      </p>
+                    </motion.div>
+                  ))}
+            </div>
+
+            <motion.div
+              className="mt-16 text-center"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              <Button
+                size="lg"
+                className="bg-[#7642FE] hover:bg-purple-700 text-white px-8 py-6 text-lg rounded-full shadow-xl hover:shadow-2xl transition-all"
+                asChild
+              >
+                <Link href="/signup">View All Services</Link>
+              </Button>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Feature Highlight: 3-Hour Delivery */}
+        <section className="py-24 bg-slate-900 text-white overflow-hidden relative">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z\' fill=\'%237642FE\' fill-opacity=\'0.1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E\')] opacity-20" />
+
+          <div className="container mx-auto px-6 relative z-10">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#7642FE]/20 border border-[#7642FE]/30 text-purple-300 mb-6">
+                  <Zap className="w-4 h-4" />
+                  <span className="text-sm font-semibold">Lightning Fast</span>
+                </div>
+                <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                  Get Powerful Designs
+                  <span className="text-[#7642FE]"> in Hours</span> — Not Weeks
+                </h2>
+                <p className="text-xl text-gray-300 mb-8 leading-relaxed">
+                  Need a sales flyer? Instagram creatives? Ad banners? Submit
+                  your request and receive professional designs in as little as{" "}
+                  <span className="text-white font-bold">3 hours</span>.
+                </p>
+
+                <div className="space-y-4 mb-8">
+                  {[
+                    "No chasing designers",
+                    "No long wait times",
+                    "No inconsistent branding",
+                  ].map((item, i) => (
+                    <motion.div
+                      key={i}
+                      className="flex items-center gap-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                    >
+                      <CheckCircle2 className="w-6 h-6 text-[#7642FE] flex-shrink-0" />
+                      <span className="text-lg">{item}</span>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <motion.button
+                  className="bg-[#7642FE] hover:bg-purple-600 text-white text-lg font-semibold px-8 py-4 rounded-full shadow-xl shadow-purple-500/25 inline-flex items-center gap-2"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Request a 3-Hour Design Now
+                  <ArrowRight className="w-5 h-5" />
+                </motion.button>
+              </motion.div>
+
+              <motion.div
+                className="relative"
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+              >
+                <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-[#7642FE]/20 to-transparent" />
+                  <Image
+                    src="/DMA-uploads/8deb37e4-5ae4-4872-992a-1c70885b9e34.png"
+                    alt="DMA Dashboard"
+                    width={600}
+                    height={400}
+                    className="w-full h-auto"
+                  />
+                  {/* Floating Stats Card */}
+                  <motion.div
+                    className="absolute -bottom-6 -left-6 bg-white text-gray-900 p-6 rounded-2xl shadow-xl"
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                        <Clock className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Avg. Delivery</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          2.4 hrs
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Cost of Bad Design Section */}
+        <section className="py-24 bg-red-50">
+          <div className="container mx-auto px-6">
+            <motion.div
+              className="max-w-4xl mx-auto text-center"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-8">
+                Bad Design Is <span className="text-red-600">Expensive</span>
+              </h2>
+              <p className="text-xl text-gray-700 mb-12">
+                It costs you lost sales, low engagement, weak brand perception,
+                and missed campaign deadlines. Business owners don't lose money
+                because they lack ideas. They lose money because execution is
+                slow.
+              </p>
+
+              <motion.div
+                className="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-red-100"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                  <div className="text-left">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                      DMA fixes that.
+                    </h3>
+                    <p className="text-gray-600">
+                      Fast execution. Professional quality. Zero drama.
+                    </p>
+                  </div>
+                  <Button
+                    size="lg"
+                    className="bg-[#7642FE] hover:bg-purple-700 text-white px-8 py-6 text-lg rounded-full shadow-lg whitespace-nowrap"
+                    asChild
+                  >
+                    <Link href="/signup">Start Executing Faster</Link>
+                  </Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* What You Can Request Grid */}
+        <section className="py-24 bg-white">
+          <div className="container mx-auto px-6">
+            <motion.div
+              className="text-center max-w-3xl mx-auto mb-16"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                What You Can Request
+              </h2>
+              <p className="text-xl text-gray-600">
+                Assets that drive action — not just look pretty
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+              {[
+                "Sales Flyers",
+                "Instagram Posts",
+                "Carousel Designs",
+                "Ad Creatives",
+                "Promo Banners",
+                "Event Graphics",
+                "Product Launch",
+                "Presentations",
+                "Brand Identity",
+                "Packaging",
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  className="group p-6 rounded-2xl bg-gray-50 hover:bg-[#7642FE] transition-all duration-300 text-center cursor-pointer"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                  whileHover={{ y: -5 }}
+                >
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-white group-hover:bg-white/20 flex items-center justify-center transition-colors">
+                    <Sparkles className="w-6 h-6 text-[#7642FE] group-hover:text-white transition-colors" />
+                  </div>
+                  <p className="font-semibold text-gray-900 group-hover:text-white transition-colors">
+                    {item}
+                  </p>
+                </motion.div>
               ))}
             </div>
 
-            <div className="mt-20 text-center">
-              <Link
-                href="#contact"
-                className="inline-flex items-center text-xl text-[#7642FE] font-bold hover:text-purple-700 transition-colors group"
-              >
-                Explore All Our Solutions{" "}
-                <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* How It Works Section: Simplicity in action */}
-        <section className="py-24 bg-gradient-to-tl from-purple-50 to-indigo-50 container mx-auto px-6 text-center rounded-3xl shadow-inner my-16">
-          <h2 className="text-5xl font-extrabold mb-6 text-gray-900">
-            The Easy <span className="text-[#7642FE]">Process</span>
-          </h2>
-          <p className="max-w-3xl mx-auto text-xl text-gray-700 mb-16 leading-relaxed">
-            Getting started with us is effortlessly simple. In just a few steps,
-            you'll be on your way to elevated digital marketing, connecting with
-            trusted experts and managing everything from one intuitive platform.
-          </p>
-          <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-12">
-            <div className="flex flex-col items-center transform hover:scale-105 transition-transform duration-300">
-              <div className="bg-[#7642FE] text-white p-5 rounded-full mb-5 shadow-lg">
-                <Lightbulb className="h-8 w-8" />
-              </div>
-              <h3 className="font-extrabold text-xl text-gray-900 mb-2">
-                Request a Service
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                Choose precisely the digital marketing service you need.
+            <motion.div
+              className="mt-12 text-center"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              <p className="text-lg text-gray-600 mb-6">
+                <span className="font-bold text-[#7642FE]">
+                  If it needs to be seen, we design it.
+                </span>
               </p>
-            </div>
-            <div className="flex flex-col items-center transform hover:scale-105 transition-transform duration-300">
-              <div className="bg-[#7642FE] text-white p-5 rounded-full mb-5 shadow-lg">
-                <Code className="h-8 w-8" />
+              <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-purple-100 text-[#7642FE] font-semibold">
+                <Zap className="w-5 h-5" />
+                3-Hour Graphic Delivery Available
               </div>
-              <h3 className="font-extrabold text-xl text-gray-900 mb-2">
-                Set Your Timeline
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                Tell us when you need it delivered – we work fast!
-              </p>
-            </div>
-            <div className="flex flex-col items-center transform hover:scale-105 transition-transform duration-300">
-              <div className="bg-[#7642FE] text-white p-5 rounded-full mb-5 shadow-lg">
-                <LayoutDashboard className="h-8 w-8" />
-              </div>
-              <h3 className="font-extrabold text-xl text-gray-900 mb-2">
-                Track & Collect
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                View progress and retrieve your completed work from your
-                dashboard.
-              </p>
-            </div>
+            </motion.div>
           </div>
         </section>
 
-        {/* CTA Section 1: A powerful prompt to action */}
-        <section className="container mx-auto px-4 sm:px-6 my-16 sm:my-20">
-          <div className="relative bg-[#7642FE] text-white rounded-2xl sm:rounded-3xl p-8 sm:p-12 md:p-16 text-center overflow-hidden shadow-2xl">
-            {/* Background visual accents */}
-            <div className="absolute -left-1/3 -bottom-1/3 w-72 sm:w-96 h-72 sm:h-96 bg-white/10 rounded-full mix-blend-overlay animate-pulse-slow"></div>
-            <div className="absolute -right-1/3 -top-1/3 w-64 sm:w-80 h-64 sm:h-80 bg-white/10 rounded-full mix-blend-overlay animate-pulse-slow delay-500"></div>
-
-            {/* Content */}
-            <div className="relative z-10 max-w-3xl sm:max-w-4xl mx-auto">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-6 sm:mb-8 leading-snug">
-                Your Business Deserves Marketing That Moves as Fast as You Do.
+        {/* Why Choose Us */}
+        <section className="py-24 bg-gray-50">
+          <div className="container mx-auto px-6">
+            <motion.div
+              className="text-center max-w-3xl mx-auto mb-16"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                Why Business Owners Choose DMA
               </h2>
-              <p className="text-base sm:text-lg md:text-xl mb-8 sm:mb-10 leading-relaxed px-2">
-                With Digital Marketing Agency Nigeria, digital marketing is no
-                longer complex or slow. It’s seamless, fast, and always at your
-                fingertips.
-              </p>
+            </motion.div>
 
-              <Button
-                size="lg"
-                className="bg-white text-[#7642FE] font-bold py-3.5 sm:py-3 px-6 sm:px-10 
-             text-base sm:text-lg md:text-xl rounded-full 
-             hover:bg-gray-100 shadow-xl hover:shadow-2xl 
-             transition-all duration-300 whitespace-normal break-words leading-tight"
-              >
-                <Link href="/signup" className="block text-center">
-                  👉 Request Your First Service Now!
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Get In Touch Section: Building connections */}
-        <section className="py-20 sm:py-24 bg-white" id="contact">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Heading */}
-            <div className="text-center mb-12 sm:mb-16">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
-                Let's Make <span className="text-[#7642FE]">Magic</span> Happen!
-              </h2>
-              <p className="max-w-2xl mx-auto text-base sm:text-lg lg:text-xl text-gray-700 mt-4 sm:mt-6 leading-relaxed px-2">
-                Have burning questions or ready to ignite your digital presence?
-                Our dedicated team is eager to connect and craft the perfect
-                strategy for your business.
-              </p>
-            </div>
-
-            {/* Contact Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 sm:gap-12 lg:gap-16">
-              {/* Contact Info */}
-              <div className="lg:col-span-2 bg-[#7642FE] text-white p-8 sm:p-10 rounded-2xl shadow-xl flex flex-col justify-between">
-                <div>
-                  <h3 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
-                    Reach Out Today!
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[
+                {
+                  icon: Zap,
+                  title: "Speed",
+                  desc: "Campaign launching today? We're ready.",
+                },
+                {
+                  icon: LayoutDashboard,
+                  title: "Structure",
+                  desc: "Submit → Track → Download. Simple.",
+                },
+                {
+                  icon: Shield,
+                  title: "Consistency",
+                  desc: "Brand-aligned designs that match your voice.",
+                },
+                {
+                  icon: CheckCircle2,
+                  title: "Zero Drama",
+                  desc: "No endless calls. No WhatsApp chasing. Just results.",
+                },
+              ].map((feature, i) => (
+                <motion.div
+                  key={i}
+                  className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 border-b-4 border-[#7642FE]"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  whileHover={{ y: -10 }}
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center mb-6">
+                    <feature.icon className="w-7 h-7 text-[#7642FE]" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">
+                    {feature.title}
                   </h3>
-                  <div className="space-y-6 sm:space-y-8">
-                    <div className="flex items-start">
-                      <MapPin className="mr-4 mt-1 flex-shrink-0 h-6 w-6 sm:h-7 sm:w-7" />
-                      <div>
-                        <h4 className="font-bold text-lg sm:text-xl mb-1">
-                          Our Hub
-                        </h4>
-                        <p className="text-base sm:text-lg">
-                          6A Embu Street, Wuse 2, Abuja. Nigeria
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <Phone className="mr-4 mt-1 flex-shrink-0 h-6 w-6 sm:h-7 sm:w-7" />
-                      <div>
-                        <h4 className="font-bold text-lg sm:text-xl mb-1">
-                          Direct Line
-                        </h4>
-                        <p className="text-base sm:text-lg">
-                          +234 909 000 8888
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start">
-                      <Mail className="mr-4 mt-1 flex-shrink-0 h-6 w-6 sm:h-7 sm:w-7" />
-                      <div>
-                        <h4 className="font-bold text-lg sm:text-xl mb-1">
-                          Email Us
-                        </h4>
-                        <p className="text-base sm:text-lg break-all">
-                          helpdesk@digitalmarketingagency.ng
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  <p className="text-gray-600">{feature.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-                <div className="mt-8 sm:mt-10 text-center">
-                  <p className="text-base sm:text-lg font-semibold italic">
-                    We're here to help you shine!
-                  </p>
-                </div>
-              </div>
+        {/* How It Works */}
+        <section id="how-it-works" className="py-24 bg-white">
+          <div className="container mx-auto px-6">
+            <motion.div
+              className="text-center max-w-3xl mx-auto mb-20"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                How It Works
+              </h2>
+              <p className="text-xl text-gray-600">
+                Four simple steps to marketing success
+              </p>
+            </motion.div>
 
-              {/* Contact Form */}
-              <div className="lg:col-span-3 bg-white p-6 sm:p-10 rounded-2xl shadow-xl border border-gray-100">
-                <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">
-                  Send Us a Message
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
+              {[
+                {
+                  number: "1",
+                  title: "Submit Request",
+                  desc: "Choose your service and provide details",
+                  icon: MousePointer2,
+                },
+                {
+                  number: "2",
+                  title: "Choose Speed",
+                  desc: "Standard or 3-hour rush delivery",
+                  icon: Clock,
+                },
+                {
+                  number: "3",
+                  title: "Track Progress",
+                  desc: "Monitor from your dashboard in real-time",
+                  icon: LayoutDashboard,
+                },
+                {
+                  number: "4",
+                  title: "Download & Launch",
+                  desc: "Get your files and hit publish",
+                  icon: Rocket,
+                },
+              ].map((step, i) => (
+                <ProcessStep key={i} {...step} index={i} />
+              ))}
+            </div>
+
+            {/* How It Works Video */}
+            <motion.div
+              className="mt-20 max-w-5xl mx-auto rounded-3xl overflow-hidden shadow-2xl relative bg-gray-900 aspect-video flex items-center justify-center border border-gray-200"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#7642FE]/10 to-transparent pointer-events-none" />
+              {/* Add your video file here by replacing the src below */}
+              <video
+                className="w-full h-full object-cover relative z-10"
+                controls
+              >
+                <source src="/vid.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="py-24 bg-gradient-to-b from-purple-50 to-white">
+          <div className="container mx-auto px-6">
+            <motion.div
+              className="text-center max-w-3xl mx-auto mb-16"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                Trusted by Business Owners
+              </h2>
+            </motion.div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                {
+                  quote:
+                    "DMA delivered our campaign creatives in 2 hours. We launched on time and hit our sales target. Incredible service!",
+                  author: "Sarah O.",
+                  role: "CEO",
+                  company: "Luxe Fashion NG",
+                },
+                {
+                  quote:
+                    "No more chasing freelancers on WhatsApp. The dashboard makes everything transparent and stress-free.",
+                  author: "Michael K.",
+                  role: "Founder",
+                  company: "TechStart Africa",
+                },
+                {
+                  quote:
+                    "The 3-hour delivery option saved our product launch. Professional quality, lightning fast.",
+                  author: "Chioma N.",
+                  role: "Marketing Director",
+                  company: "Glow Beauty",
+                },
+              ].map((testimonial, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                >
+                  <TestimonialCard {...testimonial} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-24 bg-[#7642FE] relative overflow-hidden">
+          <motion.div
+            className="absolute inset-0 opacity-10"
+            animate={{
+              backgroundPosition: ["0% 0%", "100% 100%"],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
+              backgroundSize: "40px 40px",
+            }}
+          />
+
+          <div className="container mx-auto px-6 relative z-10 text-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                Ready to Execute Faster?
+              </h2>
+              <p className="text-xl text-white/90 max-w-2xl mx-auto mb-10">
+                Join 500+ businesses using DMA to get marketing done in hours,
+                not weeks.
+              </p>
+              <motion.button
+                className="bg-white text-[#7642FE] text-lg font-bold px-10 py-5 rounded-full shadow-2xl inline-flex items-center gap-2 hover:bg-gray-100 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Get Started in 60 Seconds
+                <ArrowRight className="w-5 h-5" />
+              </motion.button>
+              <p className="mt-6 text-white/80 text-sm">
+                No credit card required • Cancel anytime
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Contact Section */}
+        <section id="contact" className="py-24 bg-white">
+          <div className="container mx-auto px-6">
+            <div className="grid lg:grid-cols-2 gap-16">
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+              >
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                  Let's Talk
+                </h2>
+                <p className="text-xl text-gray-600 mb-12">
+                  Have a project in mind? Get in touch and we'll respond within
+                  the hour.
+                </p>
+
+                <div className="space-y-6">
+                  {[
+                    {
+                      icon: MapPin,
+                      label: "Visit Us",
+                      value: "6A Embu Street, Wuse 2, Abuja",
+                    },
+                    {
+                      icon: Phone,
+                      label: "Call Us",
+                      value: "+234 909 000 8888",
+                    },
+                    {
+                      icon: Mail,
+                      label: "Email Us",
+                      value: "helpdesk@digitalmarketingagency.ng",
+                    },
+                  ].map((contact, i) => (
+                    <motion.div
+                      key={i}
+                      className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors"
+                      whileHover={{ x: 10 }}
+                    >
+                      <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                        <contact.icon className="w-6 h-6 text-[#7642FE]" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">
+                          {contact.label}
+                        </p>
+                        <p className="text-lg font-semibold text-gray-900">
+                          {contact.value}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="bg-gray-50 p-8 md:p-10 rounded-3xl"
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+              >
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                  Send a Message
                 </h3>
-
                 <form className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid md:grid-cols-2 gap-4">
                     <Input
-                      placeholder="Your First Name"
-                      className="p-3 text-base sm:text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
+                      placeholder="First Name"
+                      className="bg-white border-gray-200 h-12"
                     />
                     <Input
-                      placeholder="Your Last Name"
-                      className="p-3 text-base sm:text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Input
-                      type="email"
-                      placeholder="Your Best Email"
-                      className="p-3 text-base sm:text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
-                    />
-                    <Input
-                      type="tel"
-                      placeholder="Your Phone Number (Optional)"
-                      className="p-3 text-base sm:text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
+                      placeholder="Last Name"
+                      className="bg-white border-gray-200 h-12"
                     />
                   </div>
-
-                  <div>
-                    <select className="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-700 text-base sm:text-lg focus:border-[#7642FE] focus:ring-[#7642FE]">
-                      <option className="text-gray-500">
-                        What service are you interested in?
-                      </option>
-                      <option>Search Engine Optimization (SEO)</option>
-                      <option>Social Media Marketing</option>
-                      <option>Content Marketing</option>
-                      <option>Web Design & Development</option>
-                      <option>Digital Marketing Strategy</option>
-                      <option>Influencer Marketing</option>
-                      <option>
-                        Public Relations & Online Reputation Management
-                      </option>
-                      <option>Other</option>
-                    </select>
-                  </div>
-
-                  <Textarea
-                    placeholder="Tell us about your project or question..."
-                    rows={6}
-                    className="p-3 text-base sm:text-lg border-gray-300 focus:border-[#7642FE] focus:ring-[#7642FE]"
+                  <Input
+                    type="email"
+                    placeholder="Email Address"
+                    className="bg-white border-gray-200 h-12"
                   />
-
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="bg-[#7642FE] hover:bg-purple-700 w-full text-white font-bold py-3 sm:py-4 text-lg sm:text-xl rounded-lg shadow-md hover:shadow-xl transition-all flex items-center justify-center"
-                  >
-                    Get a Free Consultation
-                    <ArrowRight className="ml-3 w-5 h-5 sm:w-6 sm:h-6" />
+                  <select className="w-full h-12 px-4 rounded-md border border-gray-200 bg-white text-gray-700">
+                    <option>Select a service...</option>
+                    <option>Graphic Design</option>
+                    <option>Social Media Marketing</option>
+                    <option>SEO</option>
+                    <option>PPC Advertising</option>
+                  </select>
+                  <Textarea
+                    placeholder="Tell us about your project..."
+                    className="bg-white border-gray-200 min-h-[120px]"
+                  />
+                  <Button className="w-full bg-[#7642FE] hover:bg-purple-700 text-white h-12 text-lg rounded-xl">
+                    Send Message
                   </Button>
                 </form>
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>

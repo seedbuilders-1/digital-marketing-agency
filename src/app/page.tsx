@@ -539,10 +539,10 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span className="relative z-10 flex items-center gap-2">
+                <Link href="/signup">
                   Get Started in 60 Seconds
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </span>
+                </Link>
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-purple-600 to-[#7642FE]"
                   initial={{ x: "100%" }}

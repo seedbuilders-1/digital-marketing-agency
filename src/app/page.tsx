@@ -15,18 +15,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  ChevronDown,
   MapPin,
   Phone,
   Mail,
   ArrowRight,
-  Star,
   Lightbulb,
-  Code,
   LayoutDashboard,
   Menu,
   Zap,
-  Wallet,
   X,
   Clock,
   CheckCircle2,
@@ -35,7 +31,6 @@ import {
   Sparkles,
   Play,
   Users,
-  Award,
   BarChart3,
   Rocket,
   MousePointer2,
@@ -56,51 +51,6 @@ export const Logo = () => (
     height={40}
   />
 );
-
-// --- Animation Variants ---
-const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
-  },
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15, delayChildren: 0.2 },
-  },
-};
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.6, ease: "easeOut" },
-  },
-};
-
-const slideInLeft = {
-  hidden: { opacity: 0, x: -60 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
-  },
-};
-
-const slideInRight = {
-  hidden: { opacity: 0, x: 60 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
-  },
-};
 
 // --- Components ---
 
@@ -158,20 +108,20 @@ const ScrollProgress = () => {
   );
 };
 
-const FloatingElement = ({
-  children,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-}) => (
-  <motion.div
-    animate={{ y: [0, -10, 0] }}
-    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay }}
-  >
-    {children}
-  </motion.div>
-);
+// const FloatingElement = ({
+//   children,
+//   delay = 0,
+// }: {
+//   children: React.ReactNode;
+//   delay?: number;
+// }) => (
+//   <motion.div
+//     animate={{ y: [0, -10, 0] }}
+//     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay }}
+//   >
+//     {children}
+//   </motion.div>
+// );
 
 const MagneticButton = ({
   children,
@@ -208,13 +158,7 @@ const MagneticButton = ({
   );
 };
 
-const ServiceCard = ({
-  service,
-  index,
-}: {
-  service: Service;
-  index: number;
-}) => {
+const ServiceCard = ({ service, index }: { service: any; index: number }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
 

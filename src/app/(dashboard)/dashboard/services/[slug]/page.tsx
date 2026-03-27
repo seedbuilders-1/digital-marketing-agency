@@ -11,7 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Star, Check, AlertCircle } from "lucide-react";
+import { Star, Check, AlertCircle, Sparkles, Zap } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useGetServiceByIdQuery } from "@/api/servicesApi";
@@ -223,24 +223,36 @@ export default function ServiceDetailPage({ params }: any) {
         </section>
       )}
 
-      {/* --- (Service Description is fine) --- */}
-      <section className="bg-gray-50 py-16">
+      {/* --- The Solution / Blueprint Section --- */}
+      <section className="bg-emerald-50/50 py-16 border-y border-emerald-100/50 rounded-2xl my-8">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="relative aspect-video">
-              <Image
-                src={service.blueprintImageUrl || "/placeholder.svg"}
-                alt={service.blueprintHeadline}
-                fill
-                className="rounded-lg object-cover object-top"
-              />
+            <div className="relative group">
+              <div className="relative rounded-xl overflow-hidden shadow-lg border-2 border-emerald-200">
+                <Image
+                  src={service.blueprintImageUrl || "/placeholder.svg"}
+                  alt={service.blueprintHeadline}
+                  width={600}
+                  height={400}
+                  className="w-full aspect-video object-cover"
+                />
+              </div>
+              <div className="absolute -top-4 -left-4 bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-lg font-bold flex items-center gap-2">
+                <Zap className="w-4 h-4 text-emerald-100" />
+                Proven Strategy
+              </div>
             </div>
+            
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">
+               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold tracking-wide uppercase mb-4">
+                  <Sparkles className="w-4 h-4" />
+                  Our Solution
+               </div>
+              <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
                 {service.blueprintHeadline}
               </h2>
-              <div className="space-y-4 text-gray-600">
-                <p className="whitespace-pre-line">
+              <div className="space-y-4 text-gray-700">
+                <p className="whitespace-pre-line font-medium leading-relaxed">
                   {service.blueprintParagraph}
                 </p>
               </div>

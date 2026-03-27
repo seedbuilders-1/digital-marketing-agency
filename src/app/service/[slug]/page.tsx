@@ -11,7 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Star, Check, AlertCircle, X, Menu } from "lucide-react";
+import { Star, Check, AlertCircle, X, Menu, Sparkles, Zap } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useGetServiceByIdQuery } from "@/api/servicesApi";
@@ -325,24 +325,45 @@ export default function ServiceDetailPage({ params }: any) {
             </section>
           )}
 
-          {/* --- (Service Description is fine) --- */}
-          <section className="bg-gray-50 py-16">
+          {/* --- The Solution / Blueprint Section --- */}
+          <section className="bg-emerald-50/50 py-20 border-y border-emerald-100/50">
             <div className="max-w-7xl mx-auto px-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div className="relative aspect-video">
-                  <Image
-                    src={service.blueprintImageUrl || "/placeholder.svg"}
-                    alt={service.blueprintHeadline}
-                    fill
-                    className="rounded-lg object-cover object-top"
-                  />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400 to-green-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                  <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                    <Image
+                      src={service.blueprintImageUrl || "/placeholder.svg"}
+                      alt={service.blueprintHeadline}
+                      width={800}
+                      height={600}
+                      className="w-full aspect-video object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  {/* Floating badge */}
+                  <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-2xl shadow-xl hidden md:block">
+                     <div className="flex items-center gap-4 text-emerald-600 font-bold">
+                        <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                           <Zap className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500 font-medium leading-none">Proven Result-Driven</p>
+                          <p className="text-lg">Our Strategy</p>
+                        </div>
+                     </div>
+                  </div>
                 </div>
+                
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-6">
+                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold tracking-wide uppercase mb-6">
+                      <Sparkles className="w-4 h-4" />
+                      Our Solution
+                   </div>
+                  <h2 className="text-4xl font-extrabold text-gray-900 mb-6 leading-tight">
                     {service.blueprintHeadline}
                   </h2>
-                  <div className="space-y-4 text-gray-600">
-                    <p className="whitespace-pre-line">
+                  <div className="space-y-6 text-lg text-gray-700 leading-relaxed">
+                    <p className="whitespace-pre-line font-medium opacity-90">
                       {service.blueprintParagraph}
                     </p>
                   </div>

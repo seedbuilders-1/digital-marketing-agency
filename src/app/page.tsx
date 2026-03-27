@@ -487,7 +487,7 @@ export default function LandingPage() {
           </div>
 
           <motion.div
-            className="container mx-auto px-6 relative z-10 text-center"
+            className="container mx-auto px-6 relative z-10 text-center pt-32 md:pt-40"
             style={{ y: heroY, opacity: heroOpacity }}
           >
             {/* <motion.div

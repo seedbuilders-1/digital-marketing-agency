@@ -86,6 +86,15 @@ interface Faq {
   question: string;
   answer: string;
 }
+interface SimpleListItem {
+  id: string;
+  text: string;
+}
+interface ProcessStep {
+  id: string;
+  title: string;
+  description: string;
+}
 
 // --- Draggable Plan Sub-Component (Wrapped in React.memo for performance) ---
 const SortablePlan = memo(
@@ -285,6 +294,11 @@ export default function EditServicePage() {
     faqs: [] as Faq[],
     onboardingVideoFile: null as File | null,
     onboardingVideoUrl: null as string | null,
+    // New marketing content
+    problemPoints: [] as SimpleListItem[],
+    whatYouGet: [] as SimpleListItem[],
+    processSteps: [] as ProcessStep[],
+    expectedResults: [] as SimpleListItem[],
   });
 
   const initialFormData = useMemo(() => {
@@ -333,6 +347,27 @@ export default function EditServicePage() {
           authorImageFile: null,
         })) || [],
       faqs: service.faqs || [],
+      // New marketing content — parse from stored JSON arrays
+      problemPoints: (Array.isArray(service.problemPoints)
+        ? service.problemPoints
+        : []
+      ).map((text: string, i: number) => ({ id: `pp_${i}`, text })),
+      whatYouGet: (Array.isArray(service.whatYouGet)
+        ? service.whatYouGet
+        : []
+      ).map((text: string, i: number) => ({ id: `wyg_${i}`, text })),
+      processSteps: (Array.isArray(service.processSteps)
+        ? service.processSteps
+        : []
+      ).map((step: any, i: number) => ({
+        id: `ps_${i}`,
+        title: step.title || "",
+        description: step.description || "",
+      })),
+      expectedResults: (Array.isArray(service.expectedResults)
+        ? service.expectedResults
+        : []
+      ).map((text: string, i: number) => ({ id: `er_${i}`, text })),
     };
   }, [specificService]);
 
@@ -499,6 +534,23 @@ export default function EditServicePage() {
       ),
     );
     submissionData.append("faqs", JSON.stringify(formData.faqs));
+    // New marketing content fields — serialize arrays of objects/strings
+    submissionData.append(
+      "problemPoints",
+      JSON.stringify(formData.problemPoints.map((i) => i.text)),
+    );
+    submissionData.append(
+      "whatYouGet",
+      JSON.stringify(formData.whatYouGet.map((i) => i.text)),
+    );
+    submissionData.append(
+      "processSteps",
+      JSON.stringify(formData.processSteps.map(({ id: _id, ...rest }) => rest)),
+    );
+    submissionData.append(
+      "expectedResults",
+      JSON.stringify(formData.expectedResults.map((i) => i.text)),
+    );
     submissionData.append(
       "caseStudies",
       JSON.stringify(
@@ -1037,8 +1089,6 @@ export default function EditServicePage() {
                     authorName: "",
                     authorTitle: "",
                     stars: 5,
-                    authorTitle: "",
-                    stars: 5,
                     authorImageFile: null,
                     link: "",
                   })
@@ -1104,6 +1154,215 @@ export default function EditServicePage() {
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add FAQ
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* --- NEW: Problem Points --- */}
+          <Card>
+            <CardHeader>
+              <CardTitle>The Problem (Pain Points)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-gray-500">
+                List the problems your clients typically face before hiring you.
+              </p>
+              {formData.problemPoints.map((item, index) => (
+                <div key={item.id} className="flex items-center gap-2">
+                  <Input
+                    value={item.text}
+                    placeholder="e.g. Low engagement on social media"
+                    onChange={(e) =>
+                      handleArrayItemChange(
+                        "problemPoints",
+                        index,
+                        "text",
+                        e.target.value,
+                      )
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9 flex-shrink-0"
+                    onClick={() => removeArrayItem("problemPoints", index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => addArrayItem("problemPoints", { text: "" })}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Problem Point
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* --- NEW: What You Get --- */}
+          <Card>
+            <CardHeader>
+              <CardTitle>What You Get (Deliverables)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-gray-500">
+                List the specific deliverables or features included in this
+                service.
+              </p>
+              {formData.whatYouGet.map((item, index) => (
+                <div key={item.id} className="flex items-center gap-2">
+                  <Input
+                    value={item.text}
+                    placeholder="e.g. Social Media Strategy Development"
+                    onChange={(e) =>
+                      handleArrayItemChange(
+                        "whatYouGet",
+                        index,
+                        "text",
+                        e.target.value,
+                      )
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9 flex-shrink-0"
+                    onClick={() => removeArrayItem("whatYouGet", index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => addArrayItem("whatYouGet", { text: "" })}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Deliverable
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* --- NEW: Our Process (Steps) --- */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Our Process (Steps)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-gray-500">
+                Define the step-by-step process you follow to deliver this
+                service.
+              </p>
+              {formData.processSteps.map((step, index) => (
+                <div
+                  key={step.id}
+                  className="p-4 border rounded-lg space-y-3 relative"
+                >
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 h-7 w-7 text-gray-500 hover:bg-red-50 hover:text-red-600"
+                    onClick={() => removeArrayItem("processSteps", index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                  <div className="font-semibold text-sm text-gray-500">
+                    Step {index + 1}
+                  </div>
+                  <div>
+                    <Label>Step Title</Label>
+                    <Input
+                      value={step.title}
+                      placeholder="e.g. Strategy Development"
+                      onChange={(e) =>
+                        handleArrayItemChange(
+                          "processSteps",
+                          index,
+                          "title",
+                          e.target.value,
+                        )
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label>Step Description</Label>
+                    <Textarea
+                      value={step.description}
+                      placeholder="e.g. We analyze your business, audience, and competitors."
+                      onChange={(e) =>
+                        handleArrayItemChange(
+                          "processSteps",
+                          index,
+                          "description",
+                          e.target.value,
+                        )
+                      }
+                    />
+                  </div>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() =>
+                  addArrayItem("processSteps", { title: "", description: "" })
+                }
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Process Step
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* --- NEW: Expected Results --- */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Results You Can Expect</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-gray-500">
+                List the outcomes or benefits clients can expect after using
+                this service.
+              </p>
+              {formData.expectedResults.map((item, index) => (
+                <div key={item.id} className="flex items-center gap-2">
+                  <Input
+                    value={item.text}
+                    placeholder="e.g. Increased brand awareness"
+                    onChange={(e) =>
+                      handleArrayItemChange(
+                        "expectedResults",
+                        index,
+                        "text",
+                        e.target.value,
+                      )
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9 flex-shrink-0"
+                    onClick={() => removeArrayItem("expectedResults", index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => addArrayItem("expectedResults", { text: "" })}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Expected Result
               </Button>
             </CardContent>
           </Card>

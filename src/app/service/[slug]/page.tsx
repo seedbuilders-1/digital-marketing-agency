@@ -70,6 +70,11 @@ interface Service {
   caseStudies: CaseStudy[];
   testimonials: Testimonial[];
   faqs: Faq[]; // Add faqs to the Service type
+  // New marketing content fields
+  problemPoints?: string[];
+  whatYouGet?: string[];
+  processSteps?: { title: string; description: string }[];
+  expectedResults?: string[];
 }
 
 // ... (Skeleton component remains the same) ...
@@ -288,6 +293,38 @@ export default function ServiceDetailPage({ params }: any) {
             </div>
           </section>
 
+          {/* --- NEW: The Problem Section --- */}
+          {service.problemPoints && service.problemPoints.length > 0 && (
+            <section className="py-16 bg-red-50">
+              <div className="max-w-4xl mx-auto px-6">
+                <div className="text-center mb-10">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-3">
+                    Sound Familiar?{" "}
+                    <span className="text-red-600">The Problem</span>
+                  </h2>
+                  <p className="text-lg text-gray-600">
+                    Many businesses struggle with these challenges:
+                  </p>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {service.problemPoints.map((point, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-3 p-4 bg-white rounded-xl border border-red-100 shadow-sm"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                        <span className="text-red-600 font-bold text-sm">
+                          ✗
+                        </span>
+                      </div>
+                      <span className="text-gray-700 font-medium">{point}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* --- (Service Description is fine) --- */}
           <section className="bg-gray-50 py-16">
             <div className="max-w-7xl mx-auto px-6">
@@ -313,6 +350,97 @@ export default function ServiceDetailPage({ params }: any) {
               </div>
             </div>
           </section>
+
+          {/* --- NEW: What You Get Section --- */}
+          {service.whatYouGet && service.whatYouGet.length > 0 && (
+            <section className="py-16 bg-white">
+              <div className="max-w-4xl mx-auto px-6">
+                <div className="text-center mb-10">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-3">
+                    What You <span className="text-[#7642FE]">Get</span>
+                  </h2>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {service.whatYouGet.map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-3 p-4 bg-purple-50 rounded-xl border border-purple-100"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-[#7642FE] flex items-center justify-center flex-shrink-0">
+                        <Check className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-gray-700 font-medium">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* --- NEW: Our Process Section --- */}
+          {service.processSteps && service.processSteps.length > 0 && (
+            <section className="py-16 bg-white">
+              <div className="max-w-4xl mx-auto px-6">
+                <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-3">
+                    Our <span className="text-[#7642FE]">Process</span>
+                  </h2>
+                  <p className="text-lg text-gray-600">
+                    How we deliver results, step by step
+                  </p>
+                </div>
+                <div className="space-y-6">
+                  {service.processSteps.map((step, i) => (
+                    <div
+                      key={i}
+                      className="flex gap-6 items-start p-6 rounded-2xl border border-gray-100 shadow-sm"
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-[#7642FE] flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                        {i + 1}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-1">
+                          {step.title}
+                        </h3>
+                        <p className="text-gray-600">{step.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* --- NEW: Expected Results Section --- */}
+          {service.expectedResults && service.expectedResults.length > 0 && (
+            <section className="py-16 bg-green-50">
+              <div className="max-w-4xl mx-auto px-6">
+                <div className="text-center mb-10">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-3">
+                    Results You Can{" "}
+                    <span className="text-green-600">Expect</span>
+                  </h2>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {service.expectedResults.map((result, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-3 p-4 bg-white rounded-xl border border-green-100 shadow-sm"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                        <span className="text-green-600 font-bold text-sm">
+                          ✓
+                        </span>
+                      </div>
+                      <span className="text-gray-700 font-medium">
+                        {result}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* Pricing Plans */}
           <section className="py-16" id="plan">
@@ -508,7 +636,7 @@ export default function ServiceDetailPage({ params }: any) {
                 <p className="text-gray-600">What Our Clients Say</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {service.testimonials.map((testimonial, index) => {
+                {service.testimonials.map((testimonial: any, index) => {
                   const TestimonialCard = (
                     <Card
                       className={`bg-[#7642FE] text-white h-full ${

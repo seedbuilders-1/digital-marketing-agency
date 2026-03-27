@@ -823,7 +823,7 @@ export default function LandingPage() {
         </section> */}
 
         {/* What You Can Request Grid */}
-        <section className="py-24 bg-white">
+        {/* <section className="py-24 bg-white">
           <div className="container mx-auto px-6">
             <motion.div
               className="text-center max-w-3xl mx-auto mb-16"
@@ -888,7 +888,7 @@ export default function LandingPage() {
               </div>
             </motion.div>
           </div>
-        </section>
+        </section> */}
 
         {/* Why Choose Us */}
         <section className="py-24 bg-gray-50">

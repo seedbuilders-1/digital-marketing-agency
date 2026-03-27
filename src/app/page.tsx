@@ -777,7 +777,7 @@ export default function LandingPage() {
         </section>
 
         {/* Cost of Bad Design Section */}
-        <section className="py-24 bg-red-50">
+        {/* <section className="py-24 bg-red-50">
           <div className="container mx-auto px-6">
             <motion.div
               className="max-w-4xl mx-auto text-center"
@@ -820,7 +820,7 @@ export default function LandingPage() {
               </motion.div>
             </motion.div>
           </div>
-        </section>
+        </section> */}
 
         {/* What You Can Request Grid */}
         <section className="py-24 bg-white">

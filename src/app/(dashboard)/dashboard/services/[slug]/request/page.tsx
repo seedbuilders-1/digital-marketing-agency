@@ -22,6 +22,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "@/features/auth/selectors";
 import { TrackedForm } from "@/components/TrackedForm";
 import { captureEvent } from "@/lib/posthog";
+import { toast } from "sonner";
 
 const Stepper = ({
   currentStep,
@@ -78,6 +79,7 @@ export default function ServiceRequestPage({ params }: any) {
   console.log("formFields", formFields);
 
   // Hydrate selected plan from session storage if coming from signup flow
+  // and handle redirection if a user visits the form directly without picking a plan
   useEffect(() => {
     if (service && (service as any).plans) {
       const pendingPlanId = sessionStorage.getItem("pendingPlanId");
@@ -91,10 +93,15 @@ export default function ServiceRequestPage({ params }: any) {
           setSelectedPlan(foundPlan);
           sessionStorage.removeItem("pendingPlanId");
           sessionStorage.removeItem("pendingServiceId");
+        } else {
+          router.replace(`/dashboard/services/${serviceId}/request/select-plan`);
         }
+      } else if (!selectedPlan && !pendingPlanId) {
+        toast.error("Please select a plan before placing a request.");
+        router.replace(`/dashboard/services/${serviceId}/request/select-plan`);
       }
     }
-  }, [service, serviceId, selectedPlan, setSelectedPlan]);
+  }, [service, serviceId, selectedPlan, setSelectedPlan, router]);
 
   // Prepare default values for the form based on the user object
   const defaultValues = useMemo(() => {

@@ -37,8 +37,8 @@ export default function SelectPlanPage({ params }: any) {
 
     if (finalPlan) {
       setSelectedPlan(finalPlan);
-      // Navigate to the next step, which is the summary page
-      router.push(`/dashboard/services/${serviceId}/request/summary`);
+      // Navigate to the next step, which is the request form page
+      router.push(`/dashboard/services/${serviceId}/request`);
     } else {
       // This is a safeguard in case something goes wrong
       console.error("Could not find the selected plan. Please try again.");
